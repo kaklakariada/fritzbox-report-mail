@@ -1,7 +1,10 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 import org.chris.fritzbox.reports.mail.ReportService;
 import org.chris.fritzbox.reports.mail.model.FritzBoxReportCollection;
@@ -11,26 +14,44 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ReadThunderbirdReportMails {
-    final static Logger logger = LoggerFactory.getLogger(ReadThunderbirdReportMails.class);
+    final static Logger LOG = LoggerFactory.getLogger(ReadThunderbirdReportMails.class);
 
     private final static ReportService reportService = new ReportService();
     private static final SerializerService<FritzBoxReportCollection> serializer = new KryoSerializerService<>(
             FritzBoxReportCollection.class);
-    private static final Path mboxFile = Paths.get(
-            "/Users/chris/Library/Thunderbird/Profiles/h6dqt45l.default/ImapMail/imap.googlemail.com/FritzBox.sbd/Report");
     final static Path tempFile = Paths.get("/tmp/reports.ser");
 
     public static void main(final String[] args) throws FileNotFoundException, IOException {
+        final Properties config = readConfig(Paths.get("application.properties"));
+        final Path mboxFile = Paths.get(config.getProperty("mbox.path"));
+
         FritzBoxReportCollection reportCollection;
-        // reportCollection = reportService.loadThunderbirdMails(mboxFile);
-        // serializer.serialize(tempFile, reportCollection);
+        reportCollection = reportService.loadThunderbirdMails(mboxFile);
+        serializer.serialize(tempFile, reportCollection);
         reportCollection = serializer.deserialize(tempFile);
 
-        reportCollection.getDataVolumeByDay().forEach(System.out::println);
-        System.out.println("--------");
-        reportCollection.getDataVolumeByMonth().forEach(System.out::println);
-        System.out.println("--------");
-        reportCollection.getDataVolumeByYear().forEach(System.out::println);
+        reportCollection.getDataVolumeByDay() //
+                .map(Object::toString) //
+                .forEach(LOG::debug);
+
+        reportCollection.getDataVolumeByMonth() //
+                .map(Object::toString) //
+                .forEach(LOG::debug);
+
+        reportCollection.getDataVolumeByYear() //
+                .map(Object::toString) //
+                .forEach(LOG::debug);
     }
 
+    private static Properties readConfig(Path path) {
+        final Properties config = new Properties();
+        final Path absolutePath = path.toAbsolutePath();
+        LOG.debug("Reading config from file {}", absolutePath);
+        try (InputStream in = Files.newInputStream(absolutePath)) {
+            config.load(in);
+        } catch (final IOException e) {
+            throw new RuntimeException("Error loading configuration from " + absolutePath, e);
+        }
+        return config;
+    }
 }

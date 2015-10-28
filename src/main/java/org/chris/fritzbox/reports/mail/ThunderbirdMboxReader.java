@@ -24,20 +24,27 @@ public class ThunderbirdMboxReader {
     }
 
     private Stream<CharBufferWrapper> readCharBufferStream(final Path mboxFile) {
+        // parallel processing not supported by MboxIterator
+        final boolean parallel = false;
+        return StreamSupport.stream(createIterator(mboxFile).spliterator(), parallel);
+    }
+
+    private MboxIterator createIterator(final Path mboxFile) {
         try {
-            final MboxIterator iterator = MboxIterator.fromFile(mboxFile.toFile()).charset(CHARSET_ENCODING)
-                    .fromLine(FromLinePatterns.DEFAULT2).build();
-            return StreamSupport.stream(iterator.spliterator(), false);
+            return MboxIterator.fromFile(mboxFile.toFile()) //
+                    .charset(CHARSET_ENCODING) //
+                    .fromLine(FromLinePatterns.DEFAULT2) //
+                    .build();
         } catch (final IOException e) {
             throw new RuntimeException("Error reading from " + mboxFile, e);
         }
     }
 
-    private Message convert(final CharBufferWrapper next) {
+    private Message convert(final CharBufferWrapper message) {
         try {
-            return messageBuilder.parseMessage(next.asInputStream(CHARSET_ENCODING));
+            return messageBuilder.parseMessage(message.asInputStream(CHARSET_ENCODING));
         } catch (MimeException | IOException e) {
-            throw new RuntimeException("Error parsing message " + next, e);
+            throw new RuntimeException("Error parsing message " + message, e);
         }
     }
 }
