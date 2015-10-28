@@ -6,12 +6,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-import org.chris.fritzbox.reports.mail.ReportService;
-import org.chris.fritzbox.reports.mail.model.FritzBoxReportCollection;
-import org.chris.serialization.KryoSerializerService;
-import org.chris.serialization.SerializerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.kaklakariada.fritzbox.report.ReportService;
+import com.github.kaklakariada.fritzbox.reports.model.FritzBoxReportCollection;
+import com.github.kaklakariada.serialization.KryoSerializerService;
+import com.github.kaklakariada.serialization.SerializerService;
 
 public class ReadThunderbirdReportMails {
     final static Logger LOG = LoggerFactory.getLogger(ReadThunderbirdReportMails.class);
