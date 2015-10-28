@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.github.kaklakariada.fritzbox.report.model.DataConnections;
+import com.github.kaklakariada.fritzbox.report.model.DataVolume;
+import com.github.kaklakariada.fritzbox.report.model.Event;
+import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
+import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.eventfactory.EventLogEntryFactory;
-import com.github.kaklakariada.fritzbox.reports.model.DataConnections;
-import com.github.kaklakariada.fritzbox.reports.model.DataVolume;
-import com.github.kaklakariada.fritzbox.reports.model.Event;
-import com.github.kaklakariada.fritzbox.reports.model.EventLogEntry;
-import com.github.kaklakariada.fritzbox.reports.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.html.HtmlElement;
 
 class DataExtractor {

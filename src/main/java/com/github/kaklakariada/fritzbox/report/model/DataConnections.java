@@ -1,4 +1,4 @@
-package com.github.kaklakariada.fritzbox.reports.model;
+package com.github.kaklakariada.fritzbox.report.model;
 
 import java.io.Serializable;
 import java.time.Duration;

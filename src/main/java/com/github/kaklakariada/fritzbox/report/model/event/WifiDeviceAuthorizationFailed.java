@@ -1,6 +1,6 @@
 package com.github.kaklakariada.fritzbox.report.model.event;
 
-import com.github.kaklakariada.fritzbox.reports.model.Event;
+import com.github.kaklakariada.fritzbox.report.model.Event;
 
 public class WifiDeviceAuthorizationFailed extends Event {
 

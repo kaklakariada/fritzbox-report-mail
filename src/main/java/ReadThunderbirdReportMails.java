@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.kaklakariada.fritzbox.report.ReportService;
-import com.github.kaklakariada.fritzbox.reports.model.FritzBoxReportCollection;
+import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportCollection;
 import com.github.kaklakariada.serialization.KryoSerializerService;
 import com.github.kaklakariada.serialization.SerializerService;
 

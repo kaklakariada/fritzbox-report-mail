@@ -1,4 +1,4 @@
-package com.github.kaklakariada.fritzbox.reports.model;
+package com.github.kaklakariada.fritzbox.report.model;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.github.kaklakariada.fritzbox.reports.model.DataConnections.TimePeriod;
+import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 
 public class FritzBoxReportCollection implements Serializable {
 

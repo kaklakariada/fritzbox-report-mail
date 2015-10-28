@@ -1,11 +1,11 @@
-package com.github.kaklakariada.fritzbox.reports.model;
+package com.github.kaklakariada.fritzbox.report.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import com.github.kaklakariada.fritzbox.reports.model.DataConnections.TimePeriod;
+import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 
 public class FritzBoxReportMail implements Serializable {
 

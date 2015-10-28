@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.github.kaklakariada.fritzbox.reports.model.DataVolume;
-import com.github.kaklakariada.fritzbox.reports.model.DataVolume.Unit;
+import com.github.kaklakariada.fritzbox.report.model.DataVolume;
+import com.github.kaklakariada.fritzbox.report.model.DataVolume.Unit;
 
 public class TestDataVolume {
 

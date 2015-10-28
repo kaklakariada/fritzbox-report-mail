@@ -8,7 +8,7 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.github.kaklakariada.fritzbox.reports.model.Event;
+import com.github.kaklakariada.fritzbox.report.model.Event;
 
 public abstract class EventLogEntryFactory<T extends Event> {
 

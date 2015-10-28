@@ -11,11 +11,11 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.kaklakariada.fritzbox.reports.model.DataConnections;
-import com.github.kaklakariada.fritzbox.reports.model.EventLogEntry;
-import com.github.kaklakariada.fritzbox.reports.model.FritzBoxReportMail;
-import com.github.kaklakariada.fritzbox.reports.model.InternetConnection;
-import com.github.kaklakariada.fritzbox.reports.model.DataConnections.TimePeriod;
+import com.github.kaklakariada.fritzbox.report.model.DataConnections;
+import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
+import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
+import com.github.kaklakariada.fritzbox.report.model.InternetConnection;
+import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.html.HtmlElement;
 
 public class FritzBoxMessageConverter implements Function<HtmlElement, FritzBoxReportMail> {
