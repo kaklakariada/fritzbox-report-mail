@@ -4,6 +4,8 @@ import org.chris.fritzbox.reports.mail.model.Event;
 
 public class WifiGuestDeviceConnected extends Event {
 
+    private static final long serialVersionUID = 1L;
+
     private final String speed;
     private final String macAddress;
 

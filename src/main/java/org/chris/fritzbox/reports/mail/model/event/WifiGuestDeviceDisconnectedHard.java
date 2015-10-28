@@ -2,6 +2,8 @@ package org.chris.fritzbox.reports.mail.model.event;
 
 public class WifiGuestDeviceDisconnectedHard extends WifiGuestDeviceDisconnected {
 
+    private static final long serialVersionUID = 1L;
+
     private final String code;
 
     public WifiGuestDeviceDisconnectedHard(final String macAddress, final String code) {
