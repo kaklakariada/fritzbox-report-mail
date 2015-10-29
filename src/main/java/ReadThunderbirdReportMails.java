@@ -44,7 +44,7 @@ public class ReadThunderbirdReportMails {
                 .forEach(LOG::debug);
     }
 
-    private static Properties readConfig(Path path) {
+    public static Properties readConfig(Path path) {
         final Properties config = new Properties();
         final Path absolutePath = path.toAbsolutePath();
         LOG.debug("Reading config from file {}", absolutePath);

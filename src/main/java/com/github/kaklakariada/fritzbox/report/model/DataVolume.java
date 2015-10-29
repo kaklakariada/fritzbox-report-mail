@@ -49,6 +49,13 @@ public class DataVolume implements Serializable {
         return unit;
     }
 
+    public int getVolumeKb() {
+        if (unit == Unit.KB) {
+            return volume;
+        }
+        return volume * 1000;
+    }
+
     @Override
     public String toString() {
         return volume + unit.name;

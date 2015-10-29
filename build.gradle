@@ -28,6 +28,7 @@ dependencies {
 	compile 'org.apache.james:apache-mime4j-core:0.7.2'
 	compile 'org.apache.james:apache-mime4j-dom:0.7.2'
 	compile 'org.jsoup:jsoup:1.8.3'
+	compile 'org.influxdb:influxdb-java:2.0'
 
 	testCompile 'junit:junit:4.12'
 	testCompile 'org.mockito:mockito-core:1.10.19'
