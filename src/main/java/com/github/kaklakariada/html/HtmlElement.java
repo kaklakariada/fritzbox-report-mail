@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -13,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HtmlElement {
-    final static Logger logger = LoggerFactory.getLogger(HtmlElement.class);
+    private final static Logger logger = LoggerFactory.getLogger(HtmlElement.class);
     private final Element element;
 
     public HtmlElement(final Element element) {
@@ -53,7 +54,19 @@ public class HtmlElement {
     }
 
     public HtmlElement selectSingleElement(final String selector) {
+        final HtmlElement singleElement = selectOptionalSingleElement(selector);
+        if (singleElement == null) {
+            throw new IllegalStateException(
+                    "Selector '" + selector + "' found no elements, expected 1 at " + this.element);
+        }
+        return singleElement;
+    }
+
+    public HtmlElement selectOptionalSingleElement(final String selector) {
         final List<HtmlElement> elements = select(selector);
+        if (elements.isEmpty()) {
+            return null;
+        }
         if (elements.size() != 1) {
             throw new IllegalStateException("Selector '" + selector + "' found " + elements.size()
                     + " elements, expected 1 at " + this.element + " but found " + elements);
@@ -63,13 +76,24 @@ public class HtmlElement {
 
     public String getRegexpResult(final String selector, final String regexp) {
         final HtmlElement element = selectSingleElement(selector);
+        return extractRegexp(regexp, element);
+    }
+
+    public String getOptionalRegexpResult(final String selector, final String regexp) {
+        final HtmlElement element = selectOptionalSingleElement(selector);
+        if (element == null) {
+            return null;
+        }
+        return extractRegexp(regexp, element);
+    }
+
+    private String extractRegexp(final String regexp, final HtmlElement element) {
         final String text = element.text();
         final Matcher matcher = Pattern.compile(regexp).matcher(text);
         if (!matcher.matches()) {
             throw new IllegalStateException("Regexp '" + regexp + "' does not match string '" + text + "'");
         }
-        final String result = matcher.group(1);
-        return result;
+        return matcher.group(1);
     }
 
     public String text() {
@@ -78,6 +102,17 @@ public class HtmlElement {
 
     public int number() {
         return Integer.parseInt(text());
+    }
+
+    public HtmlElement selectElementWithContent(final String element, final String content) {
+        final List<HtmlElement> candidates = select(element + ":containsOwn(" + content + ")") //
+                .stream().filter(e -> e.text().equals(content)) //
+                .collect(Collectors.toList());
+        if (candidates.size() != 1) {
+            throw new IllegalStateException("Expected 1 element '" + element + "' with content '" + content
+                    + "' but found " + candidates.size() + ": " + candidates);
+        }
+        return candidates.get(0);
     }
 
     public List<HtmlElement> select(final String select) {

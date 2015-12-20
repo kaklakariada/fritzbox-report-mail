@@ -1,4 +1,7 @@
 # fritzbox-report-mail
+
+[![Build Status](https://travis-ci.org/kaklakariada/fritzbox-report-mail.svg?branch=master)](https://travis-ci.org/kaklakariada/fritzbox-report-mail)
+
 A Java API for parsing and processing status report mails of a FritzBox.
 
 ## Usage

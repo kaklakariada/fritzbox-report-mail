@@ -1,7 +1,7 @@
 package com.github.kaklakariada.fritzbox.report.model;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -10,12 +10,12 @@ import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 public class FritzBoxReportMail implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private final LocalDateTime date;
+    private final LocalDate date;
     private final Map<TimePeriod, DataConnections> dataConnections;
     private final List<EventLogEntry> eventLog;
     private final List<InternetConnection> connections;
 
-    public FritzBoxReportMail(final LocalDateTime date, final Map<TimePeriod, DataConnections> dataConnections,
+    public FritzBoxReportMail(final LocalDate date, final Map<TimePeriod, DataConnections> dataConnections,
             final List<EventLogEntry> eventLog, final List<InternetConnection> connections) {
         this.date = date;
         this.dataConnections = dataConnections;
@@ -23,7 +23,7 @@ public class FritzBoxReportMail implements Serializable {
         this.connections = connections;
     }
 
-    public LocalDateTime getDate() {
+    public LocalDate getDate() {
         return date;
     }
 

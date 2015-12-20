@@ -5,7 +5,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,34 +29,13 @@ public class FritzBoxReportCollection implements Serializable {
                 .map(FritzBoxReportMail::getDataConnections) //
                 .map(connections -> connections.get(TimePeriod.YESTERDAY)) //
                 .sorted(Comparator.comparing(DataConnections::getDate))
-                .map(conn -> new AggregatedVolume(conn.getDate().toLocalDate().minusDays(1), conn));
+                .map(conn -> new AggregatedVolume(conn.getDate(), conn));
     }
 
     public Stream<AggregatedVolume> getDataVolumeByDayAndMonth() {
         return getDataVolumeByDay() //
                 .collect(Collectors.groupingBy(vol -> vol.getDay().withDayOfMonth(1),
                         Collectors.reducing((v1, v2) -> v1.plusSameMonth(v2)))) //
-                .values().stream() //
-                .map(Optional::get) //
-                .sorted(Comparator.comparing(AggregatedVolume::getDay));
-    }
-
-    public Stream<AggregatedVolume> getDataVolumeByMonth() {
-        final Map<LocalDate, List<AggregatedVolume>> connectionsByMonth = reports.stream() //
-                .map(FritzBoxReportMail::getDataConnections) //
-                .map(connections -> connections.get(TimePeriod.LAST_MONTH)) //
-                .map(conn -> new AggregatedVolume(conn.getDate().toLocalDate().withDayOfMonth(1).minusMonths(1), conn)) //
-                .collect(Collectors.groupingBy(AggregatedVolume::getDay));
-
-        return connectionsByMonth.values().stream() //
-                .map(list -> list.get(0)) //
-                .sorted(Comparator.comparing(AggregatedVolume::getDay));
-    }
-
-    public Stream<AggregatedVolume> getDataVolumeByYear() {
-        return getDataVolumeByMonth() //
-                .collect(Collectors.groupingBy(vol -> vol.getDay().withMonth(1).withDayOfMonth(1),
-                        Collectors.reducing((v1, v2) -> v1.plusSameYear(v2)))) //
                 .values().stream() //
                 .map(Optional::get) //
                 .sorted(Comparator.comparing(AggregatedVolume::getDay));

@@ -49,7 +49,7 @@ public class ImportReportsToInfluxDb {
 
     private static Point getDataConnectionPointYesterday(FritzBoxReportMail mail) {
         final DataConnections dataConnections = mail.getDataConnections().get(TimePeriod.YESTERDAY);
-        final LocalDate dataConnectionDate = mail.getDate().toLocalDate().minusDays(1);
+        final LocalDate dataConnectionDate = mail.getDate();
         final Point dataConnectionPoint = Point.measurement("data_connections_day") //
                 .time(dataConnectionDate.toEpochDay(), TimeUnit.DAYS) //
                 .field("volume_total", dataConnections.getTotalVolume().getVolumeKb())

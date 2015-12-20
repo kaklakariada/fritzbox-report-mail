@@ -34,14 +34,6 @@ public class ReadThunderbirdReportMails {
         reportCollection.getDataVolumeByDay() //
                 .map(Object::toString) //
                 .forEach(LOG::debug);
-
-        reportCollection.getDataVolumeByMonth() //
-                .map(Object::toString) //
-                .forEach(LOG::debug);
-
-        reportCollection.getDataVolumeByYear() //
-                .map(Object::toString) //
-                .forEach(LOG::debug);
     }
 
     public static Properties readConfig(Path path) {
