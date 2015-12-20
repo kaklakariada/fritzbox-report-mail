@@ -32,6 +32,10 @@ public class DataVolume implements Serializable {
         this.unit = unit;
     }
 
+    public static DataVolume of(final int volume, Unit unit) {
+        return new DataVolume(volume, unit);
+    }
+
     public static DataVolume parse(final String value) {
         final String trimmedValue = value.trim();
         final String suffix = trimmedValue.substring(trimmedValue.length() - 2);
