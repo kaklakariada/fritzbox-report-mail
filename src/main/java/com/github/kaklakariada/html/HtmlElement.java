@@ -53,7 +53,19 @@ public class HtmlElement {
     }
 
     public HtmlElement selectSingleElement(final String selector) {
+        final HtmlElement singleElement = selectOptionalSingleElement(selector);
+        if (singleElement == null) {
+            throw new IllegalStateException(
+                    "Selector '" + selector + "' found no elements, expected 1 at " + this.element);
+        }
+        return singleElement;
+    }
+
+    public HtmlElement selectOptionalSingleElement(final String selector) {
         final List<HtmlElement> elements = select(selector);
+        if (elements.isEmpty()) {
+            return null;
+        }
         if (elements.size() != 1) {
             throw new IllegalStateException("Selector '" + selector + "' found " + elements.size()
                     + " elements, expected 1 at " + this.element + " but found " + elements);
@@ -63,13 +75,24 @@ public class HtmlElement {
 
     public String getRegexpResult(final String selector, final String regexp) {
         final HtmlElement element = selectSingleElement(selector);
+        return extractRegexp(regexp, element);
+    }
+
+    public String getOptionalRegexpResult(final String selector, final String regexp) {
+        final HtmlElement element = selectOptionalSingleElement(selector);
+        if (element == null) {
+            return null;
+        }
+        return extractRegexp(regexp, element);
+    }
+
+    private String extractRegexp(final String regexp, final HtmlElement element) {
         final String text = element.text();
         final Matcher matcher = Pattern.compile(regexp).matcher(text);
         if (!matcher.matches()) {
             throw new IllegalStateException("Regexp '" + regexp + "' does not match string '" + text + "'");
         }
-        final String result = matcher.group(1);
-        return result;
+        return matcher.group(1);
     }
 
     public String text() {

@@ -30,7 +30,7 @@ public class FritzBoxReportCollection implements Serializable {
                 .map(FritzBoxReportMail::getDataConnections) //
                 .map(connections -> connections.get(TimePeriod.YESTERDAY)) //
                 .sorted(Comparator.comparing(DataConnections::getDate))
-                .map(conn -> new AggregatedVolume(conn.getDate().toLocalDate().minusDays(1), conn));
+                .map(conn -> new AggregatedVolume(conn.getDate(), conn));
     }
 
     public Stream<AggregatedVolume> getDataVolumeByDayAndMonth() {
@@ -46,7 +46,7 @@ public class FritzBoxReportCollection implements Serializable {
         final Map<LocalDate, List<AggregatedVolume>> connectionsByMonth = reports.stream() //
                 .map(FritzBoxReportMail::getDataConnections) //
                 .map(connections -> connections.get(TimePeriod.LAST_MONTH)) //
-                .map(conn -> new AggregatedVolume(conn.getDate().toLocalDate().withDayOfMonth(1).minusMonths(1), conn)) //
+                .map(conn -> new AggregatedVolume(conn.getDate().withDayOfMonth(1).minusMonths(1), conn)) //
                 .collect(Collectors.groupingBy(AggregatedVolume::getDay));
 
         return connectionsByMonth.values().stream() //

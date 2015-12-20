@@ -1,6 +1,7 @@
 package com.github.kaklakariada.fritzbox.report.convert;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -9,16 +10,17 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.github.kaklakariada.fritzbox.report.model.DataConnections;
+import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume;
 import com.github.kaklakariada.fritzbox.report.model.Event;
 import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
-import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.eventfactory.EventLogEntryFactory;
 import com.github.kaklakariada.html.HtmlElement;
 
 class DataExtractor {
 
-    private final DateTimeFormatter REPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+    private final DateTimeFormatter NEW_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private final DateTimeFormatter OLD_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     private final DateTimeFormatter LOG_ENTRY_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm:ss");
     private final HtmlElement mail;
 
@@ -30,14 +32,21 @@ class DataExtractor {
         return mail.selectSingleElement("html>head>title").text();
     }
 
-    public LocalDateTime getDate() {
-        final String date = mail.getRegexpResult("td:containsOwn(Ihre FRITZ!Box Verbindungsübersicht)",
+    public LocalDate getDate() {
+        final String oldDate = mail.getOptionalRegexpResult("td:containsOwn(Ihre FRITZ!Box Verbindungsübersicht)",
                 "Ihre FRITZ!Box Verbindungsübersicht vom ([\\d\\.: ]+) Uhr");
-        return LocalDateTime.parse(date, REPORT_TIMESTAMP_FORMAT);
+        if (oldDate != null) {
+            final LocalDateTime dateTime = LocalDateTime.parse(oldDate, OLD_REPORT_TIMESTAMP_FORMAT);
+            return dateTime.toLocalDate().minusDays(1);
+        }
+        final String newDate = mail.getOptionalRegexpResult(
+                "td:containsOwn(Ihre tägliche FRITZ!Box Verbindungsübersicht vom)",
+                "Ihre tägliche FRITZ!Box Verbindungsübersicht vom ([\\d\\.]+)");
+        return LocalDate.parse(newDate, NEW_REPORT_TIMESTAMP_FORMAT);
     }
 
     public Map<TimePeriod, DataConnections> getDataConnections() {
-        final LocalDateTime date = getDate();
+        final LocalDate date = getDate();
         final HtmlElement section = getSection("Online-Zähler");
         final List<DataConnections> connectionsList = section.map("div.backdialog>div.foredialog>table>tbody>tr",
                 row -> convertDataConnection(date, row));
@@ -47,7 +56,7 @@ class DataExtractor {
         return connectionsList.stream().collect(Collectors.toMap(DataConnections::getTimePeriod, Function.identity()));
     }
 
-    private DataConnections convertDataConnection(final LocalDateTime date, final HtmlElement row) {
+    private DataConnections convertDataConnection(final LocalDate date, final HtmlElement row) {
         final String firstCol = row.select("th").get(0).text().trim();
         if (firstCol.length() <= 1 || firstCol.equals("Zeitraum")) {
             return null;

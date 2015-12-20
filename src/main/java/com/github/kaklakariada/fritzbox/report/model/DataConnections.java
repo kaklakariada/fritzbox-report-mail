@@ -2,7 +2,7 @@ package com.github.kaklakariada.fritzbox.report.model;
 
 import java.io.Serializable;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class DataConnections implements Serializable {
 
@@ -13,9 +13,9 @@ public class DataConnections implements Serializable {
     private final DataVolume reveivedVolume;
     private final int numberOfConnections;
     private final Duration onlineTime;
-    private final LocalDateTime date;
+    private final LocalDate date;
 
-    public DataConnections(final LocalDateTime date, final TimePeriod timePeriod, final Duration onlineTime,
+    public DataConnections(final LocalDate date, final TimePeriod timePeriod, final Duration onlineTime,
             final DataVolume totalVolume, final DataVolume sentVolume, final DataVolume reveivedVolume,
             final int numberOfConnections) {
         this.date = date;
@@ -76,7 +76,7 @@ public class DataConnections implements Serializable {
         return onlineTime;
     }
 
-    public LocalDateTime getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
