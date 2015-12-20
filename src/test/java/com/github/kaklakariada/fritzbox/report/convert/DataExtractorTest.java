@@ -43,15 +43,30 @@ public class DataExtractorTest {
 
     @Test
     public void test0505connections() {
+        final LocalDate date = LocalDate.of(2012, 2, 17);
         assertConnections(ReportVersion.V05_05, //
-                connection(TimePeriod.YESTERDAY, LocalDate.of(2012, 2, 17), Duration.ofHours(24).plusMinutes(1),
-                        volumeMb(5534), volumeMb(753), volumeMb(4781), 1), //
-                connection(TimePeriod.THIS_WEEK, LocalDate.of(2012, 2, 17), Duration.ofHours(102).plusMinutes(51),
-                        volumeMb(18706), volumeMb(2180), volumeMb(16526), 9), //
-                connection(TimePeriod.THIS_MONTH, LocalDate.of(2012, 2, 17), Duration.ofHours(173).plusMinutes(25),
-                        volumeMb(30803), volumeMb(4377), volumeMb(26426), 23), //
-                connection(TimePeriod.LAST_MONTH, LocalDate.of(2012, 2, 17), Duration.ofHours(161).plusMinutes(27),
-                        volumeMb(33013), volumeMb(7624), volumeMb(25389), 38));
+                connection(TimePeriod.YESTERDAY, date, Duration.ofHours(24).plusMinutes(1), volumeMb(5534),
+                        volumeMb(753), volumeMb(4781), 1), //
+                connection(TimePeriod.THIS_WEEK, date, Duration.ofHours(102).plusMinutes(51), volumeMb(18706),
+                        volumeMb(2180), volumeMb(16526), 9), //
+                connection(TimePeriod.THIS_MONTH, date, Duration.ofHours(173).plusMinutes(25), volumeMb(30803),
+                        volumeMb(4377), volumeMb(26426), 23), //
+                connection(TimePeriod.LAST_MONTH, date, Duration.ofHours(161).plusMinutes(27), volumeMb(33013),
+                        volumeMb(7624), volumeMb(25389), 38));
+    }
+
+    @Test
+    public void test0650connections() {
+        final LocalDate date = LocalDate.of(2015, 12, 19);
+        assertConnections(ReportVersion.V06_50, //
+                connection(TimePeriod.YESTERDAY, date, Duration.ofHours(24).plusMinutes(0), volumeMb(9992),
+                        volumeMb(1196), volumeMb(8796), 2), //
+                connection(TimePeriod.THIS_WEEK, date, Duration.ofHours(144).plusMinutes(1), volumeMb(43553),
+                        volumeMb(7816), volumeMb(35737), 12), //
+                connection(TimePeriod.LAST_WEEK, date, Duration.ofHours(167).plusMinutes(56), volumeMb(79881),
+                        volumeMb(21123), volumeMb(58758), 18), //
+                connection(TimePeriod.THIS_MONTH, date, Duration.ofHours(455).plusMinutes(56), volumeMb(176936),
+                        volumeMb(37695), volumeMb(139241), 42));
     }
 
     private DataVolume volumeMb(int volumeMb) {
@@ -69,7 +84,9 @@ public class DataExtractorTest {
                 .getDataConnections();
         assertEquals(expectedConnections.length, actualConnections.size());
         for (final DataConnections expectedConnection : expectedConnections) {
-            assertEquals(expectedConnection, actualConnections.get(expectedConnection.getTimePeriod()));
+            final DataConnections actual = actualConnections.get(expectedConnection.getTimePeriod());
+            assertEquals(expectedConnection.toString(), actual.toString());
+            assertEquals(expectedConnection, actual);
         }
     }
 

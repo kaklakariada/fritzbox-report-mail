@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.kaklakariada.fritzbox.report.model.DataConnections;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume;
@@ -18,7 +21,7 @@ import com.github.kaklakariada.fritzbox.report.model.eventfactory.EventLogEntryF
 import com.github.kaklakariada.html.HtmlElement;
 
 class DataExtractor {
-
+    private final static Logger LOG = LoggerFactory.getLogger(DataExtractor.class);
     private final DateTimeFormatter NEW_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private final DateTimeFormatter OLD_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     private final DateTimeFormatter LOG_ENTRY_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm:ss");
@@ -48,12 +51,38 @@ class DataExtractor {
     public Map<TimePeriod, DataConnections> getDataConnections() {
         final LocalDate date = getDate();
         final HtmlElement section = getSection("Online-Zähler");
-        final List<DataConnections> connectionsList = section.map("div.backdialog>div.foredialog>table>tbody>tr",
+        List<DataConnections> connectionsList = section.map("div.backdialog>div.foredialog>table>tbody>tr",
                 row -> convertDataConnection(date, row));
+        if (connectionsList.isEmpty()) {
+            connectionsList = section.map("table>tbody>tr:nth-child(3)>td>table>tbody>tr>td>table>tbody>tr",
+                    row -> convertNewDataConnection(date, row));
+        }
+
         if (connectionsList.size() < 4) {
             throw new AssertionError("Did not find all data connections in " + section);
         }
         return connectionsList.stream().collect(Collectors.toMap(DataConnections::getTimePeriod, Function.identity()));
+    }
+
+    private DataConnections convertNewDataConnection(LocalDate date, HtmlElement row) {
+        final HtmlElement firstCol = row.selectSingleElement("tr>*:nth-child(1)");
+        if (!firstCol.getName().equals("td")) {
+            LOG.trace("Ignore row {} with first col {}", row, firstCol);
+            return null;
+        }
+        final List<HtmlElement> cells = row.select("td");
+        LOG.trace("Parse {} cells: {}", cells.size(), row);
+        if (cells.size() != 7) {
+            throw new IllegalStateException("Expected 7 cells but got " + cells.size() + ": " + row);
+        }
+        final TimePeriod timePeriod = TimePeriod.forName(cells.get(0).text());
+        final Duration onlineTime = parseDuration(cells.get(1).text());
+        final DataVolume totalVolume = DataVolume.parse(cells.get(2).text());
+        final DataVolume sentVolume = DataVolume.parse(cells.get(3).text());
+        final DataVolume reveivedVolume = DataVolume.parse(cells.get(4).text());
+        final int numberOfConnections = cells.get(5).number();
+        return new DataConnections(date, timePeriod, onlineTime, totalVolume, sentVolume, reveivedVolume,
+                numberOfConnections);
     }
 
     private DataConnections convertDataConnection(final LocalDate date, final HtmlElement row) {
@@ -100,7 +129,6 @@ class DataExtractor {
             return null;
         }
         if (cells.size() != 2) {
-            System.out.println(mail);
             throw new IllegalStateException("Expected 2 cells but got " + cells.size() + ": " + cells);
         }
 
@@ -111,11 +139,15 @@ class DataExtractor {
     }
 
     private HtmlElement getSection(final String sectionName) {
-        final HtmlElement contentDiv = mail
-                .selectSingleElement("div.content div.foretitel:containsOwn(" + sectionName + ")").getNthAncestor(6);
-        if (contentDiv.getCssClass().equals("content") && contentDiv.getName().equals("div")) {
-            return contentDiv;
+        final HtmlElement sectionTitle = mail
+                .selectOptionalSingleElement("div.content div.foretitel:containsOwn(" + sectionName + ")");
+        if (sectionTitle != null) {
+            final HtmlElement oldContentDiv = sectionTitle.getNthAncestor(6);
+            if (oldContentDiv.getCssClass().equals("content") && oldContentDiv.getName().equals("div")) {
+                return oldContentDiv;
+            }
+            throw new AssertionError("Found invalid content div " + oldContentDiv);
         }
-        throw new AssertionError("Found invalid content div " + contentDiv);
+        return mail.selectElementWithContent("td", sectionName).getNthAncestor(7);
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -13,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HtmlElement {
-    final static Logger logger = LoggerFactory.getLogger(HtmlElement.class);
+    private final static Logger logger = LoggerFactory.getLogger(HtmlElement.class);
     private final Element element;
 
     public HtmlElement(final Element element) {
@@ -101,6 +102,17 @@ public class HtmlElement {
 
     public int number() {
         return Integer.parseInt(text());
+    }
+
+    public HtmlElement selectElementWithContent(final String element, final String content) {
+        final List<HtmlElement> candidates = select(element + ":containsOwn(" + content + ")") //
+                .stream().filter(e -> e.text().equals(content)) //
+                .collect(Collectors.toList());
+        if (candidates.size() != 1) {
+            throw new IllegalStateException("Expected 1 element '" + element + "' with content '" + content
+                    + "' but found " + candidates.size() + ": " + candidates);
+        }
+        return candidates.get(0);
     }
 
     public List<HtmlElement> select(final String select) {
