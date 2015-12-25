@@ -17,7 +17,7 @@ import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume;
 import com.github.kaklakariada.fritzbox.report.model.Event;
 import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
-import com.github.kaklakariada.fritzbox.report.model.eventfactory.EventLogEntryFactory;
+import com.github.kaklakariada.fritzbox.report.model.eventfactory.AbstractEventLogEntryFactory;
 import com.github.kaklakariada.html.HtmlElement;
 
 class DataExtractor {
@@ -139,7 +139,7 @@ class DataExtractor {
 
         final LocalDateTime timestamp = LocalDateTime.parse(cells.get(0).text(), LOG_ENTRY_TIMESTAMP_FORMAT);
         final String message = cells.get(1).text();
-        final Event event = EventLogEntryFactory.createEventLogEntry(message);
+        final Event event = AbstractEventLogEntryFactory.createEventLogEntry(message);
         return new EventLogEntry(timestamp, message, event);
     }
 

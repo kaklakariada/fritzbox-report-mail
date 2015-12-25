@@ -9,12 +9,12 @@ import java.util.regex.Pattern;
 
 import com.github.kaklakariada.fritzbox.report.model.Event;
 
-public abstract class EventLogEntryFactory<T extends Event> {
+public abstract class AbstractEventLogEntryFactory<T extends Event> {
 
     protected final static String MAC_ADDRESS_REGEXP = "((?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2})";
     protected final static String EVERYTHING_UNTIL_PERIOD_REGEXP = "([^.]+?)";
 
-    private final static List<EventLogEntryFactory<?>> factories = Arrays.asList(new WifiDeviceConnectedFactory(),
+    private final static List<AbstractEventLogEntryFactory<?>> factories = Arrays.asList(new WifiDeviceConnectedFactory(),
             new WifiDeviceDisconnectedFactory(), new WifiDeviceDisconnectedHardFactory(),
             new WifiGuestDeviceConnectedFactory(), new WifiGuestDeviceDisconnectedFactory(),
             new WifiDeviceDisconnectedHardFactory(), new WifiDeviceAuthorizationFailedFactory());
@@ -23,13 +23,13 @@ public abstract class EventLogEntryFactory<T extends Event> {
 
     private final int expectedGroupCount;
 
-    protected EventLogEntryFactory(final String regex, final int expectedGroupCount) {
+    protected AbstractEventLogEntryFactory(final String regex, final int expectedGroupCount) {
         this.expectedGroupCount = expectedGroupCount;
         this.pattern = Pattern.compile(regex);
     }
 
     public static Event createEventLogEntry(final String message) {
-        for (final EventLogEntryFactory<?> factory : factories) {
+        for (final AbstractEventLogEntryFactory<?> factory : factories) {
             if (factory.matches(message)) {
                 return factory.createEventLogEntryInternal(message);
             }

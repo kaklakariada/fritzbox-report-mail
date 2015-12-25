@@ -30,7 +30,7 @@ public class TestWifiDeviceConnectedFactory extends EventLogEntryFactoryTestBase
     }
 
     @Override
-    protected EventLogEntryFactory<WifiDeviceConnected> createFactory() {
+    protected AbstractEventLogEntryFactory<WifiDeviceConnected> createFactory() {
         return new WifiDeviceConnectedFactory();
     }
 }

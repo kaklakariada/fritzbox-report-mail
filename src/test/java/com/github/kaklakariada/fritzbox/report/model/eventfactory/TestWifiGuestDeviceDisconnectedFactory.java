@@ -26,7 +26,7 @@ public class TestWifiGuestDeviceDisconnectedFactory extends EventLogEntryFactory
     }
 
     @Override
-    protected EventLogEntryFactory<WifiGuestDeviceDisconnected> createFactory() {
+    protected AbstractEventLogEntryFactory<WifiGuestDeviceDisconnected> createFactory() {
         return new WifiGuestDeviceDisconnectedFactory();
     }
 }

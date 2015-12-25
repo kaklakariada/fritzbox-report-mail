@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
 
-public class WifiDeviceConnectedFactory extends EventLogEntryFactory<WifiDeviceConnected> {
+public class WifiDeviceConnectedFactory extends AbstractEventLogEntryFactory<WifiDeviceConnected> {
 
     WifiDeviceConnectedFactory() {
         super("(?:Neues )?WLAN-Gerät (?:erstmalig )?(?:hat sich neu )?angemeldet. Geschwindigkeit "

@@ -43,5 +43,5 @@ public abstract class EventLogEntryFactoryTestBase<T extends Event> {
         }
     }
 
-    protected abstract EventLogEntryFactory<T> createFactory();
+    protected abstract AbstractEventLogEntryFactory<T> createFactory();
 }

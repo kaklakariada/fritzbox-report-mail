@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnectedHard;
 
-public class WifiDeviceDisconnectedHardFactory extends EventLogEntryFactory<WifiDeviceDisconnectedHard> {
+public class WifiDeviceDisconnectedHardFactory extends AbstractEventLogEntryFactory<WifiDeviceDisconnectedHard> {
 
     protected WifiDeviceDisconnectedHardFactory() {
         super("WLAN-Gerät wird abgemeldet: WLAN-Gerät antwortet nicht. MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: "

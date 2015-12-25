@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.github.kaklakariada.fritzbox.report.model.event.WifiGuestDeviceConnected;
 
-public class WifiGuestDeviceConnectedFactory extends EventLogEntryFactory<WifiGuestDeviceConnected> {
+public class WifiGuestDeviceConnectedFactory extends AbstractEventLogEntryFactory<WifiGuestDeviceConnected> {
 
     WifiGuestDeviceConnectedFactory() {
         super("WLAN-Gerät über Gastzugang angemeldet. Geschwindigkeit " + EVERYTHING_UNTIL_PERIOD_REGEXP

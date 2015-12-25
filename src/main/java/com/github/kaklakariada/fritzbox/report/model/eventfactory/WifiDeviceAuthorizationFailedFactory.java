@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceAuthorizationFailed;
 
-public class WifiDeviceAuthorizationFailedFactory extends EventLogEntryFactory<WifiDeviceAuthorizationFailed> {
+public class WifiDeviceAuthorizationFailedFactory extends AbstractEventLogEntryFactory<WifiDeviceAuthorizationFailed> {
 
     WifiDeviceAuthorizationFailedFactory() {
         super("WLAN-Anmeldung ist gescheitert: Autorisierung fehlgeschlagen. MAC-Adresse: " + MAC_ADDRESS_REGEXP + ".",

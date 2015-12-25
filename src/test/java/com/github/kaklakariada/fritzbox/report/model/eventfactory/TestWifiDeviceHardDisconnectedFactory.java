@@ -18,7 +18,7 @@ public class TestWifiDeviceHardDisconnectedFactory extends EventLogEntryFactoryT
     }
 
     @Override
-    protected EventLogEntryFactory<WifiDeviceDisconnectedHard> createFactory() {
+    protected AbstractEventLogEntryFactory<WifiDeviceDisconnectedHard> createFactory() {
         return new WifiDeviceDisconnectedHardFactory();
     }
 }

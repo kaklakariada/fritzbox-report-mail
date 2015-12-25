@@ -36,7 +36,7 @@ public class TestWifiDeviceAuthorizationFailedFactory
     }
 
     @Override
-    protected EventLogEntryFactory<WifiDeviceAuthorizationFailed> createFactory() {
+    protected AbstractEventLogEntryFactory<WifiDeviceAuthorizationFailed> createFactory() {
         return new WifiDeviceAuthorizationFailedFactory();
     }
 }
