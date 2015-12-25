@@ -1,6 +1,8 @@
 package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
@@ -28,10 +30,16 @@ public abstract class EventLogEntryFactoryTestBase<T extends Event> {
         createFactory().createEventLogEntryInternal(null);
     }
 
+    @SuppressWarnings("unchecked")
     protected void assertMatched(String message, T expectedEvent) {
-        final T actual = createFactory().createEventLogEntryInternal(message);
-        assertEquals(expectedEvent.toString(), actual.toString());
-        assertEquals(expectedEvent, actual);
+        assertEvent(expectedEvent, createFactory().createEventLogEntryInternal(message));
+        assertEvent(expectedEvent, (T) new EventLogEntryFactory().createEventLogEntry(message));
+    }
+
+    private void assertEvent(T expectedEvent, final T actualEvent) {
+        assertThat(actualEvent, notNullValue());
+        assertEquals(expectedEvent.toString(), actualEvent.toString());
+        assertEquals(expectedEvent, actualEvent);
     }
 
     protected void assertMatchFailed(String message) {
