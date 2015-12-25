@@ -18,17 +18,26 @@
  ****************************************************************/
 package org.apache.james.mime4j.mboxiterator;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-
-import java.io.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests for {@link MboxIterator}.
  */
 public class MboxIteratorTest {
+
+    private final static Logger LOG = LoggerFactory.getLogger(MboxIteratorTest.class);
 
     @Rule
     public final TestName name = new TestName();
@@ -43,7 +52,7 @@ public class MboxIteratorTest {
      */
     @Test
     public void testIterator() throws FileNotFoundException, IOException {
-        System.out.println("Executing " + name.getMethodName());
+        LOG.info("Executing {}", name.getMethodName());
         iterateWithMaxMessage(DEFAULT_MESSAGE_SIZE);
     }
 
@@ -52,27 +61,26 @@ public class MboxIteratorTest {
      */
     @Test
     public void testIteratorLoop() throws FileNotFoundException, IOException {
-        System.out.println("Executing " + name.getMethodName());
+        LOG.info("Executing {}", name.getMethodName());
         for (int i = CHARS_IN_MAX_MSG; i < MORE_THAN_FILE_SIZE; i++) {
-            System.out.println("Runinng iteration " + (i - CHARS_IN_MAX_MSG) + "  with message size " + i);
+            LOG.debug("Runinng iteration {}  with message size {}", i - CHARS_IN_MAX_MSG, i);
             iterateWithMaxMessage(i);
         }
     }
 
     private void iterateWithMaxMessage(int maxMessageSize) throws IOException {
         int count = 0;
-        for (CharBufferWrapper msg : MboxIterator.fromFile(MBOX_PATH).maxMessageSize(maxMessageSize).build()) {
-            String message = fileToString(new File(MBOX_PATH + "-" + count));
-            // MboxIterator.printCharBuffer(msg);
-            Assert.assertEquals("String sizes match for file " + count, message.length(), msg.toString().length());
-            Assert.assertEquals("Missmatch with file " + count, message, msg.toString());
+        for (final CharBufferWrapper msg : MboxIterator.fromFile(MBOX_PATH).maxMessageSize(maxMessageSize).build()) {
+            final String message = fileToString(new File(MBOX_PATH + "-" + count));
+            assertEquals("String sizes match for file " + count, message.length(), msg.toString().length());
+            assertEquals("Missmatch with file " + count, message, msg.toString());
             count++;
         }
     }
 
     private static String fileToString(File file) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        StringBuilder sb = new StringBuilder();
+        final BufferedReader reader = new BufferedReader(new FileReader(file));
+        final StringBuilder sb = new StringBuilder();
         int ch;
         while ((ch = reader.read()) != -1) {
             sb.append((char) ch);
@@ -80,5 +88,4 @@ public class MboxIteratorTest {
         reader.close();
         return sb.toString();
     }
-
 }
