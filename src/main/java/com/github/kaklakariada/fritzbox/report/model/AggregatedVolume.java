@@ -12,8 +12,8 @@ public class AggregatedVolume {
     private final Duration onlineTime;
 
     public AggregatedVolume(final LocalDate day, final DataConnections conn) {
-        this(day, conn.getTotalVolume(), conn.getSentVolume(), conn.getReveivedVolume(),
-                conn.getNumberOfConnections(), conn.getOnlineTime());
+        this(day, conn.getTotalVolume(), conn.getSentVolume(), conn.getReveivedVolume(), conn.getNumberOfConnections(),
+                conn.getOnlineTime());
     }
 
     public AggregatedVolume(final LocalDate day, final DataVolume totalVolume, final DataVolume sentVolume,
