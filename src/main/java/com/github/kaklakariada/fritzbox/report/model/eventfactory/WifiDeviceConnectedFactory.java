@@ -8,10 +8,6 @@ import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
 public class WifiDeviceConnectedFactory extends EventLogEntryFactory<WifiDeviceConnected> {
 
     WifiDeviceConnectedFactory() {
-        // WLAN-Gerät angemeldet. Geschwindigkeit 54 Mbit/s. MAC-Adresse:
-        // 00:24:D2:37:75:F1, Name: iradio.
-        // "Neues WLAN-Gerät erstmalig angemeldet. Geschwindigkeit 130 Mbit/s. MAC-Adresse: 58:B0:35:73:20:F5, Name:
-        // chpimbp."
         super("(?:Neues )?WLAN-Gerät (?:erstmalig )?(?:hat sich neu )?angemeldet. Geschwindigkeit "
                 + EVERYTHING_UNTIL_PERIOD_REGEXP + ". MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: "
                 + EVERYTHING_UNTIL_PERIOD_REGEXP + ".", 3);

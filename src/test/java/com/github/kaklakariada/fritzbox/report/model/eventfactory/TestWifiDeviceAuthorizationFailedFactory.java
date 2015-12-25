@@ -7,25 +7,28 @@ import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceAuthorizati
 public class TestWifiDeviceAuthorizationFailedFactory
         extends EventLogEntryFactoryTestBase<WifiDeviceAuthorizationFailed> {
 
+    @Test
     public void testNoMatch1() {
-        assertMatchFailed(
-                "WLAN-Gerät angemeldet. Geschwindigkeit 54 Mbit/s. MAC-Adresse: 00:24:D2:37:75:F1, Name: iradio.");
+        assertMatchFailed("WLAN-Gerät angemeldet. Geschwindigkeit 54 Mbit/s. MAC-Adresse: " + MAC_ADDRESS + ", Name: "
+                + HOSTNAME + ".");
     }
 
+    @Test
     public void testNoMatch2() {
-        assertMatchFailed(
-                "WLAN-Gerät hat sich neu angemeldet. Geschwindigkeit 65 Mbit/s. MAC-Adresse: 70:73:CB:49:92:7C, Name: ipod.");
+        assertMatchFailed("WLAN-Gerät hat sich neu angemeldet. Geschwindigkeit 65 Mbit/s. MAC-Adresse: " + MAC_ADDRESS
+                + ", Name: " + HOSTNAME + ".");
     }
 
+    @Test
     public void testNoMatch3() {
-        assertMatchFailed(
-                "Neues WLAN-Gerät erstmalig angemeldet. Geschwindigkeit 130 Mbit/s. MAC-Adresse: 58:B0:35:73:20:F5, Name: chpimbp.");
+        assertMatchFailed("Neues WLAN-Gerät erstmalig angemeldet. Geschwindigkeit 130 Mbit/s. MAC-Adresse: "
+                + MAC_ADDRESS + ", Name: " + HOSTNAME + ".");
     }
 
     @Test
     public void testMatch() {
-        assertEntry("WLAN-Anmeldung ist gescheitert: Autorisierung fehlgeschlagen. MAC-Adresse: F0:B4:79:15:50:F5.",
-                "F0:B4:79:15:50:F5");
+        assertEntry("WLAN-Anmeldung ist gescheitert: Autorisierung fehlgeschlagen. MAC-Adresse: " + MAC_ADDRESS + ".",
+                MAC_ADDRESS);
     }
 
     private void assertEntry(final String message, final String expectedMac) {
@@ -33,7 +36,7 @@ public class TestWifiDeviceAuthorizationFailedFactory
     }
 
     @Override
-    protected WifiDeviceAuthorizationFailedFactory createFactory() {
+    protected EventLogEntryFactory<WifiDeviceAuthorizationFailed> createFactory() {
         return new WifiDeviceAuthorizationFailedFactory();
     }
 }

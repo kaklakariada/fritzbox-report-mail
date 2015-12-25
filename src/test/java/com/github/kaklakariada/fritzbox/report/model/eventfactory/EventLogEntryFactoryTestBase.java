@@ -12,7 +12,9 @@ import com.github.kaklakariada.fritzbox.report.model.Event;
 
 public abstract class EventLogEntryFactoryTestBase<T extends Event> {
 
-    protected LocalDateTime timestamp;
+    public final static String MAC_ADDRESS = "00:11:22:33:44:55";
+    public final static String HOSTNAME = "hostname";
+    private LocalDateTime timestamp;
 
     @Before
     public void setup() {

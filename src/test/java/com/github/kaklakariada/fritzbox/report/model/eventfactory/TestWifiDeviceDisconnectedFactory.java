@@ -1,45 +1,29 @@
 package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 
-import static org.junit.Assert.assertEquals;
-
-import java.time.LocalDateTime;
-
-import org.junit.Before;
 import org.junit.Test;
 
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnected;
-import com.github.kaklakariada.fritzbox.report.model.eventfactory.WifiDeviceDisconnectedFactory;
 
-public class TestWifiDeviceDisconnectedFactory {
-
-    private static final LocalDateTime TIMESTAMP = LocalDateTime.now();
-    private WifiDeviceDisconnectedFactory factory;
-
-    @Before
-    public void setUp() {
-        factory = new WifiDeviceDisconnectedFactory();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testNoMatch() {
-        factory.createEventLogEntryInternal(TIMESTAMP, "no match");
-    }
+public class TestWifiDeviceDisconnectedFactory extends EventLogEntryFactoryTestBase<WifiDeviceDisconnected> {
 
     @Test
     public void testMatch1() {
-        assertEntry("WLAN-Gerät hat sich abgemeldet. MAC-Adresse: 70:73:CB:49:92:7C, Name: ipod.", "70:73:CB:49:92:7C",
-                "ipod");
+        assertEntry("WLAN-Gerät hat sich abgemeldet. MAC-Adresse: " + MAC_ADDRESS + ", Name: " + HOSTNAME + ".",
+                MAC_ADDRESS, HOSTNAME);
     }
 
     @Test
     public void testMatch2() {
-        assertEntry("WLAN-Gerät hat sich abgemeldet. MAC-Adresse: 70:73:CB:49:92:7C, Name: ipod.", "70:73:CB:49:92:7C",
-                "ipod");
+        assertEntry("WLAN-Gerät hat sich abgemeldet. MAC-Adresse: " + MAC_ADDRESS + ", Name: " + HOSTNAME + ".",
+                MAC_ADDRESS, HOSTNAME);
     }
 
     private void assertEntry(final String message, final String expectedMac, final String expectedName) {
-        final WifiDeviceDisconnected entry = factory.createEventLogEntryInternal(TIMESTAMP, message);
-        assertEquals(expectedMac, entry.getMacAddress());
-        assertEquals(expectedName, entry.getName());
+        assertMatched(message, new WifiDeviceDisconnected(expectedMac, expectedName));
+    }
+
+    @Override
+    protected EventLogEntryFactory<WifiDeviceDisconnected> createFactory() {
+        return new WifiDeviceDisconnectedFactory();
     }
 }
