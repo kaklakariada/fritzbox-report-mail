@@ -43,11 +43,12 @@ public abstract class EventLogEntryFactoryTestBase<T extends Event> {
     }
 
     protected void assertMatchFailed(String message) {
+        final AbstractEventLogEntryFactory<T> factory = createFactory();
         try {
-            createFactory().createEventLogEntryInternal(message);
+            factory.createEventLogEntryInternal(message);
             fail("Exepected failure for message " + message);
         } catch (final IllegalArgumentException expected) {
-
+            // expected
         }
     }
 
