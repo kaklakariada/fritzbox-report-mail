@@ -123,7 +123,7 @@ class DataExtractor {
         return section.map("div.foredialog > table tr", this::convertEventLog);
     }
 
-    public EventLogEntry convertEventLog(final HtmlElement element) {
+    private EventLogEntry convertEventLog(final HtmlElement element) {
         final List<HtmlElement> cells = element.select("td");
         if (cells.isEmpty() || cells.size() == 3) {
             return null;
