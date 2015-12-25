@@ -139,7 +139,7 @@ class DataExtractor {
 
         final LocalDateTime timestamp = LocalDateTime.parse(cells.get(0).text(), LOG_ENTRY_TIMESTAMP_FORMAT);
         final String message = cells.get(1).text();
-        final Event event = EventLogEntryFactory.createEventLogEntry(timestamp, message);
+        final Event event = EventLogEntryFactory.createEventLogEntry(message);
         return new EventLogEntry(timestamp, message, event);
     }
 

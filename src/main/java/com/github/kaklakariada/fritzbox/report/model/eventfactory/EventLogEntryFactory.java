@@ -1,6 +1,5 @@
 package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,10 +28,10 @@ public abstract class EventLogEntryFactory<T extends Event> {
         this.pattern = Pattern.compile(regex);
     }
 
-    public static Event createEventLogEntry(final LocalDateTime timestamp, final String message) {
+    public static Event createEventLogEntry(final String message) {
         for (final EventLogEntryFactory<?> factory : factories) {
             if (factory.matches(message)) {
-                return factory.createEventLogEntryInternal(timestamp, message);
+                return factory.createEventLogEntryInternal(message);
             }
         }
         return null;
@@ -46,15 +45,15 @@ public abstract class EventLogEntryFactory<T extends Event> {
         return pattern.matcher(message);
     }
 
-    T createEventLogEntryInternal(final LocalDateTime timestamp, final String message) {
+    T createEventLogEntryInternal(final String message) {
         final Matcher matcher = createMatcher(message);
         if (!matcher.matches()) {
             throw new IllegalArgumentException("String '" + message + "' does not match '" + pattern + "'");
         }
-        return createEventLogEntry(timestamp, message, matcher.toMatchResult());
+        return createEventLogEntry(message, matcher.toMatchResult());
     }
 
-    protected T createEventLogEntry(final LocalDateTime timestamp, final String message, final MatchResult matcher) {
+    protected T createEventLogEntry(final String message, final MatchResult matcher) {
         final int groupCount = matcher.groupCount();
         if (groupCount != expectedGroupCount) {
             throw new AssertionError("Expected " + expectedGroupCount + " but got " + groupCount
@@ -64,8 +63,8 @@ public abstract class EventLogEntryFactory<T extends Event> {
         for (int i = 1; i <= groupCount; i++) {
             groups.add(matcher.group(i));
         }
-        return createEventLogEntry(timestamp, message, groups);
+        return createEventLogEntry(message, groups);
     }
 
-    protected abstract T createEventLogEntry(LocalDateTime timestamp, String message, List<String> groups);
+    protected abstract T createEventLogEntry(String message, List<String> groups);
 }

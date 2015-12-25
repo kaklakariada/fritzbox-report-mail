@@ -1,6 +1,5 @@
 package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
@@ -14,8 +13,7 @@ public class WifiDeviceConnectedFactory extends EventLogEntryFactory<WifiDeviceC
     }
 
     @Override
-    protected WifiDeviceConnected createEventLogEntry(final LocalDateTime timestamp, final String message,
-            final List<String> groups) {
+    protected WifiDeviceConnected createEventLogEntry(final String message, final List<String> groups) {
         return new WifiDeviceConnected(groups.get(0), groups.get(1), groups.get(2));
     }
 }
