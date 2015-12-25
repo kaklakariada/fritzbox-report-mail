@@ -84,6 +84,14 @@ public class DataExtractorTest {
                 logEntry(day.atTime(23, 28, 19), "event3"));
     }
 
+    @Test
+    public void test0650log() {
+        final LocalDate day = LocalDate.of(2015, 12, 18);
+        assertLog(ReportVersion.V06_50, logEntry(day.atTime(22, 28, 25), "event1"), //
+                logEntry(day.atTime(22, 23, 19), "event2"), //
+                logEntry(day.atTime(22, 23, 01), "event3"));
+    }
+
     private EventLogEntry logEntry(LocalDateTime timestamp, String message) {
         return new EventLogEntry(timestamp, message, null);
     }

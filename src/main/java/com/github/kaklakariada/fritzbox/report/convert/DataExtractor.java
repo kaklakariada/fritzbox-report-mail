@@ -120,7 +120,12 @@ class DataExtractor {
 
     public List<EventLogEntry> getEventLog() {
         final HtmlElement section = getSection("Ereignisse");
-        return section.map("div.foredialog > table tr", this::convertEventLog);
+        final List<EventLogEntry> entries = section.map("div.foredialog > table tr", this::convertEventLog);
+        if (!entries.isEmpty()) {
+            return entries;
+        }
+        return section.map("table>tbody>tr:nth-child(2)>td>table>tbody>tr:nth-child(2)>td>table>tbody>tr",
+                this::convertEventLog);
     }
 
     private EventLogEntry convertEventLog(final HtmlElement element) {
