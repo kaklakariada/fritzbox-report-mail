@@ -37,11 +37,13 @@ import java.util.regex.Pattern;
 
 /**
  * <p>
- * Class that provides an iterator over email messages inside an mbox file. An mbox file is a sequence of
- * email messages separated by From_ lines.
+ * Class that provides an iterator over email messages inside an mbox file. An mbox file is a sequence of email messages
+ * separated by From_ lines.
  * </p>
  * <p/>
- * <p>Description ot the file format:</p>
+ * <p>
+ * Description ot the file format:
+ * </p>
  * <ul>
  * <li>http://tools.ietf.org/html/rfc4155</li>
  * <li>http://qmail.org/man/man5/mbox.html</li>
@@ -65,13 +67,9 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
     private int findEnd = -1;
     private final File mbox;
 
-    private MboxIterator(final File mbox,
-                         final Charset charset,
-                         final String regexpPattern,
-                         final int regexpFlags,
-                         final int MAX_MESSAGE_SIZE)
-            throws FileNotFoundException, IOException, CharConversionException {
-        //TODO: do better exception handling - try to process some of them maybe?
+    private MboxIterator(final File mbox, final Charset charset, final String regexpPattern, final int regexpFlags,
+            final int MAX_MESSAGE_SIZE) throws FileNotFoundException, IOException, CharConversionException {
+        // TODO: do better exception handling - try to process some of them maybe?
         this.maxMessageSize = MAX_MESSAGE_SIZE;
         this.MESSAGE_START = Pattern.compile(regexpPattern, regexpFlags);
         this.DECODER = charset.newDecoder();
@@ -149,8 +147,8 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
         }
 
         /**
-         * Returns a CharBuffer instance that contains a message between position and limit.
-         * The array that backs this instance is the whole block of decoded messages.
+         * Returns a CharBuffer instance that contains a message between position and limit. The array that backs this
+         * instance is the whole block of decoded messages.
          *
          * @return CharBuffer instance
          */
@@ -163,9 +161,9 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
                 saveFindPositions(fromLineMatcher);
                 message.limit(fromLineMatcher.start());
             } else {
-                /* We didn't find other From_ lines this means either:
-                 *  - we reached end of mbox and no more messages
-                 *  - we reached end of CharBuffer and need to decode another batch.
+                /*
+                 * We didn't find other From_ lines this means either: - we reached end of mbox and no more messages -
+                 * we reached end of CharBuffer and need to decode another batch.
                  */
                 if (byteBuffer.hasRemaining()) {
                     // decode another batch, but remember to copy the remaining chars first
@@ -221,8 +219,8 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
         private String regexpPattern = FromLinePatterns.DEFAULT;
         private int flags = Pattern.MULTILINE;
         /**
-         * Default max message size in chars: ~ 10MB chars. If the mbox file contains larger messages they
-         * will not be decoded correctly.
+         * Default max message size in chars: ~ 10MB chars. If the mbox file contains larger messages they will not be
+         * decoded correctly.
          */
         private int maxMessageSize = 10 * 1024 * 1024;
 
@@ -266,12 +264,9 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
      */
     public static String bufferDetailsToString(final Buffer buffer) {
         StringBuilder sb = new StringBuilder("Buffer details: ");
-        sb.append("\ncapacity:\t").append(buffer.capacity())
-                .append("\nlimit:\t").append(buffer.limit())
-                .append("\nremaining:\t").append(buffer.remaining())
-                .append("\nposition:\t").append(buffer.position())
-                .append("\nbuffer:\t").append(buffer.isReadOnly())
-                .append("\nclass:\t").append(buffer.getClass());
+        sb.append("\ncapacity:\t").append(buffer.capacity()).append("\nlimit:\t").append(buffer.limit())
+                .append("\nremaining:\t").append(buffer.remaining()).append("\nposition:\t").append(buffer.position())
+                .append("\nbuffer:\t").append(buffer.isReadOnly()).append("\nclass:\t").append(buffer.getClass());
         return sb.toString();
     }
 }

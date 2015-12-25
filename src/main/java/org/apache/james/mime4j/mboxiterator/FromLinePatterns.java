@@ -19,9 +19,9 @@
 package org.apache.james.mime4j.mboxiterator;
 
 /**
- * Collection of From_ line patterns. Messages inside an mbox are separated by these lines.
- * The pattern is usually constant in a file but depends on the mail agents that wrote it.
- * It's possible that more mailer agents wrote in the same file using different From_ lines.
+ * Collection of From_ line patterns. Messages inside an mbox are separated by these lines. The pattern is usually
+ * constant in a file but depends on the mail agents that wrote it. It's possible that more mailer agents wrote in the
+ * same file using different From_ lines.
  */
 public interface FromLinePatterns {
 
@@ -30,11 +30,9 @@ public interface FromLinePatterns {
      */
     static final String DEFAULT = "^From \\S+@\\S.*\\d{4}$";
     /**
-     * Matches other type of From_ line (without @):
-     * From MAILER-DAEMON Wed Oct 05 21:54:09 2011
-     * Thunderbird mbox content: From - Wed Apr 02 06:51:08 2014
+     * Matches other type of From_ line (without @): From MAILER-DAEMON Wed Oct 05 21:54:09 2011 Thunderbird mbox
+     * content: From - Wed Apr 02 06:51:08 2014
      */
     static final String DEFAULT2 = "^From \\S+.*\\d{4}$";
-
 
 }

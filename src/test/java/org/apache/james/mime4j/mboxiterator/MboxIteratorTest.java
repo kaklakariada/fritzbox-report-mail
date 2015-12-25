@@ -63,7 +63,7 @@ public class MboxIteratorTest {
         int count = 0;
         for (CharBufferWrapper msg : MboxIterator.fromFile(MBOX_PATH).maxMessageSize(maxMessageSize).build()) {
             String message = fileToString(new File(MBOX_PATH + "-" + count));
-            //MboxIterator.printCharBuffer(msg);
+            // MboxIterator.printCharBuffer(msg);
             Assert.assertEquals("String sizes match for file " + count, message.length(), msg.toString().length());
             Assert.assertEquals("Missmatch with file " + count, message, msg.toString());
             count++;
