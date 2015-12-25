@@ -1,6 +1,10 @@
 package com.github.kaklakariada.fritzbox.report.convert;
 
+import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -9,6 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -18,6 +24,7 @@ import com.github.kaklakariada.fritzbox.report.model.DataConnections;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume.Unit;
+import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
 import com.github.kaklakariada.html.HtmlElement;
 
 public class DataExtractorTest {
@@ -69,6 +76,26 @@ public class DataExtractorTest {
                         volumeMb(37695), volumeMb(139241), 42));
     }
 
+    @Test
+    public void test0505log() {
+        final LocalDate day = LocalDate.of(2012, 2, 17);
+        assertLog(ReportVersion.V05_05, logEntry(day.atTime(23, 59, 48), "event1"), //
+                logEntry(day.atTime(23, 57, 35), "event2"), //
+                logEntry(day.atTime(23, 28, 19), "event3"));
+    }
+
+    private EventLogEntry logEntry(LocalDateTime timestamp, String message) {
+        return new EventLogEntry(timestamp, message, null);
+    }
+
+    private void assertLog(ReportVersion version, EventLogEntry... expectedLogEntries) {
+        final List<EventLogEntry> actualLogEntries = createExtractor(version, "log.html").getEventLog();
+        assertThat(actualLogEntries, hasSize(expectedLogEntries.length));
+        assertEquals(asList(expectedLogEntries).toString(), actualLogEntries.toString());
+        assertEquals(asList(expectedLogEntries), actualLogEntries);
+        assertThat(actualLogEntries, contains(expectedLogEntries));
+    }
+
     private DataVolume volumeMb(int volumeMb) {
         return DataVolume.of(volumeMb, Unit.MB);
     }
@@ -82,6 +109,7 @@ public class DataExtractorTest {
     private void assertConnections(ReportVersion version, DataConnections... expectedConnections) {
         final Map<TimePeriod, DataConnections> actualConnections = createExtractor(version, FILE_CONNECTIONS)
                 .getDataConnections();
+        assertThat(actualConnections.keySet(), hasSize(expectedConnections.length));
         assertEquals(expectedConnections.length, actualConnections.size());
         for (final DataConnections expectedConnection : expectedConnections) {
             final DataConnections actual = actualConnections.get(expectedConnection.getTimePeriod());
