@@ -1,4 +1,4 @@
-<configuration debug="false" scan="true" scanPeriod="5 seconds">
+<configuration debug="false" scan="true" scanPeriod="1 seconds">
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
@@ -7,6 +7,7 @@
 
   <logger name="com.github.kaklakariada.html.HtmlElement" level="debug" />
   <logger name="com.github.kaklakariada.fritzbox.report.convert.DataExtractor" level="debug" />
+  <logger name="com.github.kaklakariada.fritzbox.report.model.eventfactory.EventLogEntryFactory" level="debug" />
   
   <root level="debug">
     <appender-ref ref="STDOUT" />
