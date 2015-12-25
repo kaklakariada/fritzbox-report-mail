@@ -1,7 +1,6 @@
 package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
@@ -14,13 +13,7 @@ public abstract class AbstractEventLogEntryFactory<T extends Event> {
     protected final static String MAC_ADDRESS_REGEXP = "((?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2})";
     protected final static String EVERYTHING_UNTIL_PERIOD_REGEXP = "([^.]+?)";
 
-    private final static List<AbstractEventLogEntryFactory<?>> factories = Arrays.asList(new WifiDeviceConnectedFactory(),
-            new WifiDeviceDisconnectedFactory(), new WifiDeviceDisconnectedHardFactory(),
-            new WifiGuestDeviceConnectedFactory(), new WifiGuestDeviceDisconnectedFactory(),
-            new WifiDeviceDisconnectedHardFactory(), new WifiDeviceAuthorizationFailedFactory());
-
     private final Pattern pattern;
-
     private final int expectedGroupCount;
 
     protected AbstractEventLogEntryFactory(final String regex, final int expectedGroupCount) {
@@ -28,16 +21,7 @@ public abstract class AbstractEventLogEntryFactory<T extends Event> {
         this.pattern = Pattern.compile(regex);
     }
 
-    public static Event createEventLogEntry(final String message) {
-        for (final AbstractEventLogEntryFactory<?> factory : factories) {
-            if (factory.matches(message)) {
-                return factory.createEventLogEntryInternal(message);
-            }
-        }
-        return null;
-    }
-
-    private boolean matches(final String message) {
+    boolean matches(final String message) {
         return createMatcher(message).matches();
     }
 

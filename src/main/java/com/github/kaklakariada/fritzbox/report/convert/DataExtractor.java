@@ -17,7 +17,7 @@ import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume;
 import com.github.kaklakariada.fritzbox.report.model.Event;
 import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
-import com.github.kaklakariada.fritzbox.report.model.eventfactory.AbstractEventLogEntryFactory;
+import com.github.kaklakariada.fritzbox.report.model.eventfactory.EventLogEntryFactory;
 import com.github.kaklakariada.html.HtmlElement;
 
 class DataExtractor {
@@ -26,9 +26,15 @@ class DataExtractor {
     private final DateTimeFormatter OLD_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     private final DateTimeFormatter LOG_ENTRY_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm:ss");
     private final HtmlElement mail;
+    private final EventLogEntryFactory eventLogEntryFactory;
 
     DataExtractor(final HtmlElement mail) {
+        this(mail, new EventLogEntryFactory());
+    }
+
+    private DataExtractor(final HtmlElement mail, EventLogEntryFactory eventLogEntryFactory) {
         this.mail = mail;
+        this.eventLogEntryFactory = eventLogEntryFactory;
     }
 
     public String getHtmlTitle() {
@@ -139,7 +145,7 @@ class DataExtractor {
 
         final LocalDateTime timestamp = LocalDateTime.parse(cells.get(0).text(), LOG_ENTRY_TIMESTAMP_FORMAT);
         final String message = cells.get(1).text();
-        final Event event = AbstractEventLogEntryFactory.createEventLogEntry(message);
+        final Event event = eventLogEntryFactory.createEventLogEntry(message);
         return new EventLogEntry(timestamp, message, event);
     }
 
