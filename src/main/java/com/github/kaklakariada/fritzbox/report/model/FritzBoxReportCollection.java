@@ -1,12 +1,15 @@
 package com.github.kaklakariada.fritzbox.report.model;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.reducing;
+
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
@@ -34,11 +37,18 @@ public class FritzBoxReportCollection implements Serializable {
 
     public Stream<AggregatedVolume> getDataVolumeByDayAndMonth() {
         return getDataVolumeByDay() //
-                .collect(Collectors.groupingBy(vol -> vol.getDay().withDayOfMonth(1),
-                        Collectors.reducing((v1, v2) -> v1.plusSameMonth(v2)))) //
+                .collect(groupingBy(vol -> vol.getDay().withDayOfMonth(1), //
+                        reducing((v1, v2) -> v1.plusSameMonth(v2)))) //
                 .values().stream() //
                 .map(Optional::get) //
-                .sorted(Comparator.comparing(AggregatedVolume::getDay));
+                .sorted(comparing(AggregatedVolume::getDay));
+    }
+
+    public Stream<EventLogEntry> getLogEntries() {
+        return this.reports.stream() //
+                .sorted(comparing(FritzBoxReportMail::getDate)) //
+                .flatMap(r -> r.getEventLog().stream()) //
+                .sorted(comparing(EventLogEntry::getTimestamp));
     }
 
     public static class AggregatedVolume {
