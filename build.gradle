@@ -1,3 +1,7 @@
+plugins {
+    id "com.github.hierynomus.license" version "0.12.1"
+}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
@@ -35,6 +39,12 @@ dependencies {
 	testCompile 'org.mockito:mockito-core:1.10.19'
 }
 
+license {
+    header = file('gradle/license-header.txt')
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    ext.name = 'Christoph Pirkl'
+    ext.email = 'christoph at users.sourceforge.net'
+}
 
 eclipse {
 	classpath {
