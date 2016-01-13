@@ -28,6 +28,11 @@ import com.github.kaklakariada.fritzbox.report.model.Event;
 public abstract class AbstractEventLogEntryFactory<T extends Event> {
 
     protected final static String MAC_ADDRESS_REGEXP = "((?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2})";
+    protected final static String IPV4_ADDRESS_REGEXP = "((?:25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\\."
+            + "(?:25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\\."
+            + "(?:25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\\."
+            + "(?:25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9]))";
+    protected final static String NON_WHITESPACE_REGEXP = "(\\S+)";
     protected final static String EVERYTHING_UNTIL_PERIOD_REGEXP = "([^.]+?)";
 
     private final Pattern pattern;

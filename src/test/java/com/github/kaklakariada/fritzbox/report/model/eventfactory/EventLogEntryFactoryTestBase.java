@@ -29,7 +29,12 @@ import com.github.kaklakariada.fritzbox.report.model.Event;
 public abstract class EventLogEntryFactoryTestBase<T extends Event> {
 
     public final static String MAC_ADDRESS = "00:11:22:33:44:55";
-    public final static String IP_ADDRESS = "11.22.33.44";
+    public final static String IP_ADDRESS1 = "11.22.33.44";
+    public final static String IP_ADDRESS2 = "111.122.133.144";
+    public final static String IP_ADDRESS3 = "111.122.133.144";
+    public final static String IP_ADDRESS4 = "111.122.133.144";
+    public final static String IP_ADDRESS_INVALID = "256.122.133.144";
+    public final static String IPv6_ADDRESS = "FEDC:BA98:7654:3210:FEDC:BA98:7654:3210";
     public final static String HOSTNAME = "hostname";
 
     @Test

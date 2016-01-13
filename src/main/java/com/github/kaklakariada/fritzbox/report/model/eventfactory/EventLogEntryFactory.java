@@ -45,7 +45,10 @@ public class EventLogEntryFactory {
                 new WifiGuestDeviceDisconnectedFactory(), //
                 new WifiGuestDeviceDisconnectedHardFactory(), //
                 new WifiDeviceDisconnectedHardFactory(), //
-                new WifiDeviceAuthorizationFailedFactory()));
+                new WifiDeviceAuthorizationFailedFactory(), //
+                new IPv4InternetConnectionEstablishedFactory(), //
+                new IPv6InternetConnectionEstablishedFactory(), //
+                new IPv6PrefixAssignedFactory()));
     }
 
     public Event createEventLogEntry(final String message) {
