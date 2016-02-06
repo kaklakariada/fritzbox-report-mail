@@ -48,7 +48,10 @@ public class EventLogEntryFactory {
                 new WifiDeviceAuthorizationFailedFactory(), //
                 new IPv4InternetConnectionEstablishedFactory(), //
                 new IPv6InternetConnectionEstablishedFactory(), //
-                new IPv6PrefixAssignedFactory()));
+                new IPv6PrefixAssignedFactory(), //
+                new DslSyncFailedFactory(), //
+                new DslSyncSuccessfulFactory(), //
+                new InternetDisconnectedFactory()));
     }
 
     public Event createEventLogEntry(final String message) {
