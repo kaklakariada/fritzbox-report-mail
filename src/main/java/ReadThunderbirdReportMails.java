@@ -1,3 +1,4 @@
+
 /**
  * A Java API for parsing and processing status report mails of a FritzBox
  * Copyright (C) 2015 Christoph Pirkl <christoph at users.sourceforge.net>
@@ -21,6 +22,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.Properties;
 
 import org.slf4j.Logger;
