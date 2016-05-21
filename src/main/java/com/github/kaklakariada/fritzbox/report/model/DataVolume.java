@@ -18,10 +18,12 @@
 package com.github.kaklakariada.fritzbox.report.model;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
-public class DataVolume implements Serializable {
+public class DataVolume implements Serializable, Comparable<DataVolume> {
 
     private static final long serialVersionUID = 1L;
+    private static final Comparator<DataVolume> COMPARATOR = Comparator.comparingInt(DataVolume::getVolumeKb);
 
     private final int volume;
     private final Unit unit;
@@ -110,6 +112,11 @@ public class DataVolume implements Serializable {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public int compareTo(DataVolume o) {
+        return COMPARATOR.compare(this, o);
     }
 
     public DataVolume plus(final DataVolume other) {
