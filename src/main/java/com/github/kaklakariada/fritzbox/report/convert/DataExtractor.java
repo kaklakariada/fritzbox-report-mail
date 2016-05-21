@@ -67,7 +67,7 @@ class DataExtractor {
         }
         final String newDate = mail.getOptionalRegexpResult(
                 "td:containsOwn(Ihre tägliche FRITZ!Box Verbindungsübersicht vom)",
-                "Ihre tägliche FRITZ!Box Verbindungsübersicht vom ([\\d\\.]+)");
+                "Ihre tägliche FRITZ!Box Verbindungsübersicht vom ([\\d\\.]+)(:? .*)?");
         return LocalDate.parse(newDate, NEW_REPORT_TIMESTAMP_FORMAT);
     }
 
