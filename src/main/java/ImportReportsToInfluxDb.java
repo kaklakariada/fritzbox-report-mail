@@ -1,3 +1,4 @@
+
 /**
  * A Java API for parsing and processing status report mails of a FritzBox
  * Copyright (C) 2015 Christoph Pirkl <christoph at users.sourceforge.net>
@@ -69,11 +70,11 @@ public class ImportReportsToInfluxDb {
         final LocalDate dataConnectionDate = mail.getDate();
         final Point dataConnectionPoint = Point.measurement("data_connections_day") //
                 .time(dataConnectionDate.toEpochDay(), TimeUnit.DAYS) //
-                .field("volume_total", dataConnections.getTotalVolume().getVolumeKb())
-                .field("volume_received", dataConnections.getReveivedVolume().getVolumeKb())
-                .field("volume_sent", dataConnections.getSentVolume().getVolumeKb())
-                .field("num_connections", dataConnections.getNumberOfConnections())
-                .field("online_time_min", dataConnections.getOnlineTime().toMinutes()) //
+                .addField("volume_total", dataConnections.getTotalVolume().getVolumeKb())
+                .addField("volume_received", dataConnections.getReveivedVolume().getVolumeKb())
+                .addField("volume_sent", dataConnections.getSentVolume().getVolumeKb())
+                .addField("num_connections", dataConnections.getNumberOfConnections())
+                .addField("online_time_min", dataConnections.getOnlineTime().toMinutes()) //
                 .build();
         return dataConnectionPoint;
     }
