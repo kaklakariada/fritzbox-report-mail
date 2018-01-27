@@ -57,8 +57,6 @@ public class ImportReportsToInfluxDb {
 
     private static void importReport(FritzBoxReportMail mail) {
         final BatchPoints batchPoints = BatchPoints.database(dbName) //
-                // .tag("async", "true") //
-                .retentionPolicy("default") //
                 .consistency(ConsistencyLevel.ALL) //
                 .build();
         batchPoints.point(getDataConnectionPointYesterday(mail));
@@ -70,9 +68,9 @@ public class ImportReportsToInfluxDb {
         final LocalDate dataConnectionDate = mail.getDate();
         final Point dataConnectionPoint = Point.measurement("data_connections_day") //
                 .time(dataConnectionDate.toEpochDay(), TimeUnit.DAYS) //
-                .addField("volume_total", dataConnections.getTotalVolume().getVolumeKb())
-                .addField("volume_received", dataConnections.getReveivedVolume().getVolumeKb())
-                .addField("volume_sent", dataConnections.getSentVolume().getVolumeKb())
+                .addField("volume_total_kb", dataConnections.getTotalVolume().getVolumeKb())
+                .addField("volume_received_kb", dataConnections.getReveivedVolume().getVolumeKb())
+                .addField("volume_sent_kb", dataConnections.getSentVolume().getVolumeKb())
                 .addField("num_connections", dataConnections.getNumberOfConnections())
                 .addField("online_time_min", dataConnections.getOnlineTime().toMinutes()) //
                 .build();
