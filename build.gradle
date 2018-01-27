@@ -1,12 +1,9 @@
 plugins {
-    id "com.github.hierynomus.license" version "0.12.1"
+    id "com.github.hierynomus.license" version "0.14.0"
+    id "java"
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-
 repositories {
-    mavenLocal()
     jcenter()
 }
 
@@ -15,7 +12,6 @@ sourceCompatibility = 1.8
 
 tasks.withType(JavaCompile) {
 	options.compilerArgs << '-Xlint:all'
-	options.encoding = 'UTF-8'
 }
 
 test {
@@ -45,17 +41,4 @@ license {
     ext.year = 2015
     ext.name = 'Christoph Pirkl'
     ext.email = 'christoph at users.sourceforge.net'
-}
-
-eclipse {
-	classpath {
-		downloadSources = true
-	}
-	jdt.file {
-		beforeMerged  { jdt ->
-		  File defaultProperties = new File("${rootProject.projectDir}/gradle/defaultEclipseJdtPrefs.properties").absoluteFile
-		  logger.info "Load defaults from $defaultProperties for $project"
-		  jdt.load(defaultProperties)
-		}
-	  }
 }

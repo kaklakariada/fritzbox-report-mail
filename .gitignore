@@ -1,8 +1,8 @@
 hs_err_pid*
 bin/
 .gradle/
-.settings/org.eclipse.jdt.core.prefs
 .classpath
+/.settings/org.eclipse.buildship.core.prefs
 build/
 application.properties
 .README.md.html
