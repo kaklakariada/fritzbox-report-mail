@@ -17,9 +17,12 @@
  */
 package com.github.kaklakariada.fritzbox.report.model;
 
+import static java.util.Arrays.asList;
+
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 public class DataConnections implements Serializable {
@@ -52,17 +55,18 @@ public class DataConnections implements Serializable {
         THIS_WEEK("Aktuelle Woche"), //
         LAST_WEEK("Letzte Woche"), //
         THIS_MONTH("Aktueller Monat"), //
-        LAST_MONTH("Letzter Monat");
+        LAST_MONTH("Vormonat", "Letzter Monat");
 
-        private final String name;
+        private final List<String> names;
 
-        private TimePeriod(final String name) {
-            this.name = name;
+        private TimePeriod(final String... names) {
+            this.names = asList(names);
         }
 
         public static TimePeriod forName(final String name) {
+            final String trimmedName = name.trim();
             for (final TimePeriod period : values()) {
-                if (period.name.equals(name.trim())) {
+                if (period.names.contains(trimmedName)) {
                     return period;
                 }
             }

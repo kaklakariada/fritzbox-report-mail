@@ -17,28 +17,33 @@
  */
 package com.github.kaklakariada.fritzbox.report.model;
 
+import static java.util.Arrays.asList;
+
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.util.Comparator;
+import java.util.List;
 
 public class DataVolume implements Serializable, Comparable<DataVolume> {
 
     private static final long serialVersionUID = 1L;
-    private static final Comparator<DataVolume> COMPARATOR = Comparator.comparingInt(DataVolume::getVolumeKb);
+    private static final Comparator<DataVolume> COMPARATOR = Comparator.comparingDouble(DataVolume::getVolumeKb);
+    private static final NumberFormat NUMBER_FORMAT = NumberFormat.getNumberInstance();
 
-    private final int volume;
+    private final double volume;
     private final Unit unit;
 
     public enum Unit {
-        MB("MB"), KB("kB");
-        private final String name;
+        MB("MB"), KB("KB", "kB"), GB("GB");
+        private final List<String> names;
 
-        private Unit(final String name) {
-            this.name = name;
+        private Unit(final String... names) {
+            this.names = asList(names);
         }
 
         public static Unit forName(final String name) {
             for (final Unit unit : values()) {
-                if (unit.name.equals(name)) {
+                if (unit.names.contains(name)) {
                     return unit;
                 }
             }
@@ -46,7 +51,7 @@ public class DataVolume implements Serializable, Comparable<DataVolume> {
         }
     }
 
-    private DataVolume(final int volume, final Unit unit) {
+    private DataVolume(final double volume, final Unit unit) {
         this.volume = volume;
         this.unit = unit;
     }
@@ -58,13 +63,13 @@ public class DataVolume implements Serializable, Comparable<DataVolume> {
     public static DataVolume parse(final String value) {
         final String trimmedValue = value.trim();
         final String suffix = trimmedValue.substring(trimmedValue.length() - 2);
-        final String numberString = trimmedValue.subSequence(0, trimmedValue.length() - 2).toString();
-        final int volume = Integer.valueOf(numberString);
+        final String numberString = trimmedValue.subSequence(0, trimmedValue.length() - 2).toString().trim();
+        final double volume = Double.valueOf(numberString);
         final Unit unit = Unit.forName(suffix);
         return new DataVolume(volume, unit);
     }
 
-    public int getVolume() {
+    public double getVolume() {
         return volume;
     }
 
@@ -72,16 +77,19 @@ public class DataVolume implements Serializable, Comparable<DataVolume> {
         return unit;
     }
 
-    public int getVolumeKb() {
+    public double getVolumeKb() {
         if (unit == Unit.KB) {
             return volume;
         }
-        return volume * 1000;
+        if (unit == Unit.MB) {
+            return volume * 1000;
+        }
+        return volume * 1000 * 1000;
     }
 
     @Override
     public String toString() {
-        return volume + unit.name;
+        return NUMBER_FORMAT.format(volume) + unit.names.get(0);
     }
 
     @Override
@@ -89,12 +97,14 @@ public class DataVolume implements Serializable, Comparable<DataVolume> {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((unit == null) ? 0 : unit.hashCode());
-        result = prime * result + volume;
+        long temp;
+        temp = Double.doubleToLongBits(volume);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
 
     @Override
-    public boolean equals(final Object obj) {
+    public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
@@ -108,7 +118,7 @@ public class DataVolume implements Serializable, Comparable<DataVolume> {
         if (unit != other.unit) {
             return false;
         }
-        if (volume != other.volume) {
+        if (Double.doubleToLongBits(volume) != Double.doubleToLongBits(other.volume)) {
             return false;
         }
         return true;

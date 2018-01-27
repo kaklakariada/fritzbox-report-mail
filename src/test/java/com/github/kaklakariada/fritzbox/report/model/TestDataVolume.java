@@ -21,19 +21,22 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.github.kaklakariada.fritzbox.report.model.DataVolume;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume.Unit;
 
 public class TestDataVolume {
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testParseWrongUnit() {
-        DataVolume.parse("12GB");
+    public void testParseUnitGb() {
+        assertParse("12GB", 12, Unit.GB);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParseNoInteger() {
-        DataVolume.parse("12.3kB");
+        assertParse("12.3kB", 12.3, Unit.KB);
+    }
+
+    @Test
+    public void testParseUppercaseKB() {
+        assertParse("12.3KB", 12.3, Unit.KB);
     }
 
     @Test
@@ -43,9 +46,9 @@ public class TestDataVolume {
         assertParse("12MB", 12, Unit.MB);
     }
 
-    private void assertParse(final String string, final int i, final Unit unit) {
+    private void assertParse(final String string, final double expected, final Unit unit) {
         final DataVolume volume = DataVolume.parse(string);
-        assertEquals(i, volume.getVolume());
+        assertEquals(expected, volume.getVolume(), 0.00001);
         assertEquals(unit, volume.getUnit());
     }
 }
