@@ -38,7 +38,4 @@ dependencies {
 license {
     header = file('gradle/license-header.txt')
     include "**/*.java"
-    ext.year = 2015
-    ext.name = 'Christoph Pirkl'
-    ext.email = 'christoph at users.sourceforge.net'
 }
