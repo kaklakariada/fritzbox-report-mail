@@ -25,17 +25,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.Kryo.DefaultInstantiatorStrategy;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy;
 
 public class KryoSerializerService<T> extends SerializerService<T> {
-    final static Logger logger = LoggerFactory.getLogger(KryoSerializerService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KryoSerializerService.class);
     private final Kryo kryo;
 
     public KryoSerializerService(final Class<T> type) {
         super(type);
         kryo = new Kryo();
+        kryo.setRegistrationRequired(false);
         kryo.setInstantiatorStrategy(new DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
     }
 

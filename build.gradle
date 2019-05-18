@@ -24,7 +24,7 @@ test {
 dependencies {
 	compile 'org.slf4j:slf4j-api:1.7.25'
 	runtime 'ch.qos.logback:logback-classic:1.2.3'
-	compile 'com.esotericsoftware:kryo:4.0.2'
+	compile 'com.esotericsoftware:kryo:5.0.0-RC4'
 	compile 'org.apache.james:apache-mime4j-core:0.8.2'
 	compile 'org.apache.james:apache-mime4j-dom:0.8.2'
 	compile 'org.jsoup:jsoup:1.11.3'
