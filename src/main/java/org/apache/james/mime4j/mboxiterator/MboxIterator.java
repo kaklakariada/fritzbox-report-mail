@@ -39,7 +39,6 @@ import java.util.regex.Pattern;
  * Class that provides an iterator over email messages inside an mbox file. An mbox file is a sequence of email messages
  * separated by From_ lines.
  * </p>
- * <p/>
  * <p>
  * Description ot the file format:
  * </p>
@@ -66,8 +65,12 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
     private int findEnd = -1;
     private final File mbox;
 
-    private MboxIterator(final File mbox, final Charset charset, final String regexpPattern, final int regexpFlags,
-            final int MAX_MESSAGE_SIZE) throws FileNotFoundException, IOException, CharConversionException {
+    private MboxIterator(final File mbox,
+            final Charset charset,
+            final String regexpPattern,
+            final int regexpFlags,
+            final int MAX_MESSAGE_SIZE)
+            throws FileNotFoundException, IOException, CharConversionException {
         // TODO: do better exception handling - try to process some of them maybe?
         this.maxMessageSize = MAX_MESSAGE_SIZE;
         this.MESSAGE_START = Pattern.compile(regexpPattern, regexpFlags);
@@ -93,15 +96,16 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
             saveFindPositions(fromLineMatcher);
         } else if (fromLineMatcher.hitEnd()) {
             String path = "";
-            if (mbox != null)
+            if (mbox != null) {
                 path = mbox.getPath();
+            }
             throw new IllegalArgumentException("File " + path + " does not contain From_ lines that match the pattern '"
                     + MESSAGE_START.pattern() + "'! Maybe not be a valid Mbox or wrong matcher.");
         }
     }
 
     private void decodeNextCharBuffer() throws CharConversionException {
-        CoderResult coderResult = DECODER.decode(byteBuffer, mboxCharBuffer, endOfInputFlag);
+        final CoderResult coderResult = DECODER.decode(byteBuffer, mboxCharBuffer, endOfInputFlag);
         updateEndOfInputFlag();
         mboxCharBuffer.flip();
         if (coderResult.isError()) {
@@ -124,21 +128,24 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
         findEnd = lineMatcher.end();
     }
 
+    @Override
     public Iterator<CharBufferWrapper> iterator() {
         return new MessageIterator();
     }
 
+    @Override
     public void close() throws IOException {
         theFile.close();
     }
 
     private class MessageIterator implements Iterator<CharBufferWrapper> {
 
+        @Override
         public boolean hasNext() {
             if (!fromLineFound) {
                 try {
                     close();
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     throw new RuntimeException("Exception closing file!");
                 }
             }
@@ -151,6 +158,7 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
          *
          * @return CharBuffer instance
          */
+        @Override
         public CharBufferWrapper next() {
             final CharBuffer message;
             fromLineFound = fromLineMatcher.find();
@@ -166,7 +174,7 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
                  */
                 if (byteBuffer.hasRemaining()) {
                     // decode another batch, but remember to copy the remaining chars first
-                    CharBuffer oldData = mboxCharBuffer.duplicate();
+                    final CharBuffer oldData = mboxCharBuffer.duplicate();
                     mboxCharBuffer.clear();
                     oldData.position(findStart);
                     while (oldData.hasRemaining()) {
@@ -174,7 +182,7 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
                     }
                     try {
                         decodeNextCharBuffer();
-                    } catch (CharConversionException ex) {
+                    } catch (final CharConversionException ex) {
                         throw new RuntimeException(ex);
                     }
                     fromLineMatcher = MESSAGE_START.matcher(mboxCharBuffer);
@@ -198,6 +206,7 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
             return new CharBufferWrapper(message);
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException("Not supported yet.");
         }
@@ -262,10 +271,13 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
      * @param buffer
      */
     public static String bufferDetailsToString(final Buffer buffer) {
-        StringBuilder sb = new StringBuilder("Buffer details: ");
-        sb.append("\ncapacity:\t").append(buffer.capacity()).append("\nlimit:\t").append(buffer.limit())
-                .append("\nremaining:\t").append(buffer.remaining()).append("\nposition:\t").append(buffer.position())
-                .append("\nbuffer:\t").append(buffer.isReadOnly()).append("\nclass:\t").append(buffer.getClass());
+        final StringBuilder sb = new StringBuilder("Buffer details: ");
+        sb.append("\ncapacity:\t").append(buffer.capacity())
+                .append("\nlimit:\t").append(buffer.limit())
+                .append("\nremaining:\t").append(buffer.remaining())
+                .append("\nposition:\t").append(buffer.position())
+                .append("\nbuffer:\t").append(buffer.isReadOnly())
+                .append("\nclass:\t").append(buffer.getClass());
         return sb.toString();
     }
 }
