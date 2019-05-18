@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HtmlElement {
-    private final static Logger logger = LoggerFactory.getLogger(HtmlElement.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HtmlElement.class);
     private final Element element;
 
     public HtmlElement(final Element element) {
@@ -51,20 +51,20 @@ public class HtmlElement {
 
     public <T> List<T> map(final String cssSelector, final Function<HtmlElement, T> mapper) {
         final Elements elements = element.select(cssSelector);
-        logger.trace("Found {} elements matching '{}' in {}", elements.size(), cssSelector, element);
+        LOG.trace("Found {} elements matching '{}' in {}", elements.size(), cssSelector, element);
         final List<T> result = new ArrayList<>(elements.size());
         for (final Element row : elements) {
             final T mappedRow;
             try {
                 mappedRow = mapper.apply(new HtmlElement(row));
             } catch (final Exception e) {
-                throw new RuntimeException("Error mapping element " + row, e);
+                throw new IllegalStateException("Error mapping element " + row, e);
             }
             if (mappedRow != null) {
-                logger.trace("Got object {} for row {}", mappedRow, row);
+                LOG.trace("Got object {} for row {}", mappedRow, row);
                 result.add(mappedRow);
             } else {
-                logger.trace("Got null for row {}: ignore", row);
+                LOG.trace("Got null for row {}: ignore", row);
             }
         }
         return result;
@@ -92,16 +92,16 @@ public class HtmlElement {
     }
 
     public String getRegexpResult(final String selector, final String regexp) {
-        final HtmlElement element = selectSingleElement(selector);
-        return extractRegexp(regexp, element);
+        final HtmlElement selected = selectSingleElement(selector);
+        return extractRegexp(regexp, selected);
     }
 
     public String getOptionalRegexpResult(final String selector, final String regexp) {
-        final HtmlElement element = selectOptionalSingleElement(selector);
-        if (element == null) {
+        final HtmlElement selected = selectOptionalSingleElement(selector);
+        if (selected == null) {
             return null;
         }
-        return extractRegexp(regexp, element);
+        return extractRegexp(regexp, selected);
     }
 
     private String extractRegexp(final String regexp, final HtmlElement element) {

@@ -22,12 +22,13 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JavaSerializerService<T> extends SerializerService<T> {
-    final static Logger logger = LoggerFactory.getLogger(JavaSerializerService.class);
+    static final Logger logger = LoggerFactory.getLogger(JavaSerializerService.class);
 
     public JavaSerializerService(final Class<T> type) {
         super(type);
@@ -38,7 +39,7 @@ public class JavaSerializerService<T> extends SerializerService<T> {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
             objectOutputStream.writeObject(object);
         } catch (final IOException e) {
-            throw new RuntimeException("Error serializing " + object, e);
+            throw new UncheckedIOException("Error serializing " + object, e);
         }
     }
 

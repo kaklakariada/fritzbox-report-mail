@@ -20,14 +20,10 @@ package com.github.kaklakariada.fritzbox.report.convert;
 import java.util.function.Function;
 
 import org.jsoup.Jsoup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.github.kaklakariada.html.HtmlElement;
 
 public class HtmlMailParser implements Function<EmailBody, HtmlElement> {
-
-    static final Logger logger = LoggerFactory.getLogger(HtmlMailParser.class);
 
     @Override
     public HtmlElement apply(final EmailBody body) {

@@ -38,10 +38,12 @@ import com.github.kaklakariada.fritzbox.report.model.eventfactory.EventLogEntryF
 import com.github.kaklakariada.html.HtmlElement;
 
 class DataExtractor {
-    private final static Logger LOG = LoggerFactory.getLogger(DataExtractor.class);
-    private final DateTimeFormatter NEW_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-    private final DateTimeFormatter OLD_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
-    private final DateTimeFormatter LOG_ENTRY_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yy HH:mm:ss");
+    private static final Logger LOG = LoggerFactory.getLogger(DataExtractor.class);
+    private static final DateTimeFormatter NEW_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private static final DateTimeFormatter OLD_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter
+            .ofPattern("dd.MM.yyyy HH:mm");
+    private static final DateTimeFormatter LOG_ENTRY_TIMESTAMP_FORMAT = DateTimeFormatter
+            .ofPattern("dd.MM.yy HH:mm:ss");
     private final HtmlElement mail;
     private final EventLogEntryFactory eventLogEntryFactory;
 

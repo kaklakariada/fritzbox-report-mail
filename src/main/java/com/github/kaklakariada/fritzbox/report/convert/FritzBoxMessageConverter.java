@@ -29,14 +29,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.kaklakariada.fritzbox.report.model.DataConnections;
+import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
 import com.github.kaklakariada.fritzbox.report.model.InternetConnection;
-import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.html.HtmlElement;
 
 public class FritzBoxMessageConverter implements Function<HtmlElement, FritzBoxReportMail> {
-    final static Logger logger = LoggerFactory.getLogger(FritzBoxMessageConverter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FritzBoxMessageConverter.class);
 
     @Override
     public FritzBoxReportMail apply(final HtmlElement mail) {
@@ -46,7 +46,7 @@ public class FritzBoxMessageConverter implements Function<HtmlElement, FritzBoxR
         final List<EventLogEntry> eventLog = extractor.getEventLog();
         final List<InternetConnection> connections = eventLog.stream().flatMap(this::convertInternetConnection)
                 .collect(Collectors.toList());
-        logger.debug("{}: received {}, sent {}, log entries: {}, internet connections: {}", extractor.getDate(),
+        LOG.debug("{}: received {}, sent {}, log entries: {}, internet connections: {}", extractor.getDate(),
                 connectionsYesterday.getReveivedVolume(), connectionsYesterday.getSentVolume(), eventLog.size(),
                 connections.size());
         return new FritzBoxReportMail(extractor.getDate(), dataConnections, eventLog, connections);

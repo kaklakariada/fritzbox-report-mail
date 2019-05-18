@@ -49,7 +49,6 @@ public class DataConnections implements Serializable {
     }
 
     public enum TimePeriod {
-
         TODAY("Heute"), //
         YESTERDAY("Gestern"), //
         THIS_WEEK("Aktuelle Woche"), //

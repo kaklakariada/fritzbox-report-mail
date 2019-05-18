@@ -29,7 +29,7 @@ import com.github.kaklakariada.fritzbox.report.model.Event;
 
 public class EventLogEntryFactory {
 
-    private final static Logger LOG = LoggerFactory.getLogger(EventLogEntryFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EventLogEntryFactory.class);
 
     private final List<AbstractEventLogEntryFactory<?>> factories;
 

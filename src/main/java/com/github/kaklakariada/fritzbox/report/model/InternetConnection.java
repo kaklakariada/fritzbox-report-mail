@@ -32,7 +32,6 @@ public class InternetConnection implements Serializable {
 
     public InternetConnection(final LocalDateTime timestamp, final String ipAddress, final String dnsServer1,
             final String dnsServer2, final String gateway, final String pop) {
-        super();
         this.timestamp = timestamp;
         this.ipAddress = ipAddress;
         this.dnsServer1 = dnsServer1;

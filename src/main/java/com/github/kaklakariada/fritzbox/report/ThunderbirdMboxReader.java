@@ -18,6 +18,7 @@
 package com.github.kaklakariada.fritzbox.report;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.stream.Stream;
@@ -53,7 +54,7 @@ public class ThunderbirdMboxReader {
                     .fromLine(FromLinePatterns.DEFAULT2) //
                     .build();
         } catch (final IOException e) {
-            throw new RuntimeException("Error reading from " + mboxFile, e);
+            throw new UncheckedIOException("Error reading from " + mboxFile, e);
         }
     }
 

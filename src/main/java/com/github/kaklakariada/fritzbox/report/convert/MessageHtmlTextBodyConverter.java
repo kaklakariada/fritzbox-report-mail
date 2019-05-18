@@ -30,14 +30,8 @@ import javax.mail.internet.MimeMultipart;
 
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.TextBody;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MessageHtmlTextBodyConverter implements Function<Message, EmailBody> {
-    private static final String TEXT_PLAIN = "text/plain";
-    private static final String TEXT_HTML = "text/html";
-    private static final String MULTIPART_RELATED = "multipart/related";
-    private static final Logger logger = LoggerFactory.getLogger(MessageHtmlTextBodyConverter.class);
 
     @Override
     public EmailBody apply(final Message msg) {
@@ -54,9 +48,8 @@ public class MessageHtmlTextBodyConverter implements Function<Message, EmailBody
 
             return getContent(getHtmlBodyPart(content));
         } catch (MessagingException | IOException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
-
     }
 
     private EmailBody getContent(final BodyPart content) throws MessagingException, IOException {
@@ -65,9 +58,8 @@ public class MessageHtmlTextBodyConverter implements Function<Message, EmailBody
         } else if (content.getContent() instanceof MimeMultipart) {
             final MimeMultipart content2 = (MimeMultipart) content.getContent();
             return getContent(getHtmlBodyPart(content2));
-        } else {
-            throw new IllegalStateException("Unknown content type " + content.getContent());
         }
+        throw new IllegalStateException("Unknown content type " + content.getContent());
     }
 
     private MimeBodyPart getHtmlBodyPart(MimeMultipart content) throws MessagingException {

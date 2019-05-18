@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class SerializerService<T> {
-    final static Logger logger = LoggerFactory.getLogger(SerializerService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SerializerService.class);
 
     protected final Class<T> type;
 
@@ -47,7 +47,7 @@ public abstract class SerializerService<T> {
             throw new RuntimeException("Error writing file " + outputFile);
         }
         final Duration duration = Duration.between(start, Instant.now());
-        logger.debug("Wrote object to file {} in {}", outputFile, duration);
+        LOG.debug("Wrote object to file {} in {}", outputFile, duration);
     }
 
     protected abstract void serialize(final OutputStream outputStream, final T reports);
@@ -62,7 +62,7 @@ public abstract class SerializerService<T> {
             throw new RuntimeException("Error reading file " + inputFile);
         }
         final Duration duration = Duration.between(start, Instant.now());
-        logger.debug("Read object from file {} in {}", inputFile, duration);
+        LOG.debug("Read object from file {} in {}", inputFile, duration);
         return object;
     }
 

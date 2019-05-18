@@ -36,7 +36,7 @@ import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
 
 public class ReportService {
 
-    final static Logger LOG = LoggerFactory.getLogger(ReportService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReportService.class);
 
     public FritzBoxReportCollection loadThunderbirdMails(final Path mboxFile) {
         final Instant start = Instant.now();
