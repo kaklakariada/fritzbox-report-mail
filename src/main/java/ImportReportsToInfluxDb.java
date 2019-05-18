@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 /**
  * A Java API for parsing and processing status report mails of a FritzBox
  * Copyright (C) 2015 Christoph Pirkl <christoph at users.sourceforge.net>
@@ -33,9 +34,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.influxdb.InfluxDB;
@@ -46,6 +45,7 @@ import org.influxdb.dto.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.kaklakariada.fritzbox.report.Config;
 import com.github.kaklakariada.fritzbox.report.ReportService;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
@@ -58,10 +58,10 @@ public class ImportReportsToInfluxDb {
     private static final String dbName = "fritzbox_reports";
 
     public static void main(String[] args) {
-        final Properties config = ReadThunderbirdReportMails.readConfig(Paths.get("application.properties"));
-        final Path mboxFile = Paths.get(config.getProperty("mbox.path"));
+        final Config config = Config.readConfig();
+        final Path mboxFile = config.getMboxPath();
 
-        influxDB = InfluxDBFactory.connect(config.getProperty("influxdb.url"), "root", "root");
+        influxDB = InfluxDBFactory.connect(config.getInfluxdbUrl(), "root", "root");
         if (influxDB.describeDatabases().contains(dbName)) {
             LOG.info("Deleting db {}", dbName);
             influxDB.deleteDatabase(dbName);
