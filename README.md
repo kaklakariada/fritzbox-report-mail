@@ -1,6 +1,8 @@
 # fritzbox-report-mail
 
-[![Build Status](https://travis-ci.org/kaklakariada/fritzbox-report-mail.svg?branch=master)](https://travis-ci.org/kaklakariada/fritzbox-report-mail)
+[![Java CI](https://github.com/kaklakariada/fritzbox-report-mail/actions/workflows/gradle.yml/badge.svg)](https://github.com/kaklakariada/fritzbox-report-mail/actions/workflows/gradle.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.github.kaklakariada%3Afritzbox-report-mail&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.github.kaklakariada%3Afritzbox-report-mail)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=com.github.kaklakariada%3Afritzbox-report-mail&metric=coverage)](https://sonarcloud.io/dashboard?id=com.github.kaklakariada%3Afritzbox-report-mail)
 
 A Java API for parsing and processing status report mails of a FritzBox.
 
