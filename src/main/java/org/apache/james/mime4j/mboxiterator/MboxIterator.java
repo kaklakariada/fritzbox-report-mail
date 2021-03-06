@@ -85,10 +85,9 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
     /**
      * initialize the Mailbox iterator
      *
-     * @throws IOException
-     * @throws CharConversionException
+     * @throws CharConversionException when character conversion fails.
      */
-    protected void initMboxIterator() throws IOException {
+    protected void initMboxIterator() throws CharConversionException {
         decodeNextCharBuffer();
         fromLineMatcher = MESSAGE_START.matcher(mboxCharBuffer);
         fromLineFound = fromLineMatcher.find();
@@ -268,7 +267,8 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
     /**
      * Utility method to log important details about buffers.
      *
-     * @param buffer
+     * @param buffer the buffer to convert to string.
+     * @return a string representation of the buffer.
      */
     public static String bufferDetailsToString(final Buffer buffer) {
         final StringBuilder sb = new StringBuilder("Buffer details: ");
