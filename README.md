@@ -15,3 +15,9 @@ A Java API for parsing and processing status report mails of a FritzBox.
 ## Running the example program
 * Copy file `application.properties.template` to `application.properties` and the path to your mbox file.
 * Read mbox file using class [`ReadThunderbirdReportMails`](https://github.com/kaklakariada/fritzbox-report-mail/blob/master/src/main/java/ReadThunderbirdReportMails.java). This will parse the reports and aggregate data volume statistics.
+
+## Check if dependencies are up-to-date
+
+```bash
+$ ./gradlew dependencyUpdates
+```
