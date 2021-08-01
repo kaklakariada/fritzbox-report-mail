@@ -41,7 +41,7 @@ dependencies {
     runtimeOnly 'ch.qos.logback:logback-classic:1.2.3'
     implementation 'com.esotericsoftware:kryo:5.1.1'
     implementation 'org.apache.james:apache-mime4j-core:0.8.4'
-    implementation 'org.apache.james:apache-mime4j-dom:0.8.4'
+    implementation 'org.apache.james:apache-mime4j-dom:0.8.5'
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'org.influxdb:influxdb-java:2.21'
     implementation 'com.sun.mail:jakarta.mail:1.6.6'
