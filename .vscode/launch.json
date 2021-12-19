@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch ReadThunderbirdReportMails",
+            "request": "launch",
+            "mainClass": "ReadThunderbirdReportMails",
+            "projectName": "fritzbox-report-mail"
+        }
+    ]
+}

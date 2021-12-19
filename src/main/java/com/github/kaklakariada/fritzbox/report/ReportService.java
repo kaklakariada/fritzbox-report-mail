@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.kaklakariada.fritzbox.report.convert.FritzBoxMessageConverter;
-import com.github.kaklakariada.fritzbox.report.convert.HtmlMailParser;
 import com.github.kaklakariada.fritzbox.report.convert.MessageHtmlTextBodyConverter;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportCollection;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
@@ -54,7 +53,6 @@ public class ReportService {
         return new ThunderbirdMboxReader() //
                 .readMbox(mboxFile) //
                 .map(new MessageHtmlTextBodyConverter()) //
-                .map(new HtmlMailParser()) //
                 .map(new FritzBoxMessageConverter());
     }
 }

@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -47,6 +46,10 @@ public class HtmlElement {
             return this;
         }
         return new HtmlElement(element.parent()).getNthAncestor(n - 1);
+    }
+
+    public String getText() {
+        return element.text();
     }
 
     public <T> List<T> map(final String cssSelector, final Function<HtmlElement, T> mapper) {
@@ -124,10 +127,10 @@ public class HtmlElement {
     public HtmlElement selectElementWithContent(final String element, final String content) {
         final List<HtmlElement> candidates = select(element + ":containsOwn(" + content + ")") //
                 .stream().filter(e -> e.text().equals(content)) //
-                .collect(Collectors.toList());
+                .toList();
         if (candidates.size() != 1) {
             throw new IllegalStateException("Expected 1 element '" + element + "' with content '" + content
-                    + "' but found " + candidates.size() + ": " + candidates);
+                    + "' but found " + candidates.size() + ": " + candidates + " in " + this);
         }
         return candidates.get(0);
     }

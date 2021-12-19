@@ -18,63 +18,79 @@
 package com.github.kaklakariada.fritzbox.report.convert;
 
 import java.io.IOException;
-import java.util.Properties;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
-import javax.mail.Session;
 import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.james.mime4j.dom.Body;
+import org.apache.james.mime4j.dom.Entity;
 import org.apache.james.mime4j.dom.Message;
-import org.apache.james.mime4j.dom.TextBody;
+import org.apache.james.mime4j.dom.Multipart;
+import org.apache.james.mime4j.dom.SingleBody;
 
-public class MessageHtmlTextBodyConverter implements Function<Message, EmailBody> {
+public class MessageHtmlTextBodyConverter implements Function<Message, EmailContent> {
 
     @Override
-    public EmailBody apply(final Message msg) {
-
-        final TextBody textBody = (TextBody) msg.getBody();
-
-        final Session session = Session.getDefaultInstance(new Properties());
-        try {
-            final MimeMessage mimeMessage = new MimeMessage(session, textBody.getInputStream());
-            final MimeMultipart content = (MimeMultipart) mimeMessage.getContent();
-            if (content.getCount() != 2) {
-                throw new AssertionError("Expected 2 but got " + content.getCount());
-            }
-
-            return getContent(getHtmlBodyPart(content));
-        } catch (MessagingException | IOException e) {
-            throw new IllegalStateException(e);
-        }
+    public EmailContent apply(final Message msg) {
+        return new EmailConverter(msg).processRootBody();
     }
 
-    private EmailBody getContent(final BodyPart content) throws MessagingException, IOException {
-        if (content.getContent() instanceof String) {
-            return new EmailBody(content.getContentType(), (String) content.getContent());
-        } else if (content.getContent() instanceof MimeMultipart) {
-            final MimeMultipart content2 = (MimeMultipart) content.getContent();
-            return getContent(getHtmlBodyPart(content2));
-        }
-        throw new IllegalStateException("Unknown content type " + content.getContent());
-    }
+    private static class EmailConverter {
 
-    private MimeBodyPart getHtmlBodyPart(MimeMultipart content) throws MessagingException {
-        for (int i = 0; i < content.getCount(); i++) {
-            final MimeBodyPart part = (MimeBodyPart) content.getBodyPart(i);
-            if (part.getContentType().equals("text/html; charset=\"utf-8\"")) {
-                return part;
-            }
-            if (part.getContentType().equals("text/html; charset=\"iso-8859-1\"")) {
-                return part;
-            }
-            if (part.getContentType().startsWith("multipart/related;")) {
-                return part;
+        private final Message message;
+
+        public EmailConverter(Message message) {
+            this.message = message;
+        }
+
+        private EmailContent processRootBody() {
+            final List<EmailBody> parts = processBody(message.getBody());
+            return new EmailContent(message, parts);
+        }
+
+        private List<EmailBody> processBody(Body body) {
+            if (body instanceof final SingleBody singleBody) {
+                try {
+                    final String charset = body.getParent().getCharset();
+                    final String string = new String(singleBody.getInputStream().readAllBytes(),
+                            Charset.forName(charset));
+                    return List.of(new EmailBody(string));
+                } catch (final IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            } else if (body instanceof final Multipart multipartBody) {
+                return multipartBody.getBodyParts().stream()
+                        .map(Entity::getBody)
+                        .map(this::processBody)
+                        .flatMap(List::stream)
+                        .toList();
+            } else {
+                throw new IllegalStateException("Unexpected body type " + body.getClass().getName());
             }
         }
-        throw new IllegalStateException("No html body part found for " + content);
+
+        private List<EmailBody> getContent(final BodyPart content) throws MessagingException, IOException {
+            if (content.getContent() instanceof final String stringContent) {
+                return List.of(new EmailBody(stringContent));
+            } else if (content.getContent() instanceof final MimeMultipart multipartContent) {
+                return getHtmlBodyParts(multipartContent);
+            }
+            throw new IllegalStateException("Unknown content type " + content.getContent());
+        }
+
+        private List<EmailBody> getHtmlBodyParts(MimeMultipart content) throws MessagingException, IOException {
+            final ArrayList<EmailBody> bodies = new ArrayList<>();
+            for (int i = 0; i < content.getCount(); i++) {
+                final MimeBodyPart part = (MimeBodyPart) content.getBodyPart(i);
+                bodies.addAll(getContent(part));
+            }
+            return bodies;
+        }
     }
 }

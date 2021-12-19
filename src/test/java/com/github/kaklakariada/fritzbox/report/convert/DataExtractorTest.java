@@ -18,10 +18,10 @@
 package com.github.kaklakariada.fritzbox.report.convert;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -42,7 +42,6 @@ import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume.Unit;
 import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
-import com.github.kaklakariada.html.HtmlElement;
 
 public class DataExtractorTest {
 
@@ -150,8 +149,7 @@ public class DataExtractorTest {
     private DataExtractor createExtractor(ReportVersion reportVersion, String fileName) {
         final Path path = TEST_REPORT_PATH.resolve(reportVersion.getName()).resolve(fileName);
         final String htmlContent = readFile(path);
-        final HtmlElement mail = new HtmlElement(htmlContent);
-        return new DataExtractor(mail);
+        return new DataExtractor(new EmailContent(null, List.of(new EmailBody(htmlContent))));
     }
 
     private String readFile(final Path path) throws AssertionError {
