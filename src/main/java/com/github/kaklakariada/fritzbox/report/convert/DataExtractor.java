@@ -51,14 +51,14 @@ class DataExtractor {
     private LocalDate date;
 
     DataExtractor(final EmailContent mail) {
-        this(mail, getBody(mail), new EventLogEntryFactory());
+        this(getBody(mail), new EventLogEntryFactory());
     }
 
     private static HtmlElement getBody(final EmailContent mail) {
         return mail.getPart(Type.HTML).getElement();
     }
 
-    private DataExtractor(EmailContent mail, final HtmlElement rootElement, EventLogEntryFactory eventLogEntryFactory) {
+    private DataExtractor(final HtmlElement rootElement, EventLogEntryFactory eventLogEntryFactory) {
         this.rootElement = rootElement;
         this.eventLogEntryFactory = eventLogEntryFactory;
     }
@@ -88,13 +88,13 @@ class DataExtractor {
     }
 
     public Map<TimePeriod, DataConnections> getDataConnections() {
-        final LocalDate date = getDate();
+        final LocalDate currentDate = getDate();
         final HtmlElement section = getSection("Online-Zähler");
         List<DataConnections> connectionsList = section.map("div.backdialog>div.foredialog>table>tbody>tr",
-                row -> convertDataConnection(date, row));
+                row -> convertDataConnection(currentDate, row));
         if (connectionsList.isEmpty()) {
             connectionsList = section.map("table>tbody>tr:nth-child(3)>td>table>tbody>tr>td>table>tbody>tr",
-                    row -> convertNewDataConnection(date, row));
+                    row -> convertNewDataConnection(currentDate, row));
         }
 
         if (connectionsList.size() < 4) {
@@ -196,7 +196,6 @@ class DataExtractor {
     }
 
     public Optional<String> getForeTitle() {
-        // System.out.println("Getting title of " + mail);
         return Optional
                 .ofNullable(rootElement.selectOptionalSingleElement(
                         "div:eq(0) > div.content > table.tabletitle div.backtitel div.foretitel"))
