@@ -45,8 +45,8 @@ dependencies {
     implementation 'org.apache.james:apache-mime4j-dom:0.8.6'
     implementation 'org.jsoup:jsoup:1.14.3'
     implementation 'org.influxdb:influxdb-java:2.22'
-    implementation 'com.sun.mail:jakarta.mail:1.6.7'
-    //implementation 'com.sun.mail:jakarta.mail:2.0.0'
+    //implementation 'com.sun.mail:jakarta.mail:1.6.7'
+    implementation 'com.sun.mail:jakarta.mail:2.0.1'
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.hamcrest:hamcrest-all:1.3'
