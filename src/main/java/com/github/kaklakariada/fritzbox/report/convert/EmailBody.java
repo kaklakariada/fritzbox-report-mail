@@ -38,7 +38,7 @@ public class EmailBody {
     public Type getType() {
         if (getRawContent().contains("<!DOCTYPE html")) {
             return Type.HTML;
-        } else if (getRawContent().startsWith("�PNG")) {
+        } else if (getRawContent().startsWith("\uFFFD" + "PNG")) {
             return Type.PNG;
         } else if (getRawContent().startsWith("sep=;")) {
             return Type.CSV;
