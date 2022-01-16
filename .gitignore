@@ -4,6 +4,7 @@ bin/
 .classpath
 .project
 /.settings/org.eclipse.buildship.core.prefs
+/*/.settings/org.eclipse.buildship.core.prefs
 build/
 /application.properties
 /.README.md.html
