@@ -1,0 +1,11 @@
+rootProject.name = 'fritzbox-report-mail'
+
+include 'model'
+include 'parser'
+include 'db-loader'
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
+}
