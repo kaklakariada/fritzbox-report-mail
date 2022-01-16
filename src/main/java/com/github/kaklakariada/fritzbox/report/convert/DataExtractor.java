@@ -23,12 +23,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.kaklakariada.fritzbox.report.convert.EmailBody.Type;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume;
@@ -44,43 +46,55 @@ class DataExtractor {
             .ofPattern("dd.MM.yyyy HH:mm");
     private static final DateTimeFormatter LOG_ENTRY_TIMESTAMP_FORMAT = DateTimeFormatter
             .ofPattern("dd.MM.yy HH:mm:ss");
-    private final HtmlElement mail;
+    private final HtmlElement rootElement;
     private final EventLogEntryFactory eventLogEntryFactory;
+    private LocalDate date;
 
-    DataExtractor(final HtmlElement mail) {
-        this(mail, new EventLogEntryFactory());
+    DataExtractor(final EmailContent mail) {
+        this(getBody(mail), new EventLogEntryFactory());
     }
 
-    private DataExtractor(final HtmlElement mail, EventLogEntryFactory eventLogEntryFactory) {
-        this.mail = mail;
+    private static HtmlElement getBody(final EmailContent mail) {
+        return mail.getPart(Type.HTML).getElement();
+    }
+
+    private DataExtractor(final HtmlElement rootElement, EventLogEntryFactory eventLogEntryFactory) {
+        this.rootElement = rootElement;
         this.eventLogEntryFactory = eventLogEntryFactory;
     }
 
     public String getHtmlTitle() {
-        return mail.selectSingleElement("html>head>title").text();
+        return rootElement.selectSingleElement("html>head>title").text();
     }
 
     public LocalDate getDate() {
-        final String oldDate = mail.getOptionalRegexpResult("td:containsOwn(Ihre FRITZ!Box Verbindungsübersicht)",
-                "Ihre FRITZ!Box Verbindungsübersicht vom ([\\d\\.: ]+) Uhr");
-        if (oldDate != null) {
-            final LocalDateTime dateTime = LocalDateTime.parse(oldDate, OLD_REPORT_TIMESTAMP_FORMAT);
-            return dateTime.toLocalDate().minusDays(1);
+        if (date == null) {
+            final String oldDate = rootElement.getOptionalRegexpResult(
+                    "td:containsOwn(Ihre FRITZ!Box Verbindungsübersicht)",
+                    "Ihre FRITZ!Box Verbindungsübersicht vom ([\\d\\.: ]+) Uhr");
+            if (oldDate != null) {
+                final LocalDateTime dateTime = LocalDateTime.parse(oldDate, OLD_REPORT_TIMESTAMP_FORMAT);
+                return dateTime.toLocalDate().minusDays(1);
+            }
+            final String newDate = rootElement.getOptionalRegexpResult(
+                    "td:containsOwn(Ihre tägliche FRITZ!Box Verbindungsübersicht vom)",
+                    "Ihre tägliche FRITZ!Box Verbindungsübersicht vom ([\\d\\.]+)(:? .*)?");
+            if (newDate == null) {
+                throw new IllegalStateException("No date found in " + rootElement);
+            }
+            this.date = LocalDate.parse(newDate, NEW_REPORT_TIMESTAMP_FORMAT);
         }
-        final String newDate = mail.getOptionalRegexpResult(
-                "td:containsOwn(Ihre tägliche FRITZ!Box Verbindungsübersicht vom)",
-                "Ihre tägliche FRITZ!Box Verbindungsübersicht vom ([\\d\\.]+)(:? .*)?");
-        return LocalDate.parse(newDate, NEW_REPORT_TIMESTAMP_FORMAT);
+        return date;
     }
 
     public Map<TimePeriod, DataConnections> getDataConnections() {
-        final LocalDate date = getDate();
+        final LocalDate currentDate = getDate();
         final HtmlElement section = getSection("Online-Zähler");
         List<DataConnections> connectionsList = section.map("div.backdialog>div.foredialog>table>tbody>tr",
-                row -> convertDataConnection(date, row));
+                row -> convertDataConnection(currentDate, row));
         if (connectionsList.isEmpty()) {
             connectionsList = section.map("table>tbody>tr:nth-child(3)>td>table>tbody>tr>td>table>tbody>tr",
-                    row -> convertNewDataConnection(date, row));
+                    row -> convertNewDataConnection(currentDate, row));
         }
 
         if (connectionsList.size() < 4) {
@@ -169,7 +183,7 @@ class DataExtractor {
     }
 
     private HtmlElement getSection(final String sectionName) {
-        final HtmlElement sectionTitle = mail
+        final HtmlElement sectionTitle = rootElement
                 .selectOptionalSingleElement("div.content div.foretitel:containsOwn(" + sectionName + ")");
         if (sectionTitle != null) {
             final HtmlElement oldContentDiv = sectionTitle.getNthAncestor(6);
@@ -178,6 +192,13 @@ class DataExtractor {
             }
             throw new AssertionError("Found invalid content div " + oldContentDiv);
         }
-        return mail.selectElementWithContent("td", sectionName).getNthAncestor(7);
+        return rootElement.selectElementWithContent("td", sectionName).getNthAncestor(7);
+    }
+
+    public Optional<String> getForeTitle() {
+        return Optional
+                .ofNullable(rootElement.selectOptionalSingleElement(
+                        "div:eq(0) > div.content > table.tabletitle div.backtitel div.foretitel"))
+                .map(HtmlElement::getText);
     }
 }

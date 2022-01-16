@@ -62,7 +62,7 @@ public class MboxIteratorTest {
     public void testIteratorLoop() throws FileNotFoundException, IOException {
         LOG.info("Executing {}", name.getMethodName());
         for (int i = CHARS_IN_MAX_MSG; i < MORE_THAN_FILE_SIZE; i++) {
-            LOG.debug("Runinng iteration {}  with message size {}", i - CHARS_IN_MAX_MSG, i);
+            LOG.trace("Runinng iteration {}  with message size {}", i - CHARS_IN_MAX_MSG, i);
             iterateWithMaxMessage(i);
         }
     }

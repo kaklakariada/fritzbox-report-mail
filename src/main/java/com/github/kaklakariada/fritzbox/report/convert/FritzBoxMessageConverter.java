@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -33,21 +32,24 @@ import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
 import com.github.kaklakariada.fritzbox.report.model.InternetConnection;
-import com.github.kaklakariada.html.HtmlElement;
 
-public class FritzBoxMessageConverter implements Function<HtmlElement, FritzBoxReportMail> {
+public class FritzBoxMessageConverter implements Function<EmailContent, FritzBoxReportMail> {
     private static final Logger LOG = LoggerFactory.getLogger(FritzBoxMessageConverter.class);
 
     @Override
-    public FritzBoxReportMail apply(final HtmlElement mail) {
+    public FritzBoxReportMail apply(final EmailContent mail) {
+
         final DataExtractor extractor = new DataExtractor(mail);
         final Map<TimePeriod, DataConnections> dataConnections = extractor.getDataConnections();
         final DataConnections connectionsYesterday = dataConnections.get(TimePeriod.YESTERDAY);
         final List<EventLogEntry> eventLog = extractor.getEventLog();
-        final List<InternetConnection> connections = eventLog.stream().flatMap(this::convertInternetConnection)
-                .collect(Collectors.toList());
-        LOG.debug("{}: received {}, sent {}, log entries: {}, internet connections: {}", extractor.getDate(),
-                connectionsYesterday.getReveivedVolume(), connectionsYesterday.getSentVolume(), eventLog.size(),
+        final List<InternetConnection> connections = eventLog.stream()
+                .flatMap(this::convertInternetConnection)
+                .toList();
+        LOG.debug("{}: received {}, sent {}, log entries: {}, internet connections: {}",
+                extractor.getDate(),
+                connectionsYesterday.getReveivedVolume(), connectionsYesterday.getSentVolume(),
+                eventLog.size(),
                 connections.size());
         return new FritzBoxReportMail(extractor.getDate(), dataConnections, eventLog, connections);
     }

@@ -17,12 +17,46 @@
  */
 package com.github.kaklakariada.fritzbox.report.convert;
 
+import org.jsoup.Jsoup;
+
+import com.github.kaklakariada.html.HtmlElement;
+
 public class EmailBody {
-    public String contentType;
     public String body;
 
-    public EmailBody(String contentType, String body) {
-        this.contentType = contentType;
+    public enum Type {
+        PNG, CSV, HTML
+    }
+
+    public EmailBody(String body) {
+        if (body.length() == 0) {
+            throw new IllegalStateException("Empty body");
+        }
         this.body = body;
+    }
+
+    public Type getType() {
+        if (getRawContent().contains("<!DOCTYPE html")) {
+            return Type.HTML;
+        } else if (getRawContent().startsWith("\uFFFD" + "PNG")) {
+            return Type.PNG;
+        } else if (getRawContent().startsWith("sep=;")) {
+            return Type.CSV;
+        } else {
+            throw new IllegalStateException("Found unknown part: " + getRawContent());
+        }
+    }
+
+    public String getRawContent() {
+        return body;
+    }
+
+    public HtmlElement getElement() {
+        return new HtmlElement(Jsoup.parse(body, "mail"));
+    }
+
+    @Override
+    public String toString() {
+        return "EmailBody [body=" + body + "]";
     }
 }
