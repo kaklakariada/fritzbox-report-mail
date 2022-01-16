@@ -4,9 +4,13 @@ include 'model'
 include 'parser'
 include 'db-loader'
 include 'app'
+includeBuild '../simple-jdbc'
 
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
+        maven {
+            url 'https://maven.exasol.com/artifactory/exasol-releases'
+        }
     }
 }

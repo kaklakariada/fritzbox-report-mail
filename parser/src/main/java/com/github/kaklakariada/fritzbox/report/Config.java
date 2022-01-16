@@ -29,35 +29,47 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Config {
-    private static final Logger LOG = LoggerFactory.getLogger(Config.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Config.class);
 
-    private final Properties properties;
+	private final Properties properties;
 
-    private Config(Properties properties) {
-        this.properties = properties;
-    }
+	private Config(Properties properties) {
+		this.properties = properties;
+	}
 
-    public Path getMboxPath() {
-        return Paths.get(properties.getProperty("mbox.path"));
-    }
+	public Path getMboxPath() {
+		return Paths.get(properties.getProperty("mbox.path"));
+	}
 
-    public String getInfluxdbUrl() {
-        return properties.getProperty("influxdb.url");
-    }
+	public String getJdbcUrl() {
+		return properties.getProperty("jdbc.url");
+	}
 
-    public static Config readConfig() {
-        return readConfig(Paths.get("application.properties"));
-    }
+	public String getJdbcUser() {
+		return properties.getProperty("jdbc.user");
+	}
 
-    private static Config readConfig(Path path) {
-        final Properties properties = new Properties();
-        final Path absolutePath = path.toAbsolutePath();
-        LOG.debug("Reading config from file {}", absolutePath);
-        try (InputStream in = Files.newInputStream(absolutePath)) {
-            properties.load(in);
-        } catch (final IOException e) {
-            throw new UncheckedIOException("Error loading configuration from " + absolutePath, e);
-        }
-        return new Config(properties);
-    }
+	public String getJdbcPassword() {
+		return properties.getProperty("jdbc.password");
+	}
+
+	public String getJdbcSchemaName() {
+		return properties.getProperty("jdbc.schema");
+	}
+
+	public static Config readConfig() {
+		return readConfig(Paths.get("application.properties"));
+	}
+
+	public static Config readConfig(Path path) {
+		final Properties properties = new Properties();
+		final Path absolutePath = path.toAbsolutePath();
+		LOG.debug("Reading config from file {}", absolutePath);
+		try (InputStream in = Files.newInputStream(absolutePath)) {
+			properties.load(in);
+		} catch (final IOException e) {
+			throw new UncheckedIOException("Error loading configuration from " + absolutePath, e);
+		}
+		return new Config(properties);
+	}
 }
