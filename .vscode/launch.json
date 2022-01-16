@@ -6,7 +6,7 @@
             "name": "Launch ReadThunderbirdReportMails",
             "request": "launch",
             "mainClass": "ReadThunderbirdReportMails",
-            "projectName": "fritzbox-report-mail"
+            "projectName": "app"
         }
     ]
 }

@@ -4,4 +4,5 @@ plugins {
 
 dependencies {
     implementation project(':model')
+    implementation 'org.itsallcode:simple-jdbc:0.1.0'
 }
