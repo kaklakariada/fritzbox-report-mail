@@ -51,7 +51,7 @@ public class DbSchema {
                         volume.getSentVolume().getVolumeMb(), volume.getReveivedVolume().getVolumeMb() },
                 reportCollection.getDataVolumeByDay());
 
-        connection.insert("insert into LOG_ENTRY (\"TIMESTAMP\", MESSAGE, EVENT) VALUES (?, ?, ?, ?)",
+        connection.insert("insert into LOG_ENTRY (\"TIMESTAMP\", MESSAGE, EVENT) VALUES (?, ?, ?)",
                 entry -> new Object[] { entry.getTimestamp(), entry.getMessage(),
                         entry.getEvent() != null ? entry.getEvent().toString() : null },
                 reportCollection.getLogEntries());

@@ -23,14 +23,15 @@ public class WifiDeviceDisconnectedHard extends WifiDeviceDisconnected {
 
     private final String code;
 
-    public WifiDeviceDisconnectedHard(final String macAddress, final String name, final String code) {
-        super(macAddress, name);
+    public WifiDeviceDisconnectedHard(WifiType type, final String macAddress, final String name, final String code) {
+        super(type, macAddress, name);
         this.code = code;
     }
 
     @Override
     public String getDescription() {
-        return "wifi disconnected: name=" + getName() + ", mac=" + getMacAddress() + ", code=" + code;
+        return "wifi disconnected: name=" + getName() + ", type=" + getWifiType() + ", mac=" + getMacAddress()
+                + ", code=" + code;
     }
 
     public String getCode() {

@@ -20,23 +20,30 @@ package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 import org.junit.Test;
 
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnected;
+import com.github.kaklakariada.fritzbox.report.model.event.WifiType;
 
 public class TestWifiDeviceDisconnectedFactory extends EventLogEntryFactoryTestBase<WifiDeviceDisconnected> {
 
     @Test
     public void testMatch1() {
         assertEntry("WLAN-Gerät hat sich abgemeldet. MAC-Adresse: " + MAC_ADDRESS + ", Name: " + HOSTNAME + ".",
-                MAC_ADDRESS, HOSTNAME);
+                null, MAC_ADDRESS, HOSTNAME);
     }
 
     @Test
     public void testMatch2() {
         assertEntry("WLAN-Gerät hat sich abgemeldet. MAC-Adresse: " + MAC_ADDRESS + ", Name: " + HOSTNAME + ".",
-                MAC_ADDRESS, HOSTNAME);
+                null, MAC_ADDRESS, HOSTNAME);
     }
 
-    private void assertEntry(final String message, final String expectedMac, final String expectedName) {
-        assertMatched(message, new WifiDeviceDisconnected(expectedMac, expectedName));
+    @Test
+    public void testMatch3() {
+        assertEntry("WLAN-Gerät hat sich abgemeldet (5 GHz). MAC-Adresse: " + MAC_ADDRESS + ", Name: " + HOSTNAME + ".",
+                WifiType._5_GHZ, MAC_ADDRESS, HOSTNAME);
+    }
+
+    private void assertEntry(String message, WifiType wifiType, final String expectedMac, final String expectedName) {
+        assertMatched(message, new WifiDeviceDisconnected(wifiType, expectedMac, expectedName));
     }
 
     @Override

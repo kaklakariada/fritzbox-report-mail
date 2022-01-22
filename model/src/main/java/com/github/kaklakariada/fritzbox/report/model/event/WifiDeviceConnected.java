@@ -17,6 +17,8 @@
  */
 package com.github.kaklakariada.fritzbox.report.model.event;
 
+import java.util.Objects;
+
 import com.github.kaklakariada.fritzbox.report.model.Event;
 
 public class WifiDeviceConnected extends Event {
@@ -56,12 +58,7 @@ public class WifiDeviceConnected extends Event {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((macAddress == null) ? 0 : macAddress.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((speed == null) ? 0 : speed.hashCode());
-        return result;
+        return Objects.hash(macAddress, name, speed, wifiType);
     }
 
     @Override
@@ -76,27 +73,7 @@ public class WifiDeviceConnected extends Event {
             return false;
         }
         final WifiDeviceConnected other = (WifiDeviceConnected) obj;
-        if (macAddress == null) {
-            if (other.macAddress != null) {
-                return false;
-            }
-        } else if (!macAddress.equals(other.macAddress)) {
-            return false;
-        }
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        if (speed == null) {
-            if (other.speed != null) {
-                return false;
-            }
-        } else if (!speed.equals(other.speed)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(macAddress, other.macAddress) && Objects.equals(name, other.name)
+                && Objects.equals(speed, other.speed) && wifiType == other.wifiType;
     }
 }

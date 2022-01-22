@@ -30,6 +30,6 @@ public class WifiDeviceDisconnectedHardFactory extends AbstractEventLogEntryFact
 
     @Override
     protected WifiDeviceDisconnectedHard createEventLogEntry(final String message, final List<String> groups) {
-        return new WifiDeviceDisconnectedHard(groups.get(0), groups.get(1), groups.get(2));
+        return new WifiDeviceDisconnectedHard(null, groups.get(0), groups.get(1), groups.get(2));
     }
 }

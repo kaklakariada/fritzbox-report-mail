@@ -17,16 +17,20 @@
  */
 package com.github.kaklakariada.fritzbox.report.model.event;
 
+import java.util.Objects;
+
 import com.github.kaklakariada.fritzbox.report.model.Event;
 
 public class WifiDeviceDisconnected extends Event {
 
     private static final long serialVersionUID = 1L;
 
+    private final WifiType wifiType;
     private final String macAddress;
     private final String name;
 
-    public WifiDeviceDisconnected(final String macAddress, final String name) {
+    public WifiDeviceDisconnected(WifiType wifiType, final String macAddress, final String name) {
+        this.wifiType = wifiType;
         this.macAddress = macAddress;
         this.name = name;
     }
@@ -39,18 +43,18 @@ public class WifiDeviceDisconnected extends Event {
         return name;
     }
 
+    public WifiType getWifiType() {
+        return wifiType;
+    }
+
     @Override
     public String getDescription() {
-        return "wifi disconnected: name=" + name + ", mac=" + macAddress;
+        return "wifi disconnected: name=" + name + ", type=" + wifiType + ", mac=" + macAddress;
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((macAddress == null) ? 0 : macAddress.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        return result;
+        return Objects.hash(macAddress, name, wifiType);
     }
 
     @Override
@@ -65,20 +69,7 @@ public class WifiDeviceDisconnected extends Event {
             return false;
         }
         final WifiDeviceDisconnected other = (WifiDeviceDisconnected) obj;
-        if (macAddress == null) {
-            if (other.macAddress != null) {
-                return false;
-            }
-        } else if (!macAddress.equals(other.macAddress)) {
-            return false;
-        }
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(macAddress, other.macAddress) && Objects.equals(name, other.name)
+                && wifiType == other.wifiType;
     }
 }

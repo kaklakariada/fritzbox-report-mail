@@ -27,14 +27,19 @@ import com.github.kaklakariada.fritzbox.report.model.regex.Regex;
 public class WifiDeviceConnectedFactory extends AbstractEventLogEntryFactory<WifiDeviceConnected> {
 
     WifiDeviceConnectedFactory() {
-        super(Regex.create("(?:Neues )?WLAN-Gerät (?:erstmalig )?(?:hat sich neu )?angemeldet. Geschwindigkeit "
+        super(Regex.create("(?:Neues )?WLAN-Gerät (?:erstmalig )?(?:hat sich neu )?angemeldet\\. Geschwindigkeit "
                 + EVERYTHING_UNTIL_PERIOD_REGEXP + ". MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: "
-                + EVERYTHING_UNTIL_PERIOD_REGEXP + ".", 3),
+                + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.", 3),
                 Regex.create(
                         "WLAN-Gerät angemeldet \\(([^)]+)\\), " + EVERYTHING_UNTIL_COMMA_REGEXP + ", "
                                 + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP " + IPV4_ADDRESS_REGEXP + ", MAC "
                                 + MAC_ADDRESS_REGEXP + "\\.",
-                        5));
+                        5),
+                Regex.create(
+                        "WLAN-Gerät angemeldet \\(([^)]+)\\)\\. Geschwindigkeit " + EVERYTHING_UNTIL_PERIOD_REGEXP
+                                + "\\. MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: " + EVERYTHING_UNTIL_PERIOD_REGEXP
+                                + "\\.",
+                        4));
     }
 
     @Override
@@ -43,6 +48,9 @@ public class WifiDeviceConnectedFactory extends AbstractEventLogEntryFactory<Wif
         switch (groups.size()) {
         case 3:
             return new WifiDeviceConnected(groups.get(0), null, null, groups.get(1), groups.get(2));
+        case 4:
+            return new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), null, groups.get(2),
+                    groups.get(3));
         case 5:
             return new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), groups.get(3), groups.get(4),
                     groups.get(2));

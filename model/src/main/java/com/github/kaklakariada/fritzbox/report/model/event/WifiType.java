@@ -3,7 +3,7 @@ package com.github.kaklakariada.fritzbox.report.model.event;
 import java.util.Arrays;
 
 public enum WifiType {
-    _5_GHZ("5 GHz"), _2_4_GHZ("2.4 GHz");
+    _5_GHZ("5 GHz"), _2_4_GHZ("2,4 GHz");
 
     private String name;
 

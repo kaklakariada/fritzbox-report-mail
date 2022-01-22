@@ -17,9 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +27,7 @@ import com.github.kaklakariada.serialization.KryoSerializerService;
 public class ParseReportMails {
     private static final Logger LOG = LoggerFactory.getLogger(ParseReportMails.class);
 
-    public static void main(final String[] args) throws FileNotFoundException, IOException {
+    public static void main(final String[] args) {
         final Config config = Config.readConfig(DbImporter.CONFIG_FILE);
         FritzBoxReportCollection reportCollection;
         reportCollection = new ReportService().loadThunderbirdMails(config.getMboxPath());

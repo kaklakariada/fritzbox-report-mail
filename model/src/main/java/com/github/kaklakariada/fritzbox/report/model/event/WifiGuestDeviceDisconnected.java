@@ -17,6 +17,8 @@
  */
 package com.github.kaklakariada.fritzbox.report.model.event;
 
+import java.util.Objects;
+
 import com.github.kaklakariada.fritzbox.report.model.Event;
 
 public class WifiGuestDeviceDisconnected extends Event {
@@ -40,10 +42,7 @@ public class WifiGuestDeviceDisconnected extends Event {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((macAddress == null) ? 0 : macAddress.hashCode());
-        return result;
+        return Objects.hash(macAddress);
     }
 
     @Override
@@ -58,13 +57,6 @@ public class WifiGuestDeviceDisconnected extends Event {
             return false;
         }
         final WifiGuestDeviceDisconnected other = (WifiGuestDeviceDisconnected) obj;
-        if (macAddress == null) {
-            if (other.macAddress != null) {
-                return false;
-            }
-        } else if (!macAddress.equals(other.macAddress)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(macAddress, other.macAddress);
     }
 }

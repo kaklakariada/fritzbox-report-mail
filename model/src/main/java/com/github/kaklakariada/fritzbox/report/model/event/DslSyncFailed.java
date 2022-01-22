@@ -30,11 +30,11 @@ public class DslSyncFailed extends Event {
 
     @Override
     public boolean equals(Object obj) {
-        return true;
+        return obj instanceof DslSyncFailed;
     }
 
     @Override
     public int hashCode() {
-        return 0;
+        return 1;
     }
 }

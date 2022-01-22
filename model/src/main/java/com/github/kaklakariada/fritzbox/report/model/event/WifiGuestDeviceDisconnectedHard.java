@@ -17,6 +17,8 @@
  */
 package com.github.kaklakariada.fritzbox.report.model.event;
 
+import java.util.Objects;
+
 public class WifiGuestDeviceDisconnectedHard extends WifiGuestDeviceDisconnected {
 
     private static final long serialVersionUID = 1L;
@@ -35,5 +37,28 @@ public class WifiGuestDeviceDisconnectedHard extends WifiGuestDeviceDisconnected
 
     public String getCode() {
         return code;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Objects.hash(code);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final WifiGuestDeviceDisconnectedHard other = (WifiGuestDeviceDisconnectedHard) obj;
+        return Objects.equals(code, other.code);
     }
 }

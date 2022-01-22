@@ -31,7 +31,7 @@ public class TestWifiDeviceHardDisconnectedFactory extends EventLogEntryFactoryT
 
     private void assertEntry(final String message, final String expectedMac, final String expectedName,
             final String expectedId) {
-        assertMatched(message, new WifiDeviceDisconnectedHard(expectedMac, expectedName, expectedId));
+        assertMatched(message, new WifiDeviceDisconnectedHard(null, expectedMac, expectedName, expectedId));
     }
 
     @Override
