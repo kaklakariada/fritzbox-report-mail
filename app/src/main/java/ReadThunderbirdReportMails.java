@@ -21,45 +21,45 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
+import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.kaklakariada.fritzbox.report.Config;
 import com.github.kaklakariada.fritzbox.report.ReportService;
-import com.github.kaklakariada.fritzbox.report.model.AggregatedVolume;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportCollection;
 import com.github.kaklakariada.serialization.KryoSerializerService;
 import com.github.kaklakariada.serialization.SerializerService;
 
 public class ReadThunderbirdReportMails {
-    static final Logger LOG = LoggerFactory.getLogger(ReadThunderbirdReportMails.class);
+	static final Logger LOG = LoggerFactory.getLogger(ReadThunderbirdReportMails.class);
 
-    private static final ReportService reportService = new ReportService();
-    private static final SerializerService<FritzBoxReportCollection> serializer = new KryoSerializerService<>(
-            FritzBoxReportCollection.class);
+	private static final ReportService reportService = new ReportService();
+	private static final SerializerService<FritzBoxReportCollection> serializer = new KryoSerializerService<>(
+			FritzBoxReportCollection.class);
 
-    public static void main(final String[] args) throws FileNotFoundException, IOException {
-        final Path tempFile = Files.createTempFile("reports", ".ser");
+	public static void main(final String[] args) throws FileNotFoundException, IOException {
+		final Path tempFile = Files.createTempFile("reports", ".ser");
 
-        final Config config = Config.readConfig();
-        FritzBoxReportCollection reportCollection;
-        reportCollection = reportService.loadThunderbirdMails(config.getMboxPath());
-        serializer.serialize(tempFile, reportCollection);
-        reportCollection = serializer.deserialize(tempFile);
+		final Config config = Config.readConfig(Paths.get("../application.properties"));
+		FritzBoxReportCollection reportCollection;
+		reportCollection = reportService.loadThunderbirdMails(config.getMboxPath());
+		serializer.serialize(tempFile, reportCollection);
+		reportCollection = serializer.deserialize(tempFile);
 
-        reportCollection.getDataVolumeByDay() //
-                .sorted(Comparator.comparing(AggregatedVolume::getTotalVolume).reversed()) //
-                .limit(10) //
-                .map(Object::toString) //
-                .forEach(LOG::debug);
+//		reportCollection.getDataVolumeByDay() //
+//				.sorted(Comparator.comparing(AggregatedVolume::getTotalVolume).reversed()) //
+//				.limit(10) //
+//				.map(Object::toString) //
+//				.forEach(LOG::debug);
 
-        // reportCollection.getLogEntries() //
-        // .filter(e -> e.getEvent() != null && (e.getEvent() instanceof DslSyncFailed
-        // || e.getEvent() instanceof InternetDisconnected || e.getEvent() instanceof DslSyncSuccessful)) //
-        // .map(Object::toString) //
-        // .forEach(LOG::debug);
-    }
+		// reportCollection.getLogEntries() //
+		// .filter(e -> e.getEvent() != null && (e.getEvent() instanceof DslSyncFailed
+		// || e.getEvent() instanceof InternetDisconnected || e.getEvent() instanceof
+		// DslSyncSuccessful)) //
+		// .map(Object::toString) //
+		// .forEach(LOG::debug);
+	}
 
 }

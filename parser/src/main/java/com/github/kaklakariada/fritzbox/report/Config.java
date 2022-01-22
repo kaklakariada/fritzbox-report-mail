@@ -57,10 +57,6 @@ public class Config {
 		return properties.getProperty("jdbc.schema");
 	}
 
-	public static Config readConfig() {
-		return readConfig(Paths.get("application.properties"));
-	}
-
 	public static Config readConfig(Path path) {
 		final Properties properties = new Properties();
 		final Path absolutePath = path.toAbsolutePath();
