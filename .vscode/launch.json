@@ -3,6 +3,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch DbImporter",
+            "request": "launch",
+            "mainClass": "DbImporter",
+            "projectName": "app"
+        },
+        {
+            "type": "java",
             "name": "Launch ReadThunderbirdReportMails",
             "request": "launch",
             "mainClass": "ReadThunderbirdReportMails",

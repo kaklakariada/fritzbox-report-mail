@@ -18,20 +18,28 @@
 package com.github.kaklakariada.fritzbox.report.model;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class EventLogEntry implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private final LocalDate date;
     private final LocalDateTime timestamp;
     private final String message;
     private final Event event;
 
-    public EventLogEntry(final LocalDateTime timestamp, final String message, final Event event) {
+    public EventLogEntry(LocalDate date, final LocalDateTime timestamp, final String message, final Event event) {
+        this.date = Objects.requireNonNull(date, "date");
         this.timestamp = timestamp;
         this.message = message;
         this.event = event;
+    }
+
+    public LocalDate getDate() {
+        return date;
     }
 
     public LocalDateTime getTimestamp() {
@@ -57,12 +65,7 @@ public class EventLogEntry implements Serializable {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((event == null) ? 0 : event.hashCode());
-        result = prime * result + ((message == null) ? 0 : message.hashCode());
-        result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
-        return result;
+        return Objects.hash(date, event, message, timestamp);
     }
 
     @Override
@@ -77,27 +80,7 @@ public class EventLogEntry implements Serializable {
             return false;
         }
         final EventLogEntry other = (EventLogEntry) obj;
-        if (event == null) {
-            if (other.event != null) {
-                return false;
-            }
-        } else if (!event.equals(other.event)) {
-            return false;
-        }
-        if (message == null) {
-            if (other.message != null) {
-                return false;
-            }
-        } else if (!message.equals(other.message)) {
-            return false;
-        }
-        if (timestamp == null) {
-            if (other.timestamp != null) {
-                return false;
-            }
-        } else if (!timestamp.equals(other.timestamp)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(date, other.date) && Objects.equals(event, other.event)
+                && Objects.equals(message, other.message) && Objects.equals(timestamp, other.timestamp);
     }
 }

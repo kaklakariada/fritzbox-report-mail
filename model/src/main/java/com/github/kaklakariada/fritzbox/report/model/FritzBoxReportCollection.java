@@ -32,38 +32,42 @@ import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 
 public class FritzBoxReportCollection implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	private final Map<LocalDate, FritzBoxReportMail> reports;
+    private static final long serialVersionUID = 1L;
+    private final Map<LocalDate, FritzBoxReportMail> reports;
 
-	public FritzBoxReportCollection(final Map<LocalDate, FritzBoxReportMail> reports) {
-		this.reports = reports;
-	}
+    public FritzBoxReportCollection(final Map<LocalDate, FritzBoxReportMail> reports) {
+        this.reports = reports;
+    }
 
-	public int getReportCount() {
-		return reports.size();
-	}
+    public Stream<FritzBoxReportMail> getReports() {
+        return reports.values().stream();
+    }
 
-	public Stream<AggregatedVolume> getDataVolumeByDay() {
-		return reports.values().stream() //
-				.map(FritzBoxReportMail::getDataConnections) //
-				.map(connections -> connections.get(TimePeriod.YESTERDAY)) //
-				.sorted(Comparator.comparing(DataConnections::getDate))
-				.map(conn -> new AggregatedVolume(conn.getDate(), conn));
-	}
+    public int getReportCount() {
+        return reports.size();
+    }
 
-	public Stream<AggregatedVolume> getDataVolumeByDayAndMonth() {
-		return getDataVolumeByDay() //
-				.collect(groupingBy(vol -> vol.getDay().withDayOfMonth(1), //
-						reducing((v1, v2) -> v1.plusSameMonth(v2)))) //
-				.values().stream() //
-				.map(Optional::get) //
-				.sorted(comparing(AggregatedVolume::getDay));
-	}
+    public Stream<AggregatedVolume> getDataVolumeByDay() {
+        return reports.values().stream() //
+                .map(FritzBoxReportMail::getDataConnections) //
+                .map(connections -> connections.get(TimePeriod.YESTERDAY)) //
+                .sorted(Comparator.comparing(DataConnections::getDate))
+                .map(conn -> new AggregatedVolume(conn.getDate(), conn));
+    }
 
-	public Stream<EventLogEntry> getLogEntries() {
-		return this.reports.values().stream()
-				.sorted(comparing(FritzBoxReportMail::getDate)) //
-				.flatMap(r -> r.getEventLog().stream()) //
-				.sorted(comparing(EventLogEntry::getTimestamp));
-	}
+    public Stream<AggregatedVolume> getDataVolumeByDayAndMonth() {
+        return getDataVolumeByDay() //
+                .collect(groupingBy(vol -> vol.getDay().withDayOfMonth(1), //
+                        reducing((v1, v2) -> v1.plusSameMonth(v2)))) //
+                .values().stream() //
+                .map(Optional::get) //
+                .sorted(comparing(AggregatedVolume::getDay));
+    }
+
+    public Stream<EventLogEntry> getLogEntries() {
+        return this.reports.values().stream()
+                .sorted(comparing(FritzBoxReportMail::getDate)) //
+                .flatMap(r -> r.getEventLog().stream()) //
+                .sorted(comparing(EventLogEntry::getTimestamp));
+    }
 }

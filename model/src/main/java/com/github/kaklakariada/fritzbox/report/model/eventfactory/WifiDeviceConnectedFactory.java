@@ -20,17 +20,34 @@ package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 import java.util.List;
 
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
+import com.github.kaklakariada.fritzbox.report.model.event.WifiType;
+import com.github.kaklakariada.fritzbox.report.model.regex.MatchedRegex;
+import com.github.kaklakariada.fritzbox.report.model.regex.Regex;
 
 public class WifiDeviceConnectedFactory extends AbstractEventLogEntryFactory<WifiDeviceConnected> {
 
     WifiDeviceConnectedFactory() {
-        super("(?:Neues )?WLAN-Gerät (?:erstmalig )?(?:hat sich neu )?angemeldet. Geschwindigkeit "
+        super(Regex.create("(?:Neues )?WLAN-Gerät (?:erstmalig )?(?:hat sich neu )?angemeldet. Geschwindigkeit "
                 + EVERYTHING_UNTIL_PERIOD_REGEXP + ". MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: "
-                + EVERYTHING_UNTIL_PERIOD_REGEXP + ".", 3);
+                + EVERYTHING_UNTIL_PERIOD_REGEXP + ".", 3),
+                Regex.create(
+                        "WLAN-Gerät angemeldet \\(([^)]+)\\), " + EVERYTHING_UNTIL_COMMA_REGEXP + ", "
+                                + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP " + IPV4_ADDRESS_REGEXP + ", MAC "
+                                + MAC_ADDRESS_REGEXP + "\\.",
+                        5));
     }
 
     @Override
-    protected WifiDeviceConnected createEventLogEntry(final String message, final List<String> groups) {
-        return new WifiDeviceConnected(groups.get(0), groups.get(1), groups.get(2));
+    protected WifiDeviceConnected createEventLogEntry(MatchedRegex regexp) {
+        final List<String> groups = regexp.getGroups();
+        switch (groups.size()) {
+        case 3:
+            return new WifiDeviceConnected(groups.get(0), null, null, groups.get(1), groups.get(2));
+        case 5:
+            return new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), groups.get(3), groups.get(4),
+                    groups.get(2));
+        default:
+            throw new IllegalArgumentException("Unexpected group count: " + regexp);
+        }
     }
 }

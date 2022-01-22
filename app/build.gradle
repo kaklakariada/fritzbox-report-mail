@@ -5,6 +5,7 @@ plugins {
 dependencies {
     implementation project(':parser')
     implementation project(':db-loader')
+    implementation project(':model')
 
     runtimeOnly 'ch.qos.logback:logback-classic:1.2.10'
     runtimeOnly 'com.exasol:exasol-jdbc:7.1.4'

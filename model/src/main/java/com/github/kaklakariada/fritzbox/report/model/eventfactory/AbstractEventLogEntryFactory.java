@@ -17,13 +17,14 @@
  */
 package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 
-import java.util.ArrayList;
+import static java.util.stream.Collectors.joining;
+
 import java.util.List;
-import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Optional;
 
 import com.github.kaklakariada.fritzbox.report.model.Event;
+import com.github.kaklakariada.fritzbox.report.model.regex.MatchedRegex;
+import com.github.kaklakariada.fritzbox.report.model.regex.Regex;
 
 public abstract class AbstractEventLogEntryFactory<T extends Event> {
 
@@ -34,43 +35,41 @@ public abstract class AbstractEventLogEntryFactory<T extends Event> {
             + "(?:25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9]))";
     protected static final String NON_WHITESPACE_REGEXP = "(\\S+)";
     protected static final String EVERYTHING_UNTIL_PERIOD_REGEXP = "([^.]+?)";
+    protected static final String EVERYTHING_UNTIL_COMMA_REGEXP = "([^,]+?)";
 
-    private final Pattern pattern;
-    private final int expectedGroupCount;
+    private final List<Regex> regex;
 
     protected AbstractEventLogEntryFactory(final String regex, final int expectedGroupCount) {
-        this.expectedGroupCount = expectedGroupCount;
-        this.pattern = Pattern.compile(regex);
+        this(Regex.create(regex, expectedGroupCount));
+    }
+
+    protected AbstractEventLogEntryFactory(Regex... regexps) {
+        regex = List.of(regexps);
     }
 
     boolean matches(final String message) {
-        return createMatcher(message).matches();
+        return firstMatchingMatcher(message).isPresent();
     }
 
-    private Matcher createMatcher(final String message) {
-        return pattern.matcher(message);
+    private Optional<MatchedRegex> firstMatchingMatcher(final String message) {
+        return regex.stream().map(regex -> regex.matches(message))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
     }
 
     T createEventLogEntryInternal(final String message) {
-        final Matcher matcher = createMatcher(message);
-        if (!matcher.matches()) {
-            throw new IllegalArgumentException("String '" + message + "' does not match '" + pattern + "'");
-        }
-        return createEventLogEntry(message, matcher.toMatchResult());
+        final MatchedRegex matchedRegex = firstMatchingMatcher(message).orElseThrow(
+                () -> new IllegalStateException("Message '" + message + "' not matched by any of the regex\n  -"
+                        + regex.stream().map(Regex::toString).collect(joining("\n  - "))));
+        return createEventLogEntry(matchedRegex);
     }
 
-    protected T createEventLogEntry(final String message, final MatchResult matcher) {
-        final int groupCount = matcher.groupCount();
-        if (groupCount != expectedGroupCount) {
-            throw new AssertionError("Expected " + expectedGroupCount + " but got " + groupCount
-                    + " groups for regexp '" + pattern + "' and input string '" + message + "'");
-        }
-        final List<String> groups = new ArrayList<>(groupCount);
-        for (int i = 1; i <= groupCount; i++) {
-            groups.add(matcher.group(i));
-        }
-        return createEventLogEntry(message, groups);
+    protected T createEventLogEntry(final MatchedRegex matchedRegex) {
+        return createEventLogEntry(matchedRegex.getInput(), matchedRegex.getGroups());
     }
 
-    protected abstract T createEventLogEntry(String message, List<String> groups);
+    protected T createEventLogEntry(String message, List<String> groups) {
+        throw new UnsupportedOperationException();
+    }
 }

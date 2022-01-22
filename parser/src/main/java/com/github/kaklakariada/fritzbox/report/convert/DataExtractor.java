@@ -48,17 +48,19 @@ class DataExtractor {
             .ofPattern("dd.MM.yy HH:mm:ss");
     private final HtmlElement rootElement;
     private final EventLogEntryFactory eventLogEntryFactory;
+    private final EmailContent mail;
     private LocalDate date;
 
     DataExtractor(final EmailContent mail) {
-        this(getBody(mail), new EventLogEntryFactory());
+        this(mail, getBody(mail), new EventLogEntryFactory());
     }
 
     private static HtmlElement getBody(final EmailContent mail) {
         return mail.getPart(Type.HTML).getElement();
     }
 
-    private DataExtractor(final HtmlElement rootElement, EventLogEntryFactory eventLogEntryFactory) {
+    private DataExtractor(EmailContent mail, final HtmlElement rootElement, EventLogEntryFactory eventLogEntryFactory) {
+        this.mail = mail;
         this.rootElement = rootElement;
         this.eventLogEntryFactory = eventLogEntryFactory;
     }
@@ -179,7 +181,7 @@ class DataExtractor {
         final LocalDateTime timestamp = LocalDateTime.parse(cells.get(0).text(), LOG_ENTRY_TIMESTAMP_FORMAT);
         final String message = cells.get(1).text();
         final Event event = eventLogEntryFactory.createEventLogEntry(message);
-        return new EventLogEntry(timestamp, message, event);
+        return new EventLogEntry(mail.getDate(), timestamp, message, event);
     }
 
     private HtmlElement getSection(final String sectionName) {

@@ -22,6 +22,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -35,7 +36,7 @@ public abstract class SerializerService<T> {
 
     protected final Class<T> type;
 
-    public SerializerService(final Class<T> type) {
+    protected SerializerService(final Class<T> type) {
         this.type = type;
     }
 
@@ -44,7 +45,7 @@ public abstract class SerializerService<T> {
         try {
             serialize(new BufferedOutputStream(Files.newOutputStream(outputFile)), reports);
         } catch (final IOException e) {
-            throw new RuntimeException("Error writing file " + outputFile);
+            throw new UncheckedIOException("Error writing file " + outputFile, e);
         }
         final Duration duration = Duration.between(start, Instant.now());
         LOG.debug("Wrote object to file {} in {}", outputFile, duration);
@@ -59,7 +60,7 @@ public abstract class SerializerService<T> {
         try {
             object = deserialize(new BufferedInputStream(Files.newInputStream(inputFile)));
         } catch (final IOException e) {
-            throw new RuntimeException("Error reading file " + inputFile);
+            throw new UncheckedIOException("Error reading file " + inputFile, e);
         }
         final Duration duration = Duration.between(start, Instant.now());
         LOG.debug("Read object from file {} in {}", inputFile, duration);

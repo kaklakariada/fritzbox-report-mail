@@ -109,7 +109,7 @@ public class DataExtractorTest {
     }
 
     private EventLogEntry logEntry(LocalDateTime timestamp, String message) {
-        return new EventLogEntry(timestamp, message, null);
+        return new EventLogEntry(timestamp.toLocalDate(), timestamp, message, null);
     }
 
     private void assertLog(ReportVersion version, EventLogEntry... expectedLogEntries) {

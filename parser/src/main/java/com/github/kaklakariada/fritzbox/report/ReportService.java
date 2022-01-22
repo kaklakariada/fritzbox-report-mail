@@ -37,33 +37,33 @@ import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
 
 public class ReportService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ReportService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReportService.class);
 
-	public FritzBoxReportCollection loadThunderbirdMails(final Path mboxFile) {
-		final Instant start = Instant.now();
-		final Map<LocalDate, FritzBoxReportMail> reports = streamReports(mboxFile) //
-				.collect(toMap(FritzBoxReportMail::getDate, Function.identity(), this::merge));
-		final FritzBoxReportCollection reportCollection = new FritzBoxReportCollection(reports);
-		final Duration duration = Duration.between(start, Instant.now());
-		LOG.info("Loaded {} reports in {} from {}", reportCollection.getReportCount(), duration, mboxFile);
-		return reportCollection;
-	}
+    public FritzBoxReportCollection loadThunderbirdMails(final Path mboxFile) {
+        final Instant start = Instant.now();
+        final Map<LocalDate, FritzBoxReportMail> reports = streamReports(mboxFile) //
+                .collect(toMap(FritzBoxReportMail::getDate, Function.identity(), this::merge));
+        final FritzBoxReportCollection reportCollection = new FritzBoxReportCollection(reports);
+        final Duration duration = Duration.between(start, Instant.now());
+        LOG.info("Loaded {} reports in {} from {}", reportCollection.getReportCount(), duration, mboxFile);
+        return reportCollection;
+    }
 
-	private FritzBoxReportMail merge(FritzBoxReportMail a, FritzBoxReportMail b) {
-		LOG.warn("Found two mails for {} with same date:\n\t{}\n\t{}", a.getDate(),
-				a.getEmailMetadata(), b.getEmailMetadata());
-		if (a.getEmailMetadata().getTimestamp().isAfter(b.getEmailMetadata().getTimestamp())) {
-			return a;
-		} else {
-			return b;
-		}
-	}
+    private FritzBoxReportMail merge(FritzBoxReportMail a, FritzBoxReportMail b) {
+        LOG.warn("Found two mails for {} with same date:\n\t{}\n\t{}", a.getDate(),
+                a.getEmailMetadata(), b.getEmailMetadata());
+        if (a.getEmailMetadata().getTimestamp().isAfter(b.getEmailMetadata().getTimestamp())) {
+            return a;
+        } else {
+            return b;
+        }
+    }
 
-	public Stream<FritzBoxReportMail> streamReports(final Path mboxFile) {
-		LOG.info("Loading reports from mbox file {}...", mboxFile);
-		return new ThunderbirdMboxReader() //
-				.readMbox(mboxFile) //
-				.map(new MessageHtmlTextBodyConverter()) //
-				.map(new FritzBoxMessageConverter());
-	}
+    public Stream<FritzBoxReportMail> streamReports(final Path mboxFile) {
+        LOG.info("Loading reports from mbox file {}...", mboxFile);
+        return new ThunderbirdMboxReader()
+                .readMbox(mboxFile)
+                .map(new MessageHtmlTextBodyConverter())
+                .map(new FritzBoxMessageConverter());
+    }
 }
