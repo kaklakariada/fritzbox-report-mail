@@ -17,7 +17,7 @@
  */
 package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.github.kaklakariada.fritzbox.report.model.event.WifiGuestDeviceDisconnected;
 

@@ -60,7 +60,7 @@ public abstract class AbstractEventLogEntryFactory<T extends Event> {
 
     T createEventLogEntryInternal(final String message) {
         final MatchedRegex matchedRegex = firstMatchingMatcher(message).orElseThrow(
-                () -> new IllegalStateException("Message '" + message + "' not matched by any of the regex\n  -"
+                () -> new IllegalStateException("Message '" + message + "' not matched by any of the regex\n  - "
                         + regex.stream().map(Regex::toString).collect(joining("\n  - "))));
         return createEventLogEntry(matchedRegex);
     }
