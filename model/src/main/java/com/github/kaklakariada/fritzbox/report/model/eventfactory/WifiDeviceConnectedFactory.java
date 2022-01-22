@@ -17,11 +17,8 @@
  */
 package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 
-import java.util.List;
-
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiType;
-import com.github.kaklakariada.fritzbox.report.model.regex.MatchedRegex;
 import com.github.kaklakariada.fritzbox.report.model.regex.Regex;
 
 public class WifiDeviceConnectedFactory extends AbstractEventLogEntryFactory<WifiDeviceConnected> {
@@ -29,33 +26,30 @@ public class WifiDeviceConnectedFactory extends AbstractEventLogEntryFactory<Wif
     WifiDeviceConnectedFactory() {
         super(Regex.create("(?:Neues )?WLAN-Gerät (?:erstmalig )?(?:hat sich neu )?angemeldet\\. Geschwindigkeit "
                 + EVERYTHING_UNTIL_PERIOD_REGEXP + ". MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: "
-                + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.", 3),
+                + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.", 3,
+                groups -> new WifiDeviceConnected(groups.get(0), null, null, groups.get(1), groups.get(2))),
+
                 Regex.create(
-                        "WLAN-Gerät angemeldet \\(([^)]+)\\), " + EVERYTHING_UNTIL_COMMA_REGEXP + ", "
+                        "WLAN-Gerät angemeldet " + WIFI_TYPE_REGEXP + ", " + EVERYTHING_UNTIL_COMMA_REGEXP + ", "
                                 + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP " + IPV4_ADDRESS_REGEXP + ", MAC "
-                                + MAC_ADDRESS_REGEXP + "\\.",
-                        5),
+                                + MAC_ADDRESS_REGEXP + "(?:, Name: .+)?\\.",
+                        // WLAN-Gerät angemeldet (5 GHz), 300 Mbit/s, chpimbpwlan, IP 192.168.179.21,
+                        // MAC 58:B0:35:73:20:F5, Name: chpimbpwlan.
+                        5,
+                        groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), groups.get(3),
+                                groups.get(4),
+                                groups.get(2))),
+
                 Regex.create(
-                        "WLAN-Gerät angemeldet \\(([^)]+)\\)\\. Geschwindigkeit " + EVERYTHING_UNTIL_PERIOD_REGEXP
+                        "WLAN-Gerät angemeldet " + WIFI_TYPE_REGEXP + ". Geschwindigkeit "
+                                + EVERYTHING_UNTIL_PERIOD_REGEXP
                                 + "\\. MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: " + EVERYTHING_UNTIL_PERIOD_REGEXP
                                 + "\\.",
-                        4));
-    }
+                        4,
+                        groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), null,
+                                groups.get(2),
+                                groups.get(3)))
 
-    @Override
-    protected WifiDeviceConnected createEventLogEntry(MatchedRegex regexp) {
-        final List<String> groups = regexp.getGroups();
-        switch (groups.size()) {
-        case 3:
-            return new WifiDeviceConnected(groups.get(0), null, null, groups.get(1), groups.get(2));
-        case 4:
-            return new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), null, groups.get(2),
-                    groups.get(3));
-        case 5:
-            return new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), groups.get(3), groups.get(4),
-                    groups.get(2));
-        default:
-            throw new IllegalArgumentException("Unexpected group count: " + regexp);
-        }
+        );
     }
 }

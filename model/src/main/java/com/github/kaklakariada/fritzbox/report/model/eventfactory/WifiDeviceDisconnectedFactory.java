@@ -17,19 +17,23 @@
  */
 package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 
-import java.util.List;
-
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnected;
+import com.github.kaklakariada.fritzbox.report.model.event.WifiType;
+import com.github.kaklakariada.fritzbox.report.model.regex.Regex;
 
 public class WifiDeviceDisconnectedFactory extends AbstractEventLogEntryFactory<WifiDeviceDisconnected> {
 
     protected WifiDeviceDisconnectedFactory() {
-        super("WLAN-Gerät hat sich abgemeldet. MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: "
-                + EVERYTHING_UNTIL_PERIOD_REGEXP + ".", 2);
-    }
+        super(Regex.create(
+                "WLAN-Gerät hat sich abgemeldet\\. MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: "
+                        + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.",
+                2,
+                groups -> new WifiDeviceDisconnected(null, groups.get(0), groups.get(1))),
 
-    @Override
-    protected WifiDeviceDisconnected createEventLogEntry(final String message, final List<String> groups) {
-        return new WifiDeviceDisconnected(null, groups.get(0), groups.get(1));
+                Regex.create("WLAN-Gerät hat sich abgemeldet " + WIFI_TYPE_REGEXP + "\\. MAC-Adresse: "
+                        + MAC_ADDRESS_REGEXP + ", Name: " +
+                        EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.", 3,
+                        groups -> new WifiDeviceDisconnected(WifiType.parse(groups.get(0)), groups.get(1),
+                                groups.get(2))));
     }
 }

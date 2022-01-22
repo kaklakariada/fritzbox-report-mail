@@ -7,14 +7,21 @@ import java.util.regex.Pattern;
 public class Regex {
     private final Pattern pattern;
     private final int expectedGroupCount;
+    private final RegexMapper mapper;
 
-    public static Regex create(String regexp, int expectedGroupCount) {
-        return new Regex(Pattern.compile(regexp), expectedGroupCount);
+    public static Regex create(String regexp, int expectedGroupCount, RegexGroupMapper mapper) {
+        return createWithMapper(regexp, expectedGroupCount,
+                mapper == null ? null : (MatchedRegex regex) -> mapper.map(regex.getGroups()));
     }
 
-    public Regex(Pattern pattern, int expectedGroupCount) {
+    private static Regex createWithMapper(String regexp, int expectedGroupCount, RegexMapper mapper) {
+        return new Regex(Pattern.compile(regexp), expectedGroupCount, mapper);
+    }
+
+    public Regex(Pattern pattern, int expectedGroupCount, RegexMapper mapper) {
         this.expectedGroupCount = expectedGroupCount;
         this.pattern = pattern;
+        this.mapper = mapper;
     }
 
     public Optional<MatchedRegex> matches(String input) {
@@ -31,6 +38,10 @@ public class Regex {
 
     private Matcher createMatcher(String input) {
         return pattern.matcher(input);
+    }
+
+    public Optional<RegexMapper> getMapper() {
+        return Optional.ofNullable(mapper);
     }
 
     @Override

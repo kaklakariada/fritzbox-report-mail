@@ -29,8 +29,22 @@ public class MatchedRegex {
         return groups;
     }
 
+    /**
+     * Get the n-th group, index starts at 0 for the first matched group.
+     * 
+     * @param group the group index, starting at 0
+     * @return the n-th group
+     */
+    public String group(int group) {
+        return matcher.group(group + 1);
+    }
+
     public String getInput() {
         return input;
+    }
+
+    public Regex getRegex() {
+        return regex;
     }
 
     @Override

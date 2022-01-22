@@ -25,6 +25,7 @@ import java.util.Optional;
 import com.github.kaklakariada.fritzbox.report.model.Event;
 import com.github.kaklakariada.fritzbox.report.model.regex.MatchedRegex;
 import com.github.kaklakariada.fritzbox.report.model.regex.Regex;
+import com.github.kaklakariada.fritzbox.report.model.regex.RegexMapper;
 
 public abstract class AbstractEventLogEntryFactory<T extends Event> {
 
@@ -36,11 +37,12 @@ public abstract class AbstractEventLogEntryFactory<T extends Event> {
     protected static final String NON_WHITESPACE_REGEXP = "(\\S+)";
     protected static final String EVERYTHING_UNTIL_PERIOD_REGEXP = "([^.]+?)";
     protected static final String EVERYTHING_UNTIL_COMMA_REGEXP = "([^,]+?)";
+    protected static final String WIFI_TYPE_REGEXP = "\\(([^)]+)\\)";
 
     private final List<Regex> regex;
 
     protected AbstractEventLogEntryFactory(final String regex, final int expectedGroupCount) {
-        this(Regex.create(regex, expectedGroupCount));
+        this(Regex.create(regex, expectedGroupCount, null));
     }
 
     protected AbstractEventLogEntryFactory(Regex... regexps) {
@@ -62,7 +64,12 @@ public abstract class AbstractEventLogEntryFactory<T extends Event> {
         final MatchedRegex matchedRegex = firstMatchingMatcher(message).orElseThrow(
                 () -> new IllegalStateException("Message '" + message + "' not matched by any of the regex\n  - "
                         + regex.stream().map(Regex::toString).collect(joining("\n  - "))));
-        return createEventLogEntry(matchedRegex);
+
+        @SuppressWarnings("unchecked")
+        final T event = (T) matchedRegex.getRegex().getMapper()
+                .map((RegexMapper mapper) -> mapper.map(matchedRegex))
+                .orElseGet(() -> createEventLogEntry(matchedRegex));
+        return event;
     }
 
     protected T createEventLogEntry(final MatchedRegex matchedRegex) {

@@ -17,7 +17,6 @@
  */
 package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnected;
@@ -38,7 +37,6 @@ class TestWifiDeviceDisconnectedFactory extends EventLogEntryFactoryTestBase<Wif
     }
 
     @Test
-    @Disabled("Not implemented yet")
     void testMatch3() {
         assertEntry("WLAN-Gerät hat sich abgemeldet (5 GHz). MAC-Adresse: " + MAC_ADDRESS + ", Name: " + HOSTNAME + ".",
                 WifiType._5_GHZ, MAC_ADDRESS, HOSTNAME);
