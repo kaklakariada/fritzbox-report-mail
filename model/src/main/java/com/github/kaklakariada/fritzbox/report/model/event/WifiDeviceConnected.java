@@ -28,7 +28,6 @@ public class WifiDeviceConnected extends Event {
     private final String speed;
     private final String macAddress;
     private final String name;
-
     private final WifiType wifiType;
 
     public WifiDeviceConnected(final String speed, WifiType wifiType, String ipAddress, final String macAddress,
@@ -42,6 +41,10 @@ public class WifiDeviceConnected extends Event {
     @Override
     public String getDescription() {
         return "wifi connected: name=" + name + ", type " + wifiType + ", speed=" + speed + ", mac=" + macAddress;
+    }
+
+    public WifiType getWifiType() {
+        return wifiType;
     }
 
     public String getSpeed() {

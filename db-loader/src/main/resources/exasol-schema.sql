@@ -25,3 +25,13 @@ create table "LOG_ENTRY" (
   "MESSAGE" VARCHAR(2000) NOT NULL,
   "EVENT" VARCHAR(200) NULL
 );
+
+create table wifi_event (
+  log_entry_id integer primary key references log_entry (id),
+  "TIMESTAMP" TIMESTAMP NOT NULL,
+  event_type varchar(12) not null,
+  wifi_type varchar(7) null,
+  device_name varchar(50) null,
+  speed varchar(20) null,
+  mac_address varchar(20) not null
+);

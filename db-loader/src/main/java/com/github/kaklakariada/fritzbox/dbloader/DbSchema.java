@@ -11,6 +11,8 @@ import org.itsallcode.jdbc.SimpleConnection;
 
 import com.github.kaklakariada.fritzbox.report.model.Event;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportCollection;
+import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
+import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnected;
 
 public class DbSchema {
 
@@ -59,5 +61,26 @@ public class DbSchema {
                 entry -> new Object[] { entry.getLogEntryId(), entry.getReportId(), entry.getTimestamp(),
                         entry.getMessage(), entry.getEvent().map(Event::toString).orElse(null) },
                 reportCollection.getLogEntries());
+
+        connection.insert(
+                "insert into wifi_event (log_entry_id, \"TIMESTAMP\", event_type, wifi_type, device_name, speed, mac_address) values (?,?,?,?,?,?,?)",
+                entry -> {
+                    if (entry.getEvent().get() instanceof final WifiDeviceConnected event) {
+                        return new Object[] { entry.getLogEntryId(), entry.getTimestamp(), "connected",
+                                event.getWifiType().toString(), event.getName(), event.getSpeed(),
+                                event.getMacAddress() };
+                    } else if (entry.getEvent().get() instanceof final WifiDeviceDisconnected event) {
+                        return new Object[] { entry.getLogEntryId(), entry.getTimestamp(), "disconnected",
+                                event.getWifiType().toString(), event.getName(), null,
+                                event.getMacAddress() };
+                    } else {
+                        throw new IllegalStateException(
+                                "Unsupported event type " + entry.getEvent().get().getClass().getName());
+                    }
+                },
+                reportCollection.getLogEntries().filter(e -> e.getEvent().isPresent())
+                        .filter(e -> (e.getEvent().get() instanceof WifiDeviceConnected
+                                || e.getEvent().get() instanceof WifiDeviceDisconnected)));
     }
+
 }
