@@ -17,11 +17,11 @@
  */
 package com.github.kaklakariada.fritzbox.report.model;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.github.kaklakariada.fritzbox.report.model.DataVolume.Unit;
+
+import org.junit.jupiter.api.Test;
 
 class TestDataVolume {
 

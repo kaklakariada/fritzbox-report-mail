@@ -1,27 +1,10 @@
-/**
- * A Java API for parsing and processing status report mails of a FritzBox
- * Copyright (C) 2018 Christoph Pirkl <christoph at users.sourceforge.net>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package com.github.kaklakariada.fritzbox.report.convert;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -34,9 +17,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import com.github.kaklakariada.fritzbox.report.LogEntryIdGenerator;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
@@ -44,75 +24,71 @@ import com.github.kaklakariada.fritzbox.report.model.DataVolume;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume.Unit;
 import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
 
-public class DataExtractorTest {
+import org.junit.jupiter.api.Test;
+
+class DataExtractorTest {
 
     private static final String FILE_DATE = "date.html";
     private static final String FILE_CONNECTIONS = "data-connections.html";
     private static final Path TEST_REPORT_PATH = Paths.get("src/test/resources/reports");
     private static final int REPORT_ID = 0;
-    private static final int LOG_ENTRY_ID = 1;
-
-    @Before
-    public void setUp() {
-
-    }
 
     @Test
-    public void test0505date() {
+    void test0505date() {
         assertDate(LocalDate.of(2012, 2, 17), ReportVersion.V05_05);
     }
 
     @Test
-    public void test0650date() {
+    void test0650date() {
         assertDate(LocalDate.of(2015, 12, 19), ReportVersion.V06_50);
     }
 
     @Test
-    public void test0505connections() {
+    void test0505connections() {
         final LocalDate date = LocalDate.of(2012, 2, 17);
-        assertConnections(ReportVersion.V05_05, //
+        assertConnections(ReportVersion.V05_05,
                 connection(TimePeriod.YESTERDAY, date, Duration.ofHours(24).plusMinutes(1), volumeMb(5534),
-                        volumeMb(753), volumeMb(4781), 1), //
+                        volumeMb(753), volumeMb(4781), 1),
                 connection(TimePeriod.THIS_WEEK, date, Duration.ofHours(102).plusMinutes(51), volumeMb(18706),
-                        volumeMb(2180), volumeMb(16526), 9), //
+                        volumeMb(2180), volumeMb(16526), 9),
                 connection(TimePeriod.THIS_MONTH, date, Duration.ofHours(173).plusMinutes(25), volumeMb(30803),
-                        volumeMb(4377), volumeMb(26426), 23), //
+                        volumeMb(4377), volumeMb(26426), 23),
                 connection(TimePeriod.LAST_MONTH, date, Duration.ofHours(161).plusMinutes(27), volumeMb(33013),
                         volumeMb(7624), volumeMb(25389), 38));
     }
 
     @Test
-    public void test0650connections() {
+    void test0650connections() {
         final LocalDate date = LocalDate.of(2015, 12, 19);
-        assertConnections(ReportVersion.V06_50, //
+        assertConnections(ReportVersion.V06_50,
                 connection(TimePeriod.YESTERDAY, date, Duration.ofHours(24).plusMinutes(0), volumeMb(9992),
-                        volumeMb(1196), volumeMb(8796), 2), //
+                        volumeMb(1196), volumeMb(8796), 2),
                 connection(TimePeriod.THIS_WEEK, date, Duration.ofHours(144).plusMinutes(1), volumeMb(43553),
-                        volumeMb(7816), volumeMb(35737), 12), //
+                        volumeMb(7816), volumeMb(35737), 12),
                 connection(TimePeriod.LAST_WEEK, date, Duration.ofHours(167).plusMinutes(56), volumeMb(79881),
-                        volumeMb(21123), volumeMb(58758), 18), //
+                        volumeMb(21123), volumeMb(58758), 18),
                 connection(TimePeriod.THIS_MONTH, date, Duration.ofHours(455).plusMinutes(56), volumeMb(176936),
                         volumeMb(37695), volumeMb(139241), 42));
     }
 
     @Test
-    public void test0505log() {
+    void test0505log() {
         final LocalDate day = LocalDate.of(2012, 2, 17);
-        assertLog(ReportVersion.V05_05, logEntry(day.atTime(23, 59, 48), "event1"), //
-                logEntry(day.atTime(23, 57, 35), "event2"), //
-                logEntry(day.atTime(23, 28, 19), "event3"));
+        assertLog(ReportVersion.V05_05, logEntry(0, day.atTime(23, 59, 48), "event1"),
+                logEntry(1, day.atTime(23, 57, 35), "event2"),
+                logEntry(2, day.atTime(23, 28, 19), "event3"));
     }
 
     @Test
-    public void test0650log() {
+    void test0650log() {
         final LocalDate day = LocalDate.of(2015, 12, 18);
-        assertLog(ReportVersion.V06_50, logEntry(day.atTime(22, 28, 25), "event1"), //
-                logEntry(day.atTime(22, 23, 19), "event2"), //
-                logEntry(day.atTime(22, 23, 01), "event3"));
+        assertLog(ReportVersion.V06_50, logEntry(0, day.atTime(22, 28, 25), "event1"),
+                logEntry(1, day.atTime(22, 23, 19), "event2"),
+                logEntry(2, day.atTime(22, 23, 01), "event3"));
     }
 
-    private EventLogEntry logEntry(LocalDateTime timestamp, String message) {
-        return new EventLogEntry(REPORT_ID, LOG_ENTRY_ID, timestamp, message, null);
+    private EventLogEntry logEntry(int id, LocalDateTime timestamp, String message) {
+        return new EventLogEntry(REPORT_ID, id, timestamp, message, null);
     }
 
     private void assertLog(ReportVersion version, EventLogEntry... expectedLogEntries) {
