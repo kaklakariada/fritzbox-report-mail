@@ -23,8 +23,9 @@ public class WifiDeviceDisconnectedHard extends WifiDeviceDisconnected {
 
     private final String code;
 
-    public WifiDeviceDisconnectedHard(WifiType type, final String macAddress, final String name, final String code) {
-        super(type, macAddress, name);
+    public WifiDeviceDisconnectedHard(WifiType type, String ipAddress, final String macAddress, final String name,
+            final String code) {
+        super(type, ipAddress, macAddress, name);
         this.code = code;
     }
 

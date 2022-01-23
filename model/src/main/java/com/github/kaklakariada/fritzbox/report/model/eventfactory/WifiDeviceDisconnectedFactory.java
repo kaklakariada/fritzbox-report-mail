@@ -28,12 +28,28 @@ public class WifiDeviceDisconnectedFactory extends AbstractEventLogEntryFactory<
                 "WLAN-Gerät hat sich abgemeldet\\. MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: "
                         + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.",
                 2,
-                groups -> new WifiDeviceDisconnected(null, groups.get(0), groups.get(1))),
+                groups -> new WifiDeviceDisconnected(null, null, groups.get(0), groups.get(1))),
 
                 Regex.create("WLAN-Gerät hat sich abgemeldet " + WIFI_TYPE_REGEXP + "\\. MAC-Adresse: "
                         + MAC_ADDRESS_REGEXP + ", Name: " +
                         EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.", 3,
+                        groups -> new WifiDeviceDisconnected(WifiType.parse(groups.get(0)), null,
+                                groups.get(1), groups.get(2))),
+
+                Regex.create(
+                        "WLAN-Gerät hat sich abgemeldet " + WIFI_TYPE_REGEXP + "(?:, [^,]+)?, IP " + IPV4_ADDRESS_REGEXP
+                                + ", MAC " + MAC_ADDRESS_REGEXP + ", Name: " + EVERYTHING_UNTIL_PERIOD_REGEXP
+                                + "\\.",
+                        4,
                         groups -> new WifiDeviceDisconnected(WifiType.parse(groups.get(0)), groups.get(1),
-                                groups.get(2))));
+                                groups.get(2), groups.get(3))),
+
+                Regex.create(
+                        "WLAN-Gerät (?:hat sich|wurde) abgemeldet " + WIFI_TYPE_REGEXP + ", "
+                                + EVERYTHING_UNTIL_COMMA_REGEXP
+                                + ", IP " + IPV4_ADDRESS_REGEXP + ", MAC " + MAC_ADDRESS_REGEXP + "\\.",
+                        4,
+                        groups -> new WifiDeviceDisconnected(WifiType.parse(groups.get(0)), groups.get(2),
+                                groups.get(3), groups.get(1))));
     }
 }

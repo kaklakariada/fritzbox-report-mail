@@ -68,6 +68,14 @@ class TestWifiDeviceConnectedFactory extends EventLogEntryFactoryTestBase<WifiDe
                 "300 Mbit/s", WifiType._5_GHZ, IP_ADDRESS1, MAC_ADDRESS, HOSTNAME);
     }
 
+    @Test
+    void testMatch8() {
+        assertEntry(
+                "WLAN-Gerät hat sich neu angemeldet (2,4 GHz), 72 Mbit/s, host-0123, IP " + IP_ADDRESS1 + ", MAC "
+                        + MAC_ADDRESS + ".",
+                "72 Mbit/s", WifiType._2_4_GHZ, IP_ADDRESS1, MAC_ADDRESS, "host-0123");
+    }
+
     private void assertEntry(final String message, final String expectedSpeed, final String expectedMac,
             final String expectedName) {
         assertEntry(message, expectedSpeed, null, null, expectedMac, expectedName);

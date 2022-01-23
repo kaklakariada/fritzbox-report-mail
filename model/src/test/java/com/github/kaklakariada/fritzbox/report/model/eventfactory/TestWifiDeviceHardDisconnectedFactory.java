@@ -20,18 +20,34 @@ package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 import org.junit.jupiter.api.Test;
 
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnectedHard;
+import com.github.kaklakariada.fritzbox.report.model.event.WifiType;
 
 class TestWifiDeviceHardDisconnectedFactory extends EventLogEntryFactoryTestBase<WifiDeviceDisconnectedHard> {
 
     @Test
     void testMatch1() {
         assertEntry("WLAN-Gerät wird abgemeldet: WLAN-Gerät antwortet nicht. MAC-Adresse: " + MAC_ADDRESS + ", Name: "
-                + HOSTNAME + ". (#0103).", MAC_ADDRESS, HOSTNAME, "0103");
+                + HOSTNAME + ". (#0103).", null, null, MAC_ADDRESS, HOSTNAME, "0103");
     }
 
-    private void assertEntry(final String message, final String expectedMac, final String expectedName,
+    @Test
+    void testMatch2() {
+        assertEntry("WLAN-Gerät wird abgemeldet (2,4 GHz): WLAN-Gerät antwortet nicht. MAC-Adresse: " + MAC_ADDRESS
+                + ", Name: " + HOSTNAME + ". (#0302).", WifiType._2_4_GHZ, null, MAC_ADDRESS, HOSTNAME, "0302");
+    }
+
+    @Test
+    void testMatch3() {
+        assertEntry(
+                "WLAN-Gerät wird abgemeldet (2,4 GHz): WLAN-Gerät antwortet nicht, " + HOSTNAME + ", IP " + IP_ADDRESS1
+                        + ", MAC " + MAC_ADDRESS + ". (#0104).",
+                WifiType._2_4_GHZ, IP_ADDRESS1, MAC_ADDRESS, HOSTNAME, "0104");
+    }
+
+    private void assertEntry(String message, WifiType type, String ipAddress, final String expectedMac,
+            final String expectedName,
             final String expectedId) {
-        assertMatched(message, new WifiDeviceDisconnectedHard(null, expectedMac, expectedName, expectedId));
+        assertMatched(message, new WifiDeviceDisconnectedHard(type, ipAddress, expectedMac, expectedName, expectedId));
     }
 
     @Override

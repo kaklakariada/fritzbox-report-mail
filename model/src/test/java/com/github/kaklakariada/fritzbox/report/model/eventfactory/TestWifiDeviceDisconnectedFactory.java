@@ -27,23 +27,54 @@ class TestWifiDeviceDisconnectedFactory extends EventLogEntryFactoryTestBase<Wif
     @Test
     void testMatch1() {
         assertEntry("WLAN-Gerät hat sich abgemeldet. MAC-Adresse: " + MAC_ADDRESS + ", Name: " + HOSTNAME + ".",
-                null, MAC_ADDRESS, HOSTNAME);
+                null, null, MAC_ADDRESS, HOSTNAME);
     }
 
     @Test
     void testMatch2() {
         assertEntry("WLAN-Gerät hat sich abgemeldet. MAC-Adresse: " + MAC_ADDRESS + ", Name: " + HOSTNAME + ".",
-                null, MAC_ADDRESS, HOSTNAME);
+                null, null, MAC_ADDRESS, HOSTNAME);
     }
 
     @Test
     void testMatch3() {
         assertEntry("WLAN-Gerät hat sich abgemeldet (5 GHz). MAC-Adresse: " + MAC_ADDRESS + ", Name: " + HOSTNAME + ".",
-                WifiType._5_GHZ, MAC_ADDRESS, HOSTNAME);
+                WifiType._5_GHZ, null, MAC_ADDRESS, HOSTNAME);
     }
 
-    private void assertEntry(String message, WifiType wifiType, final String expectedMac, final String expectedName) {
-        assertMatched(message, new WifiDeviceDisconnected(wifiType, expectedMac, expectedName));
+    @Test
+    void testMatch4() {
+        assertEntry(
+                "WLAN-Gerät hat sich abgemeldet (5 GHz), " + HOSTNAME + ", IP " + IP_ADDRESS1 + ", MAC " + MAC_ADDRESS
+                        + ", Name: " + HOSTNAME + ".",
+                WifiType._5_GHZ, IP_ADDRESS1, MAC_ADDRESS, HOSTNAME);
+    }
+
+    @Test
+    void testMatch5() {
+        assertEntry(
+                "WLAN-Gerät hat sich abgemeldet (5 GHz), IP " + IP_ADDRESS1 + ", MAC " + MAC_ADDRESS + ", Name: "
+                        + HOSTNAME + ".",
+                WifiType._5_GHZ, IP_ADDRESS1, MAC_ADDRESS, HOSTNAME);
+    }
+
+    @Test
+    void testMatch6() {
+        assertEntry(
+                "WLAN-Gerät hat sich abgemeldet (5 GHz), host-name, IP " + IP_ADDRESS1 + ", MAC " + MAC_ADDRESS + ".",
+                WifiType._5_GHZ, IP_ADDRESS1, MAC_ADDRESS, "host-name");
+    }
+
+    @Test
+    void testMatch7() {
+        assertEntry(
+                "WLAN-Gerät wurde abgemeldet (2,4 GHz), host-0123, IP " + IP_ADDRESS1 + ", MAC " + MAC_ADDRESS + ".",
+                WifiType._2_4_GHZ, IP_ADDRESS1, MAC_ADDRESS, "host-0123");
+    }
+
+    private void assertEntry(String message, WifiType wifiType, String expectedIpAddress, final String expectedMac,
+            final String expectedName) {
+        assertMatched(message, new WifiDeviceDisconnected(wifiType, expectedIpAddress, expectedMac, expectedName));
     }
 
     @Override

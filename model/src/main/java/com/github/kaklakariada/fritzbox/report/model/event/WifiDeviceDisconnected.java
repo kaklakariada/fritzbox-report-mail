@@ -26,17 +26,23 @@ public class WifiDeviceDisconnected extends Event {
     private static final long serialVersionUID = 1L;
 
     private final WifiType wifiType;
+    private final String ipAddress;
     private final String macAddress;
     private final String name;
 
-    public WifiDeviceDisconnected(WifiType wifiType, final String macAddress, final String name) {
+    public WifiDeviceDisconnected(WifiType wifiType, String ipAddress, final String macAddress, final String name) {
         this.wifiType = wifiType;
+        this.ipAddress = ipAddress;
         this.macAddress = macAddress;
         this.name = name;
     }
 
     public String getMacAddress() {
         return macAddress;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
     }
 
     public String getName() {
@@ -49,12 +55,12 @@ public class WifiDeviceDisconnected extends Event {
 
     @Override
     public String getDescription() {
-        return "wifi disconnected: name=" + name + ", type=" + wifiType + ", mac=" + macAddress;
+        return "wifi disconnected: name=" + name + ", type=" + wifiType + ", mac=" + macAddress + ", ip=" + ipAddress;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(macAddress, name, wifiType);
+        return Objects.hash(ipAddress, macAddress, name, wifiType);
     }
 
     @Override
@@ -69,7 +75,7 @@ public class WifiDeviceDisconnected extends Event {
             return false;
         }
         final WifiDeviceDisconnected other = (WifiDeviceDisconnected) obj;
-        return Objects.equals(macAddress, other.macAddress) && Objects.equals(name, other.name)
-                && wifiType == other.wifiType;
+        return Objects.equals(ipAddress, other.ipAddress) && Objects.equals(macAddress, other.macAddress)
+                && Objects.equals(name, other.name) && wifiType == other.wifiType;
     }
 }
