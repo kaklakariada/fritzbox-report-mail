@@ -9,6 +9,7 @@ import java.util.Properties;
 import org.itsallcode.jdbc.ConnectionFactory;
 import org.itsallcode.jdbc.SimpleConnection;
 
+import com.github.kaklakariada.fritzbox.report.model.Event;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportCollection;
 
 public class DbSchema {
@@ -40,20 +41,23 @@ public class DbSchema {
     }
 
     public void load(FritzBoxReportCollection reportCollection) {
-        connection.insert("insert into report_mail (\"DATE\", \"TIMESTAMP\", message_id, subject) values (?, ?, ?, ?)",
-                mail -> new Object[] { mail.getDate(),
+        connection.insert(
+                "insert into report_mail (id, \"DATE\", \"TIMESTAMP\", message_id, subject) values (?, ?, ?, ?, ?)",
+                mail -> new Object[] { mail.getReportId(), mail.getDate(),
                         mail.getEmailMetadata().getTimestamp(), mail.getEmailMetadata().getMessageId(),
                         mail.getEmailMetadata().getSubject() },
                 reportCollection.getReports());
 
-        connection.insert("insert into DATA_VOLUME (\"DATE\", UPLOAD_MB, DOWNLOAD_MB) VALUES (?, ?, ?)",
-                volume -> new Object[] { volume.getDay(),
-                        volume.getSentVolume().getVolumeMb(), volume.getReveivedVolume().getVolumeMb() },
+        connection.insert(
+                "insert into DATA_VOLUME (report_id, \"DATE\", UPLOAD_MB, DOWNLOAD_MB, total_mb) VALUES (?, ?, ?, ?, ?)",
+                volume -> new Object[] { volume.getReportId(), volume.getDay(),
+                        volume.getSentVolume().getVolumeMb(), volume.getReveivedVolume().getVolumeMb(),
+                        volume.getTotalVolume().getVolumeMb() },
                 reportCollection.getDataVolumeByDay());
 
-        connection.insert("insert into LOG_ENTRY (\"TIMESTAMP\", MESSAGE, EVENT) VALUES (?, ?, ?)",
-                entry -> new Object[] { entry.getTimestamp(), entry.getMessage(),
-                        entry.getEvent() != null ? entry.getEvent().toString() : null },
+        connection.insert("insert into LOG_ENTRY (id, report_id, \"TIMESTAMP\", MESSAGE, EVENT) VALUES (?, ?, ?, ?, ?)",
+                entry -> new Object[] { entry.getLogEntryId(), entry.getReportId(), entry.getTimestamp(),
+                        entry.getMessage(), entry.getEvent().map(Event::toString).orElse(null) },
                 reportCollection.getLogEntries());
     }
 }

@@ -26,40 +26,46 @@ import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 
 public class FritzBoxReportMail implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	private final LocalDate date;
-	private final Map<TimePeriod, DataConnections> dataConnections;
-	private final List<EventLogEntry> eventLog;
-	private final List<InternetConnection> connections;
-	private final EmailMetadata emailMetadata;
+    private static final long serialVersionUID = 1L;
+    private final int reportId;
+    private final Map<TimePeriod, DataConnections> dataConnections;
+    private final List<EventLogEntry> eventLog;
+    private final List<InternetConnection> connections;
+    private final EmailMetadata emailMetadata;
+    private final LocalDate date;
 
-	public FritzBoxReportMail(final LocalDate date, EmailMetadata emailMetadata,
-			final Map<TimePeriod, DataConnections> dataConnections,
-			final List<EventLogEntry> eventLog, final List<InternetConnection> connections) {
-		this.date = date;
-		this.emailMetadata = emailMetadata;
-		this.dataConnections = dataConnections;
-		this.eventLog = eventLog;
-		this.connections = connections;
-	}
+    public FritzBoxReportMail(int reportId, LocalDate date, EmailMetadata emailMetadata,
+            final Map<TimePeriod, DataConnections> dataConnections,
+            final List<EventLogEntry> eventLog, final List<InternetConnection> connections) {
+        this.reportId = reportId;
+        this.date = date;
+        this.emailMetadata = emailMetadata;
+        this.dataConnections = dataConnections;
+        this.eventLog = eventLog;
+        this.connections = connections;
+    }
 
-	public LocalDate getDate() {
-		return date;
-	}
+    public int getReportId() {
+        return reportId;
+    }
 
-	public EmailMetadata getEmailMetadata() {
-		return emailMetadata;
-	}
+    public LocalDate getDate() {
+        return date;
+    }
 
-	public Map<TimePeriod, DataConnections> getDataConnections() {
-		return dataConnections;
-	}
+    public EmailMetadata getEmailMetadata() {
+        return emailMetadata;
+    }
 
-	public List<EventLogEntry> getEventLog() {
-		return eventLog;
-	}
+    public Map<TimePeriod, DataConnections> getDataConnections() {
+        return dataConnections;
+    }
 
-	public List<InternetConnection> getConnections() {
-		return connections;
-	}
+    public List<EventLogEntry> getEventLog() {
+        return eventLog;
+    }
+
+    public List<InternetConnection> getConnections() {
+        return connections;
+    }
 }

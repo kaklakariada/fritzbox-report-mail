@@ -33,8 +33,6 @@ public class WifiDeviceConnectedFactory extends AbstractEventLogEntryFactory<Wif
                         "WLAN-Gerät angemeldet " + WIFI_TYPE_REGEXP + ", " + EVERYTHING_UNTIL_COMMA_REGEXP + ", "
                                 + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP " + IPV4_ADDRESS_REGEXP + ", MAC "
                                 + MAC_ADDRESS_REGEXP + "(?:, Name: .+)?\\.",
-                        // WLAN-Gerät angemeldet (5 GHz), 300 Mbit/s, chpimbpwlan, IP 192.168.179.21,
-                        // MAC 58:B0:35:73:20:F5, Name: chpimbpwlan.
                         5,
                         groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), groups.get(3),
                                 groups.get(4),
@@ -48,8 +46,6 @@ public class WifiDeviceConnectedFactory extends AbstractEventLogEntryFactory<Wif
                         4,
                         groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), null,
                                 groups.get(2),
-                                groups.get(3)))
-
-        );
+                                groups.get(3))));
     }
 }

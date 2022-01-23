@@ -52,7 +52,7 @@ public class FritzBoxReportCollection implements Serializable {
                 .map(FritzBoxReportMail::getDataConnections) //
                 .map(connections -> connections.get(TimePeriod.YESTERDAY)) //
                 .sorted(Comparator.comparing(DataConnections::getDate))
-                .map(conn -> new AggregatedVolume(conn.getDate(), conn));
+                .map(conn -> new AggregatedVolume(conn.getReportId(), conn.getDate(), conn));
     }
 
     public Stream<AggregatedVolume> getDataVolumeByDayAndMonth() {

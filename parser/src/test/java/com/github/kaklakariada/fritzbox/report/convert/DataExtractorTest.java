@@ -37,6 +37,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.github.kaklakariada.fritzbox.report.LogEntryIdGenerator;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume;
@@ -48,6 +49,8 @@ public class DataExtractorTest {
     private static final String FILE_DATE = "date.html";
     private static final String FILE_CONNECTIONS = "data-connections.html";
     private static final Path TEST_REPORT_PATH = Paths.get("src/test/resources/reports");
+    private static final int REPORT_ID = 0;
+    private static final int LOG_ENTRY_ID = 1;
 
     @Before
     public void setUp() {
@@ -109,7 +112,7 @@ public class DataExtractorTest {
     }
 
     private EventLogEntry logEntry(LocalDateTime timestamp, String message) {
-        return new EventLogEntry(timestamp.toLocalDate(), timestamp, message, null);
+        return new EventLogEntry(REPORT_ID, LOG_ENTRY_ID, timestamp, message, null);
     }
 
     private void assertLog(ReportVersion version, EventLogEntry... expectedLogEntries) {
@@ -126,7 +129,7 @@ public class DataExtractorTest {
 
     private DataConnections connection(TimePeriod timePeriod, LocalDate date, Duration onlineTime,
             DataVolume totalVolume, DataVolume sentVolume, DataVolume reveivedVolume, int numberOfConnections) {
-        return new DataConnections(date, timePeriod, onlineTime, totalVolume, sentVolume, reveivedVolume,
+        return new DataConnections(REPORT_ID, date, timePeriod, onlineTime, totalVolume, sentVolume, reveivedVolume,
                 numberOfConnections);
     }
 
@@ -149,7 +152,8 @@ public class DataExtractorTest {
     private DataExtractor createExtractor(ReportVersion reportVersion, String fileName) {
         final Path path = TEST_REPORT_PATH.resolve(reportVersion.getName()).resolve(fileName);
         final String htmlContent = readFile(path);
-        return new DataExtractor(new EmailContent(null, List.of(new EmailBody(htmlContent))));
+        return new DataExtractor(new EmailContent(null, List.of(new EmailBody(htmlContent))), REPORT_ID,
+                new LogEntryIdGenerator());
     }
 
     private String readFile(final Path path) throws AssertionError {

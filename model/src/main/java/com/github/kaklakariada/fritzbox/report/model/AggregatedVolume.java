@@ -19,6 +19,7 @@ package com.github.kaklakariada.fritzbox.report.model;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class AggregatedVolume {
     private final LocalDate day;
@@ -27,20 +28,28 @@ public class AggregatedVolume {
     private final DataVolume reveivedVolume;
     private final int numberOfConnections;
     private final Duration onlineTime;
+    private final int reportId;
 
-    public AggregatedVolume(final LocalDate day, final DataConnections conn) {
-        this(day, conn.getTotalVolume(), conn.getSentVolume(), conn.getReveivedVolume(), conn.getNumberOfConnections(),
+    public AggregatedVolume(int reportId, final LocalDate day, final DataConnections conn) {
+        this(reportId, day, conn.getTotalVolume(), conn.getSentVolume(), conn.getReveivedVolume(),
+                conn.getNumberOfConnections(),
                 conn.getOnlineTime());
     }
 
-    public AggregatedVolume(final LocalDate day, final DataVolume totalVolume, final DataVolume sentVolume,
+    private AggregatedVolume(int reportId, final LocalDate day, final DataVolume totalVolume,
+            final DataVolume sentVolume,
             final DataVolume reveivedVolume, final int numberOfConnections, final Duration onlineTime) {
+        this.reportId = reportId;
         this.day = day;
         this.totalVolume = totalVolume;
         this.sentVolume = sentVolume;
         this.reveivedVolume = reveivedVolume;
         this.numberOfConnections = numberOfConnections;
         this.onlineTime = onlineTime;
+    }
+
+    public int getReportId() {
+        return reportId;
     }
 
     public AggregatedVolume plusSameMonth(final AggregatedVolume other) {
@@ -52,7 +61,7 @@ public class AggregatedVolume {
     }
 
     private AggregatedVolume plus(final AggregatedVolume other, final LocalDate newDay) {
-        return new AggregatedVolume(newDay, //
+        return new AggregatedVolume(-1, newDay, //
                 this.totalVolume.plus(other.totalVolume), //
                 this.sentVolume.plus(other.sentVolume), //
                 this.reveivedVolume.plus(other.reveivedVolume), //
@@ -85,20 +94,19 @@ public class AggregatedVolume {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((day == null) ? 0 : day.hashCode());
-        result = prime * result + numberOfConnections;
-        result = prime * result + ((onlineTime == null) ? 0 : onlineTime.hashCode());
-        result = prime * result + ((reveivedVolume == null) ? 0 : reveivedVolume.hashCode());
-        result = prime * result + ((sentVolume == null) ? 0 : sentVolume.hashCode());
-        result = prime * result + ((totalVolume == null) ? 0 : totalVolume.hashCode());
-        return result;
+    public String toString() {
+        return "AggregatedVolume [day=" + day + ", totalVolume=" + totalVolume + ", sentVolume=" + sentVolume
+                + ", reveivedVolume=" + reveivedVolume + ", numberOfConnections=" + numberOfConnections
+                + ", onlineTime=" + onlineTime + "]";
     }
 
     @Override
-    public boolean equals(final Object obj) {
+    public int hashCode() {
+        return Objects.hash(day, numberOfConnections, onlineTime, reportId, reveivedVolume, sentVolume, totalVolume);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
@@ -109,51 +117,10 @@ public class AggregatedVolume {
             return false;
         }
         final AggregatedVolume other = (AggregatedVolume) obj;
-        if (day == null) {
-            if (other.day != null) {
-                return false;
-            }
-        } else if (!day.equals(other.day)) {
-            return false;
-        }
-        if (numberOfConnections != other.numberOfConnections) {
-            return false;
-        }
-        if (onlineTime == null) {
-            if (other.onlineTime != null) {
-                return false;
-            }
-        } else if (!onlineTime.equals(other.onlineTime)) {
-            return false;
-        }
-        if (reveivedVolume == null) {
-            if (other.reveivedVolume != null) {
-                return false;
-            }
-        } else if (!reveivedVolume.equals(other.reveivedVolume)) {
-            return false;
-        }
-        if (sentVolume == null) {
-            if (other.sentVolume != null) {
-                return false;
-            }
-        } else if (!sentVolume.equals(other.sentVolume)) {
-            return false;
-        }
-        if (totalVolume == null) {
-            if (other.totalVolume != null) {
-                return false;
-            }
-        } else if (!totalVolume.equals(other.totalVolume)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(day, other.day) && numberOfConnections == other.numberOfConnections
+                && Objects.equals(onlineTime, other.onlineTime) && reportId == other.reportId
+                && Objects.equals(reveivedVolume, other.reveivedVolume) && Objects.equals(sentVolume, other.sentVolume)
+                && Objects.equals(totalVolume, other.totalVolume);
     }
 
-    @Override
-    public String toString() {
-        return "AggregatedVolume [day=" + day + ", totalVolume=" + totalVolume + ", sentVolume=" + sentVolume
-                + ", reveivedVolume=" + reveivedVolume + ", numberOfConnections=" + numberOfConnections
-                + ", onlineTime=" + onlineTime + "]";
-    }
 }

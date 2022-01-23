@@ -23,13 +23,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.kaklakariada.fritzbox.report.LogEntryIdGenerator;
 import com.github.kaklakariada.fritzbox.report.convert.EmailBody.Type;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
@@ -48,21 +48,24 @@ class DataExtractor {
             .ofPattern("dd.MM.yy HH:mm:ss");
     private final HtmlElement rootElement;
     private final EventLogEntryFactory eventLogEntryFactory;
-    private final EmailContent mail;
+    private final int reportId;
+    private final LogEntryIdGenerator logEntryIdGenerator;
     private LocalDate date;
 
-    DataExtractor(final EmailContent mail) {
-        this(mail, getBody(mail), new EventLogEntryFactory());
+    DataExtractor(final EmailContent mail, int reportId, LogEntryIdGenerator logEntryIdGenerator) {
+        this(getBody(mail), new EventLogEntryFactory(), reportId, logEntryIdGenerator);
     }
 
     private static HtmlElement getBody(final EmailContent mail) {
         return mail.getPart(Type.HTML).getElement();
     }
 
-    private DataExtractor(EmailContent mail, final HtmlElement rootElement, EventLogEntryFactory eventLogEntryFactory) {
-        this.mail = mail;
+    private DataExtractor(final HtmlElement rootElement, EventLogEntryFactory eventLogEntryFactory,
+            int reportId, LogEntryIdGenerator logEntryIdGenerator) {
         this.rootElement = rootElement;
         this.eventLogEntryFactory = eventLogEntryFactory;
+        this.reportId = reportId;
+        this.logEntryIdGenerator = logEntryIdGenerator;
     }
 
     public String getHtmlTitle() {
@@ -122,7 +125,7 @@ class DataExtractor {
         final DataVolume sentVolume = DataVolume.parse(cells.get(3).text());
         final DataVolume reveivedVolume = DataVolume.parse(cells.get(4).text());
         final int numberOfConnections = cells.get(5).number();
-        return new DataConnections(date, timePeriod, onlineTime, totalVolume, sentVolume, reveivedVolume,
+        return new DataConnections(reportId, date, timePeriod, onlineTime, totalVolume, sentVolume, reveivedVolume,
                 numberOfConnections);
     }
 
@@ -145,7 +148,7 @@ class DataExtractor {
         final DataVolume sentVolume = DataVolume.parse(sentReceivedVolumen[0]);
         final DataVolume reveivedVolume = DataVolume.parse(sentReceivedVolumen[1]);
         final int numberOfConnections = cells.get(3).number();
-        return new DataConnections(date, timePeriod, onlineTime, totalVolume, sentVolume, reveivedVolume,
+        return new DataConnections(reportId, date, timePeriod, onlineTime, totalVolume, sentVolume, reveivedVolume,
                 numberOfConnections);
     }
 
@@ -181,7 +184,7 @@ class DataExtractor {
         final LocalDateTime timestamp = LocalDateTime.parse(cells.get(0).text(), LOG_ENTRY_TIMESTAMP_FORMAT);
         final String message = cells.get(1).text();
         final Event event = eventLogEntryFactory.createEventLogEntry(message);
-        return new EventLogEntry(mail.getDate(), timestamp, message, event);
+        return new EventLogEntry(reportId, logEntryIdGenerator.getNextId(), timestamp, message, event);
     }
 
     private HtmlElement getSection(final String sectionName) {
@@ -195,12 +198,5 @@ class DataExtractor {
             throw new AssertionError("Found invalid content div " + oldContentDiv);
         }
         return rootElement.selectElementWithContent("td", sectionName).getNthAncestor(7);
-    }
-
-    public Optional<String> getForeTitle() {
-        return Optional
-                .ofNullable(rootElement.selectOptionalSingleElement(
-                        "div:eq(0) > div.content > table.tabletitle div.backtitel div.foretitel"))
-                .map(HtmlElement::getText);
     }
 }

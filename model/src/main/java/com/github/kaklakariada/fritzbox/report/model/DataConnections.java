@@ -35,10 +35,12 @@ public class DataConnections implements Serializable {
     private final int numberOfConnections;
     private final Duration onlineTime;
     private final LocalDate date;
+    private final int reportId;
 
-    public DataConnections(final LocalDate date, final TimePeriod timePeriod, final Duration onlineTime,
+    public DataConnections(int reportId, final LocalDate date, final TimePeriod timePeriod, final Duration onlineTime,
             final DataVolume totalVolume, final DataVolume sentVolume, final DataVolume reveivedVolume,
             final int numberOfConnections) {
+        this.reportId = reportId;
         this.date = Objects.requireNonNull(date);
         this.timePeriod = timePeriod;
         this.onlineTime = onlineTime;
@@ -71,6 +73,10 @@ public class DataConnections implements Serializable {
             }
             throw new IllegalArgumentException("Unknown time period: '" + name + "'");
         }
+    }
+
+    public int getReportId() {
+        return reportId;
     }
 
     public TimePeriod getTimePeriod() {
@@ -110,16 +116,8 @@ public class DataConnections implements Serializable {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((date == null) ? 0 : date.hashCode());
-        result = prime * result + numberOfConnections;
-        result = prime * result + ((onlineTime == null) ? 0 : onlineTime.hashCode());
-        result = prime * result + ((reveivedVolume == null) ? 0 : reveivedVolume.hashCode());
-        result = prime * result + ((sentVolume == null) ? 0 : sentVolume.hashCode());
-        result = prime * result + ((timePeriod == null) ? 0 : timePeriod.hashCode());
-        result = prime * result + ((totalVolume == null) ? 0 : totalVolume.hashCode());
-        return result;
+        return Objects.hash(date, numberOfConnections, onlineTime, reportId, reveivedVolume, sentVolume, timePeriod,
+                totalVolume);
     }
 
     @Override
@@ -134,47 +132,9 @@ public class DataConnections implements Serializable {
             return false;
         }
         final DataConnections other = (DataConnections) obj;
-        if (date == null) {
-            if (other.date != null) {
-                return false;
-            }
-        } else if (!date.equals(other.date)) {
-            return false;
-        }
-        if (numberOfConnections != other.numberOfConnections) {
-            return false;
-        }
-        if (onlineTime == null) {
-            if (other.onlineTime != null) {
-                return false;
-            }
-        } else if (!onlineTime.equals(other.onlineTime)) {
-            return false;
-        }
-        if (reveivedVolume == null) {
-            if (other.reveivedVolume != null) {
-                return false;
-            }
-        } else if (!reveivedVolume.equals(other.reveivedVolume)) {
-            return false;
-        }
-        if (sentVolume == null) {
-            if (other.sentVolume != null) {
-                return false;
-            }
-        } else if (!sentVolume.equals(other.sentVolume)) {
-            return false;
-        }
-        if (timePeriod != other.timePeriod) {
-            return false;
-        }
-        if (totalVolume == null) {
-            if (other.totalVolume != null) {
-                return false;
-            }
-        } else if (!totalVolume.equals(other.totalVolume)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(date, other.date) && numberOfConnections == other.numberOfConnections
+                && Objects.equals(onlineTime, other.onlineTime) && reportId == other.reportId
+                && Objects.equals(reveivedVolume, other.reveivedVolume) && Objects.equals(sentVolume, other.sentVolume)
+                && timePeriod == other.timePeriod && Objects.equals(totalVolume, other.totalVolume);
     }
 }

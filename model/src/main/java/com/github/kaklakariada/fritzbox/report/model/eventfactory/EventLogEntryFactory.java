@@ -38,19 +38,19 @@ public class EventLogEntryFactory {
     }
 
     public EventLogEntryFactory() {
-        this(asList(new WifiDeviceConnectedFactory(), //
-                new WifiDeviceDisconnectedFactory(), //
-                new WifiDeviceDisconnectedHardFactory(), //
-                new WifiGuestDeviceConnectedFactory(), //
-                new WifiGuestDeviceDisconnectedFactory(), //
-                new WifiGuestDeviceDisconnectedHardFactory(), //
-                new WifiDeviceDisconnectedHardFactory(), //
-                new WifiDeviceAuthorizationFailedFactory(), //
-                new IPv4InternetConnectionEstablishedFactory(), //
-                new IPv6InternetConnectionEstablishedFactory(), //
-                new IPv6PrefixAssignedFactory(), //
-                new DslSyncFailedFactory(), //
-                new DslSyncSuccessfulFactory(), //
+        this(asList(new WifiDeviceConnectedFactory(),
+                new WifiDeviceDisconnectedFactory(),
+                new WifiDeviceDisconnectedHardFactory(),
+                new WifiGuestDeviceConnectedFactory(),
+                new WifiGuestDeviceDisconnectedFactory(),
+                new WifiGuestDeviceDisconnectedHardFactory(),
+                new WifiDeviceDisconnectedHardFactory(),
+                new WifiDeviceAuthorizationFailedFactory(),
+                new IPv4InternetConnectionEstablishedFactory(),
+                new IPv6InternetConnectionEstablishedFactory(),
+                new IPv6PrefixAssignedFactory(),
+                new DslSyncFailedFactory(),
+                new DslSyncSuccessfulFactory(),
                 new InternetDisconnectedFactory()));
     }
 

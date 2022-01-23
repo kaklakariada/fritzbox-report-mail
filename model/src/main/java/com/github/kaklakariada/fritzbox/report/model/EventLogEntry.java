@@ -18,28 +18,35 @@
 package com.github.kaklakariada.fritzbox.report.model;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 public class EventLogEntry implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final LocalDate date;
+    private final int reportId;
+    private final int logEntryId;
     private final LocalDateTime timestamp;
     private final String message;
     private final Event event;
 
-    public EventLogEntry(LocalDate date, final LocalDateTime timestamp, final String message, final Event event) {
-        this.date = Objects.requireNonNull(date, "date");
+    public EventLogEntry(int reportId, int logEntryId, final LocalDateTime timestamp, final String message,
+            final Event event) {
+        this.reportId = reportId;
+        this.logEntryId = logEntryId;
         this.timestamp = timestamp;
         this.message = message;
         this.event = event;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public int getReportId() {
+        return reportId;
+    }
+
+    public int getLogEntryId() {
+        return logEntryId;
     }
 
     public LocalDateTime getTimestamp() {
@@ -50,8 +57,8 @@ public class EventLogEntry implements Serializable {
         return message;
     }
 
-    public Event getEvent() {
-        return event;
+    public Optional<Event> getEvent() {
+        return Optional.ofNullable(event);
     }
 
     @Override
@@ -65,7 +72,7 @@ public class EventLogEntry implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(date, event, message, timestamp);
+        return Objects.hash(event, logEntryId, message, reportId, timestamp);
     }
 
     @Override
@@ -80,7 +87,8 @@ public class EventLogEntry implements Serializable {
             return false;
         }
         final EventLogEntry other = (EventLogEntry) obj;
-        return Objects.equals(date, other.date) && Objects.equals(event, other.event)
-                && Objects.equals(message, other.message) && Objects.equals(timestamp, other.timestamp);
+        return Objects.equals(event, other.event) && logEntryId == other.logEntryId
+                && Objects.equals(message, other.message) && reportId == other.reportId
+                && Objects.equals(timestamp, other.timestamp);
     }
 }

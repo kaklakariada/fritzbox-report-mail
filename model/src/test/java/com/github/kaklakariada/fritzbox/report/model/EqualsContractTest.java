@@ -26,7 +26,8 @@ class EqualsContractTest {
             IPv4InternetConnectionEstablished.class, IPv6InternetConnectionEstablished.class, IPv6PrefixAssigned.class,
             WifiDeviceAuthorizationFailed.class, WifiDeviceConnected.class, WifiDeviceDisconnected.class,
             WifiDeviceDisconnectedHard.class, WifiGuestDeviceConnected.class, WifiGuestDeviceDisconnected.class,
-            WifiGuestDeviceDisconnectedHard.class })
+            WifiGuestDeviceDisconnectedHard.class, //
+            DataConnections.class, AggregatedVolume.class })
     void equalsContract(Class<?> type) {
         EqualsVerifier.forClass(type).suppress(Warning.STRICT_INHERITANCE).verify();
     }
