@@ -4,7 +4,16 @@ include 'model'
 include 'parser'
 include 'db-loader'
 include 'app'
-includeBuild '../simple-jdbc'
+
+def includeBuildIfExists(path) {
+    def dir = file(path)
+    if(dir.exists()) {
+        logger.info "Including project ${dir} into build"
+        includeBuild dir
+    }
+}
+
+includeBuildIfExists '../simple-jdbc'
 
 dependencyResolutionManagement {
     repositories {
