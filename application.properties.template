@@ -1,2 +1,4 @@
 mbox.path = /Users/user/Library/Thunderbird/Profiles/profile.default/ImapMail/server/FritzBox.sbd/Report
-influxdb.url = http://localhost:8086
+jdbc.url = jdbc:exa:localhost:8563;fingerprint=<fingerprint>
+jdbc.user = <user>
+jdbc.password = <password>
