@@ -30,7 +30,9 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.kaklakariada.fritzbox.report.convert.EmailContent;
 import com.github.kaklakariada.fritzbox.report.convert.FritzBoxMessageConverter;
+import com.github.kaklakariada.fritzbox.report.convert.MailCollection;
 import com.github.kaklakariada.fritzbox.report.convert.MessageHtmlTextBodyConverter;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportCollection;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
@@ -39,13 +41,22 @@ public class ReportService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportService.class);
 
-    public FritzBoxReportCollection loadThunderbirdMails(final Path mboxFile) {
+    public Stream<EmailContent> loadRawThunderbirdMails(final Path mboxFile) {
+        return new ThunderbirdMboxReader()
+                .readMbox(mboxFile)
+                .map(new MessageHtmlTextBodyConverter());
+    }
+
+    public FritzBoxReportCollection parseMails(final MailCollection mailCollection) {
         final Instant start = Instant.now();
-        final Map<LocalDate, FritzBoxReportMail> reports = streamReports(mboxFile) //
+        final Map<LocalDate, FritzBoxReportMail> reports = mailCollection
+                .getMails().stream()
+                .map(new FritzBoxMessageConverter())
                 .collect(toMap(FritzBoxReportMail::getDate, Function.identity(), this::merge));
         final FritzBoxReportCollection reportCollection = new FritzBoxReportCollection(reports);
         final Duration duration = Duration.between(start, Instant.now());
-        LOG.info("Loaded {} reports in {} from {}", reportCollection.getReportCount(), duration, mboxFile);
+        LOG.info("Found {} reports in {} from {} mails", reportCollection.getReportCount(), duration,
+                mailCollection.getMails().size());
         return reportCollection;
     }
 

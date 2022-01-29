@@ -125,12 +125,14 @@ public class HtmlElement {
     }
 
     public HtmlElement selectElementWithContent(final String element, final String content) {
-        final List<HtmlElement> candidates = select(element + ":containsOwn(" + content + ")") //
+        final String selector = element + ":containsOwn(" + content + ")";
+        final List<HtmlElement> candidates = select(selector) //
                 .stream().filter(e -> e.text().equals(content)) //
                 .toList();
         if (candidates.size() != 1) {
             throw new IllegalStateException("Expected 1 element '" + element + "' with content '" + content
-                    + "' but found " + candidates.size() + ": " + candidates + " in " + this);
+                    + "' but found " + candidates.size() + " for selector '" + selector + "': " + candidates + " in "
+                    + this);
         }
         return candidates.get(0);
     }

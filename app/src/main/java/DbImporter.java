@@ -1,5 +1,3 @@
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -12,13 +10,11 @@ import com.github.kaklakariada.serialization.KryoSerializerService;
 
 public class DbImporter {
     private static final Logger LOG = LoggerFactory.getLogger(DbImporter.class);
-    static final Path SERIALIZED_DATA = Paths.get("../data.kryo");
-    static final Path CONFIG_FILE = Paths.get("../application.properties");
 
     public static void main(String[] args) {
+        final Config config = Config.readConfig();
         final FritzBoxReportCollection reportCollection = new KryoSerializerService<>(
-                FritzBoxReportCollection.class).deserialize(SERIALIZED_DATA);
-        final Config config = Config.readConfig(CONFIG_FILE);
+                FritzBoxReportCollection.class).deserialize(config.getSerializedReportPath());
         final DbSchema schema = DbSchema.connect(config.getJdbcUrl(), config.getJdbcUser(), config.getJdbcPassword());
         schema.createSchema();
         LOG.debug("Importing into new schema...");

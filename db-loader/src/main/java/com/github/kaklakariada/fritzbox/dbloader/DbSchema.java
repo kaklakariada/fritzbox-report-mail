@@ -44,10 +44,11 @@ public class DbSchema {
 
     public void load(FritzBoxReportCollection reportCollection) {
         connection.insert(
-                "insert into report_mail (id, \"DATE\", \"TIMESTAMP\", message_id, subject) values (?, ?, ?, ?, ?)",
+                "insert into report_mail (id, \"DATE\", \"TIMESTAMP\", message_id, subject, product_name, firmware_version, energy_usage_percent) values (?, ?, ?, ?, ?, ?, ?, ?)",
                 mail -> new Object[] { mail.getReportId(), mail.getDate(),
                         mail.getEmailMetadata().getTimestamp(), mail.getEmailMetadata().getMessageId(),
-                        mail.getEmailMetadata().getSubject() },
+                        mail.getEmailMetadata().getSubject(), mail.getFritzBoxInfo().getProduct(),
+                        mail.getFritzBoxInfo().getFirmwareVersion(), mail.getFritzBoxInfo().getEnergyUsagePercent() },
                 reportCollection.getReports());
 
         connection.insert(

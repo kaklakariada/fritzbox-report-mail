@@ -17,8 +17,13 @@
  */
 package com.github.kaklakariada.serialization;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.stream.Stream;
 
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
@@ -42,6 +47,30 @@ public class KryoSerializerService<T> extends SerializerService<T> {
         try (Output output = new Output(outputStream)) {
             kryo.writeObject(output, object);
         }
+    }
+
+    public void serializeStream(final Path outputFile, final Stream<T> objects) {
+        try (OutputStream stream = Files.newOutputStream(outputFile)) {
+            serializeStream(stream, objects);
+        } catch (final IOException e) {
+            throw new UncheckedIOException("Error writing to " + outputFile, e);
+        }
+    }
+
+    protected void serializeStream(final OutputStream outputStream, final Stream<T> objects) {
+        try (final Output output = new Output(outputStream)) {
+            objects.forEach(o -> kryo.writeObject(output, o));
+        }
+    }
+
+    protected Stream<T> deserializeStream(final InputStream inputStream) {
+        try (Input input = new Input(inputStream)) {
+            return createStream(input);
+        }
+    }
+
+    private Stream<T> createStream(Input input) {
+        return Stream.generate(() -> kryo.readObject(input, type));
     }
 
     @Override

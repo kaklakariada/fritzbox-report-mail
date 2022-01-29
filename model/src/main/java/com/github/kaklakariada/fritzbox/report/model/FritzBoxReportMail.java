@@ -32,14 +32,16 @@ public class FritzBoxReportMail implements Serializable {
     private final List<EventLogEntry> eventLog;
     private final List<InternetConnection> connections;
     private final EmailMetadata emailMetadata;
+    private final FritzBoxInfo fritzBoxInfo;
     private final LocalDate date;
 
-    public FritzBoxReportMail(int reportId, LocalDate date, EmailMetadata emailMetadata,
+    public FritzBoxReportMail(int reportId, LocalDate date, EmailMetadata emailMetadata, FritzBoxInfo fritzBoxInfo,
             final Map<TimePeriod, DataConnections> dataConnections,
             final List<EventLogEntry> eventLog, final List<InternetConnection> connections) {
         this.reportId = reportId;
         this.date = date;
         this.emailMetadata = emailMetadata;
+        this.fritzBoxInfo = fritzBoxInfo;
         this.dataConnections = dataConnections;
         this.eventLog = eventLog;
         this.connections = connections;
@@ -55,6 +57,10 @@ public class FritzBoxReportMail implements Serializable {
 
     public EmailMetadata getEmailMetadata() {
         return emailMetadata;
+    }
+
+    public FritzBoxInfo getFritzBoxInfo() {
+        return fritzBoxInfo;
     }
 
     public Map<TimePeriod, DataConnections> getDataConnections() {

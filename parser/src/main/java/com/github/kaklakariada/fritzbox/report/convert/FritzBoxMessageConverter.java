@@ -54,7 +54,8 @@ public class FritzBoxMessageConverter implements Function<EmailContent, FritzBox
                 connectionsYesterday.getReveivedVolume(), connectionsYesterday.getSentVolume(),
                 eventLog.size(),
                 connections.size());
-        return new FritzBoxReportMail(nextReportId++, extractor.getDate(), mail.getMetadata(), dataConnections,
+        return new FritzBoxReportMail(nextReportId++, extractor.getDate(), mail.getMetadata(),
+                extractor.getFritzBoxInfo(), dataConnections,
                 eventLog, connections);
     }
 

@@ -1,0 +1,10 @@
+SELECT * FROM (
+SELECT conn.DEVICE_NAME, conn.SPEED , CONN.wifi_type, conn."TIMESTAMP" AS connected, disco."TIMESTAMP"  AS disconnected,
+ CONN."TIMESTAMP" - DISCO."TIMESTAMP" AS diff,
+ ROW_NUMBER() OVER (ORDER BY CONN."TIMESTAMP" - DISCO."TIMESTAMP" desc) AS row1
+FROM  WIFI_EVENT conn, WIFI_EVENT disco
+WHERE conn.MAC_ADDRESS = disco.MAC_ADDRESS
+AND conn.EVENT_TYPE = 'connected' AND DISCO.EVENT_TYPE = 'disconnected'
+AND conn."TIMESTAMP" < disco."TIMESTAMP"
+)
+WHERE ROW1 = 1;

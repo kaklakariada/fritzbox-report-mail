@@ -36,6 +36,7 @@ import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume;
 import com.github.kaklakariada.fritzbox.report.model.Event;
 import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
+import com.github.kaklakariada.fritzbox.report.model.FritzBoxInfo;
 import com.github.kaklakariada.fritzbox.report.model.eventfactory.EventLogEntryFactory;
 import com.github.kaklakariada.html.HtmlElement;
 
@@ -188,8 +189,9 @@ class DataExtractor {
     }
 
     private HtmlElement getSection(final String sectionName) {
+        final String selector = "div.content div.foretitel:containsOwn(" + sectionName + ")";
         final HtmlElement sectionTitle = rootElement
-                .selectOptionalSingleElement("div.content div.foretitel:containsOwn(" + sectionName + ")");
+                .selectOptionalSingleElement(selector);
         if (sectionTitle != null) {
             final HtmlElement oldContentDiv = sectionTitle.getNthAncestor(6);
             if (oldContentDiv.getCssClass().equals("content") && oldContentDiv.getName().equals("div")) {
@@ -198,5 +200,32 @@ class DataExtractor {
             throw new AssertionError("Found invalid content div " + oldContentDiv);
         }
         return rootElement.selectElementWithContent("td", sectionName).getNthAncestor(7);
+    }
+
+    public FritzBoxInfo getFritzBoxInfo() {
+        return new FritzBoxInfo(getProductInfo(), getProductVersion(), getEnergyUsage());
+    }
+
+    private int getEnergyUsage() {
+        final HtmlElement element = rootElement.selectSingleElement("td:containsOwn(Energieverbrauch) ~ td");
+        return Integer.parseInt(element.getText().replace('%', ' ').trim());
+    }
+
+    private String getProductVersion() {
+        HtmlElement element = rootElement.selectOptionalSingleElement("td:containsOwn(FRITZ!OS) ~ td");
+        if (element == null) {
+            element = rootElement.selectSingleElement("td:containsOwn(Firmware) ~ td");
+        }
+        String version = element.getText();
+        final String prefix = "FRITZ!OS";
+        if (version.startsWith(prefix)) {
+            version = version.substring(prefix.length());
+        }
+        return version.trim();
+    }
+
+    private String getProductInfo() {
+        return rootElement.selectSingleElement("td:containsOwn(Produktname) ~ td")
+                .getText();
     }
 }

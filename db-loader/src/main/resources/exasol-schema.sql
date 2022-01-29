@@ -7,7 +7,10 @@ create table "REPORT_MAIL" (
   "DATE" date NOT NULL,
   "TIMESTAMP" TIMESTAMP NOT NULL,
   message_id varchar(100) NOT NULL,
-  subject varchar(100) NOT NULL
+  subject varchar(100) NOT NULL,
+  product_name varchar(20) not null,
+  firmware_version varchar(100) not null,
+  energy_usage_percent integer not null
 );
 
 create table "DATA_VOLUME" (
