@@ -5,6 +5,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +16,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +27,7 @@ import com.github.kaklakariada.fritzbox.report.model.DataVolume;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume.Unit;
 import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
 
+import org.apache.james.mime4j.dom.Message;
 import org.junit.jupiter.api.Test;
 
 class DataExtractorTest {
@@ -128,7 +132,9 @@ class DataExtractorTest {
     private DataExtractor createExtractor(ReportVersion reportVersion, String fileName) {
         final Path path = TEST_REPORT_PATH.resolve(reportVersion.getName()).resolve(fileName);
         final String htmlContent = readFile(path);
-        return new DataExtractor(new EmailContent(null, List.of(new EmailBody(htmlContent))), REPORT_ID,
+        Message messageMock = mock(Message.class);
+        when(messageMock.getDate()).thenReturn(new Date());
+        return new DataExtractor(new EmailContent(messageMock, List.of(new EmailBody(htmlContent))), REPORT_ID,
                 new LogEntryIdGenerator());
     }
 

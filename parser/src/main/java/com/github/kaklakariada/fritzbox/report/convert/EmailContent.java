@@ -22,11 +22,12 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
-
-import org.apache.james.mime4j.dom.Message;
+import java.util.Objects;
 
 import com.github.kaklakariada.fritzbox.report.convert.EmailBody.Type;
 import com.github.kaklakariada.fritzbox.report.model.EmailMetadata;
+
+import org.apache.james.mime4j.dom.Message;
 
 public class EmailContent implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -36,6 +37,7 @@ public class EmailContent implements Serializable {
     private final String messageId;
 
     public EmailContent(Message message, List<EmailBody> parts) {
+        Objects.requireNonNull(message, "message");
         this.instant = message.getDate().toInstant();
         this.messageId = message.getMessageId();
         this.subject = message.getSubject();
