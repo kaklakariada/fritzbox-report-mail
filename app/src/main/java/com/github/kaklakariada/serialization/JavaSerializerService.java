@@ -48,20 +48,20 @@ public class JavaSerializerService<T> extends SerializerService<T> {
     protected T deserialize(final InputStream inputStream) {
         try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
             return type.cast(objectInputStream.readObject());
-        } catch (final IOException | ClassNotFoundException e) {
-            throw new RuntimeException("Error deserializing", e);
+        } catch (final IOException e) {
+            throw new UncheckedIOException("Error deserializing", e);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("Error deserializing", e);
         }
     }
 
     @Override
     protected void serializeStream(OutputStream outputStream, Stream<T> objects) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     protected Stream<T> deserializeStream(InputStream inputStream) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 }

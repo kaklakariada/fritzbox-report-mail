@@ -22,9 +22,11 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.Objects;
 
 /**
- * Wraps a CharBuffer and exposes some convenience methods to easy parse with Mime4j.
+ * Wraps a CharBuffer and exposes some convenience methods to easy parse with
+ * Mime4j.
  */
 public class CharBufferWrapper {
 
@@ -51,23 +53,25 @@ public class CharBufferWrapper {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o)
+    public final boolean equals(Object o) {
+        if (this == o) {
             return true;
-        if (!(o instanceof CharBufferWrapper))
+        }
+        if (!(o instanceof CharBufferWrapper)) {
             return false;
+        }
 
-        CharBufferWrapper that = (CharBufferWrapper) o;
+        final CharBufferWrapper that = (CharBufferWrapper) o;
+        if (this.messageBuffer == null) {
+            return that.messageBuffer == null;
+        }
 
-        if (!messageBuffer.equals(that.messageBuffer))
-            return false;
-
-        return true;
+        return messageBuffer.equals(that.messageBuffer);
     }
 
     @Override
-    public int hashCode() {
-        return messageBuffer.hashCode();
+    public final int hashCode() {
+        return Objects.hashCode(messageBuffer);
     }
 
     /**

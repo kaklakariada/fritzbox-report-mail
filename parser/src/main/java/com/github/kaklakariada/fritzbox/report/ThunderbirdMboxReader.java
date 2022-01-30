@@ -29,11 +29,16 @@ import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.dom.Message;
 import org.apache.james.mime4j.dom.MessageBuilder;
 import org.apache.james.mime4j.mboxiterator.CharBufferWrapper;
-import org.apache.james.mime4j.mboxiterator.FromLinePatterns;
 import org.apache.james.mime4j.mboxiterator.MboxIterator;
 import org.apache.james.mime4j.message.DefaultMessageBuilder;
 
 public class ThunderbirdMboxReader {
+
+	/**
+	 * Matches other type of From_ line (without @): From MAILER-DAEMON Wed Oct 05
+	 * 21:54:09 2011 Thunderbird mbox content: From - Wed Apr 02 06:51:08 2014
+	 */
+	private static final String DEFAULT2 = "^From \\S+.*\\d{4}$";
 
 	private static final Charset CHARSET_ENCODING = StandardCharsets.UTF_8;
 	private final MessageBuilder messageBuilder = new DefaultMessageBuilder();
@@ -49,21 +54,19 @@ public class ThunderbirdMboxReader {
 	}
 
 	private MboxIterator createIterator(final Path mboxFile) {
-		try {
-			return MboxIterator.fromFile(mboxFile.toFile())
-					.charset(CHARSET_ENCODING)
-					.fromLine(FromLinePatterns.DEFAULT2)
-					.build();
-		} catch (final IOException e) {
-			throw new UncheckedIOException("Error reading from " + mboxFile, e);
-		}
+		return MboxIterator.fromFile(mboxFile.toFile())
+				.charset(CHARSET_ENCODING)
+				.fromLine(DEFAULT2)
+				.build();
 	}
 
 	private Message convert(final CharBufferWrapper message) {
 		try {
 			return messageBuilder.parseMessage(message.asInputStream(CHARSET_ENCODING));
-		} catch (MimeException | IOException e) {
-			throw new RuntimeException("Error parsing message " + message, e);
+		} catch (IOException e) {
+			throw new UncheckedIOException("Error parsing message " + message, e);
+		} catch (MimeException e) {
+			throw new IllegalStateException("Error parsing message " + message, e);
 		}
 	}
 }

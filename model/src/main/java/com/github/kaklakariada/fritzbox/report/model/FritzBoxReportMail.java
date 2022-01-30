@@ -25,13 +25,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnected;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceEvent;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FritzBoxReportMail implements Serializable {
     private static final Logger LOG = LoggerFactory.getLogger(FritzBoxReportMail.class);
@@ -95,7 +95,7 @@ public class FritzBoxReportMail implements Serializable {
         final Map<String, EventLogEntry> connectionStartEvents = new HashMap<>();
 
         for (final EventLogEntry logEntry : wifiEvents) {
-            final WifiDeviceEvent event = (WifiDeviceEvent) logEntry.getEvent().get();
+            final WifiDeviceEvent event = (WifiDeviceEvent) logEntry.getEvent().orElseThrow();
             final String macAddress = event.getMacAddress();
             if (event.isConnectEvent()) {
                 if (connectionStartEvents.containsKey(macAddress)) {

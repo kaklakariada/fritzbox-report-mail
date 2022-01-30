@@ -21,8 +21,8 @@ import java.io.CharConversionException;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.Buffer;
 import java.nio.CharBuffer;
 import java.nio.MappedByteBuffer;
@@ -30,14 +30,16 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * <p>
- * Class that provides an iterator over email messages inside an mbox file. An mbox file is a sequence of email messages
- * separated by From_ lines.
+ * Class that provides an iterator over email messages inside an mbox file. An
+ * mbox file is a sequence of email messages separated by From_ lines.
  * </p>
  * <p>
  * Description ot the file format:
@@ -49,18 +51,24 @@ import java.util.regex.Pattern;
  */
 public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
 
+    /**
+     * Match a line like: From ieugen@apache.org Fri Sep 09 14:04:52 2011
+     */
+    private static final String DEFAULT = "^From \\S+@\\S.*\\d{4}$";
+
     private final FileInputStream theFile;
     private final CharBuffer mboxCharBuffer;
     private Matcher fromLineMatcher;
     private boolean fromLineFound;
     private final MappedByteBuffer byteBuffer;
-    private final CharsetDecoder DECODER;
+    private final CharsetDecoder decoder;
     /**
-     * Flag to signal end of input to {@link java.nio.charset.CharsetDecoder#decode(java.nio.ByteBuffer)} .
+     * Flag to signal end of input to
+     * {@link java.nio.charset.CharsetDecoder#decode(java.nio.ByteBuffer)} .
      */
     private boolean endOfInputFlag = false;
     private final int maxMessageSize;
-    private final Pattern MESSAGE_START;
+    private final Pattern messageStart;
     private int findStart = -1;
     private int findEnd = -1;
     private final File mbox;
@@ -70,11 +78,11 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
             final String regexpPattern,
             final int regexpFlags,
             final int MAX_MESSAGE_SIZE)
-            throws FileNotFoundException, IOException, CharConversionException {
+            throws IOException {
         // TODO: do better exception handling - try to process some of them maybe?
         this.maxMessageSize = MAX_MESSAGE_SIZE;
-        this.MESSAGE_START = Pattern.compile(regexpPattern, regexpFlags);
-        this.DECODER = charset.newDecoder();
+        this.messageStart = Pattern.compile(regexpPattern, regexpFlags);
+        this.decoder = charset.newDecoder();
         this.mboxCharBuffer = CharBuffer.allocate(MAX_MESSAGE_SIZE);
         this.mbox = mbox;
         this.theFile = new FileInputStream(mbox);
@@ -89,7 +97,7 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
      */
     protected void initMboxIterator() throws CharConversionException {
         decodeNextCharBuffer();
-        fromLineMatcher = MESSAGE_START.matcher(mboxCharBuffer);
+        fromLineMatcher = messageStart.matcher(mboxCharBuffer);
         fromLineFound = fromLineMatcher.find();
         if (fromLineFound) {
             saveFindPositions(fromLineMatcher);
@@ -99,12 +107,12 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
                 path = mbox.getPath();
             }
             throw new IllegalArgumentException("File " + path + " does not contain From_ lines that match the pattern '"
-                    + MESSAGE_START.pattern() + "'! Maybe not be a valid Mbox or wrong matcher.");
+                    + messageStart.pattern() + "'! Maybe not be a valid Mbox or wrong matcher.");
         }
     }
 
     private void decodeNextCharBuffer() throws CharConversionException {
-        final CoderResult coderResult = DECODER.decode(byteBuffer, mboxCharBuffer, endOfInputFlag);
+        final CoderResult coderResult = decoder.decode(byteBuffer, mboxCharBuffer, endOfInputFlag);
         updateEndOfInputFlag();
         mboxCharBuffer.flip();
         if (coderResult.isError()) {
@@ -145,20 +153,24 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
                 try {
                     close();
                 } catch (final IOException e) {
-                    throw new RuntimeException("Exception closing file!");
+                    throw new UncheckedIOException("Exception closing file!", e);
                 }
             }
             return fromLineFound;
         }
 
         /**
-         * Returns a CharBuffer instance that contains a message between position and limit. The array that backs this
-         * instance is the whole block of decoded messages.
+         * Returns a CharBuffer instance that contains a message between position and
+         * limit. The array that backs this instance is the whole block of decoded
+         * messages.
          *
          * @return CharBuffer instance
          */
         @Override
         public CharBufferWrapper next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
             final CharBuffer message;
             fromLineFound = fromLineMatcher.find();
             if (fromLineFound) {
@@ -168,8 +180,9 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
                 message.limit(fromLineMatcher.start());
             } else {
                 /*
-                 * We didn't find other From_ lines this means either: - we reached end of mbox and no more messages -
-                 * we reached end of CharBuffer and need to decode another batch.
+                 * We didn't find other From_ lines this means either: - we reached end of mbox
+                 * and no more messages - we reached end of CharBuffer and need to decode
+                 * another batch.
                  */
                 if (byteBuffer.hasRemaining()) {
                     // decode another batch, but remember to copy the remaining chars first
@@ -182,9 +195,9 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
                     try {
                         decodeNextCharBuffer();
                     } catch (final CharConversionException ex) {
-                        throw new RuntimeException(ex);
+                        throw new IllegalStateException(ex);
                     }
-                    fromLineMatcher = MESSAGE_START.matcher(mboxCharBuffer);
+                    fromLineMatcher = messageStart.matcher(mboxCharBuffer);
                     fromLineFound = fromLineMatcher.find();
                     if (fromLineFound) {
                         saveFindPositions(fromLineMatcher);
@@ -222,12 +235,13 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
     public static class Builder {
 
         private final File file;
-        private Charset charset = Charset.forName("UTF-8");
-        private String regexpPattern = FromLinePatterns.DEFAULT;
+        private Charset charset = StandardCharsets.UTF_8;
+        private String regexpPattern = DEFAULT;
         private int flags = Pattern.MULTILINE;
+
         /**
-         * Default max message size in chars: ~ 10MB chars. If the mbox file contains larger messages they will not be
-         * decoded correctly.
+         * Default max message size in chars: ~ 10MB chars. If the mbox file contains
+         * larger messages they will not be decoded correctly.
          */
         private int maxMessageSize = 10 * 1024 * 1024;
 
@@ -259,8 +273,12 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
             return this;
         }
 
-        public MboxIterator build() throws FileNotFoundException, IOException {
-            return new MboxIterator(file, charset, regexpPattern, flags, maxMessageSize);
+        public MboxIterator build() {
+            try {
+                return new MboxIterator(file, charset, regexpPattern, flags, maxMessageSize);
+            } catch (IOException e) {
+                throw new UncheckedIOException("Error creating mbox iterator for file " + file, e);
+            }
         }
     }
 
