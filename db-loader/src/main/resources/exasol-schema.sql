@@ -33,8 +33,21 @@ create table wifi_event (
   log_entry_id integer primary key references log_entry (id),
   "TIMESTAMP" TIMESTAMP NOT NULL,
   event_type varchar(12) not null,
-  wifi_type varchar(7) null,
+  wifi_type varchar(7) not null,
   device_name varchar(50) null,
   speed varchar(20) null,
   mac_address varchar(20) not null
 );
+
+create table wifi_connection (
+  device_name varchar(50) not null,
+  mac_address varchar(20) not null,
+  wifi_type varchar(7) not null,
+  speed varchar(20) null,
+  "BEGIN" timestamp null,
+  "END" timestamp null
+);
+
+CREATE OR REPLACE VIEW v_wifi_connection AS (
+SELECT DEVICE_NAME, MAC_ADDRESS, WIFI_TYPE, SPEED, "BEGIN", "END", SECONDS_BETWEEN("END", "BEGIN") AS duration_seconds
+FROM WIFI_CONNECTION);

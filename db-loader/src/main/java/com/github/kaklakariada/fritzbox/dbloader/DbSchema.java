@@ -64,6 +64,12 @@ public class DbSchema {
                 reportCollection.getLogEntries());
 
         connection.insert(
+                "insert into wifi_connection (device_name, mac_address, wifi_type, speed, \"BEGIN\", \"END\") values (?, ?, ?, ?, ?, ?)",
+                (entry) -> new Object[] { entry.getDeviceName(), entry.getMacAddress(), entry.getWifiType().toString(),
+                        entry.getSpeed(), entry.getBegin(), entry.getEnd() },
+                reportCollection.getWifiConnections());
+
+        connection.insert(
                 "insert into wifi_event (log_entry_id, \"TIMESTAMP\", event_type, wifi_type, device_name, speed, mac_address) values (?,?,?,?,?,?,?)",
                 entry -> {
                     if (entry.getEvent().get() instanceof final WifiDeviceConnected event) {
@@ -83,5 +89,4 @@ public class DbSchema {
                         .filter(e -> (e.getEvent().get() instanceof WifiDeviceConnected
                                 || e.getEvent().get() instanceof WifiDeviceDisconnected)));
     }
-
 }

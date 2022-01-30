@@ -19,23 +19,19 @@ package com.github.kaklakariada.fritzbox.report.model.event;
 
 import java.util.Objects;
 
-import com.github.kaklakariada.fritzbox.report.model.Event;
-
-public class WifiDeviceConnected extends Event {
+public class WifiDeviceConnected extends WifiDeviceEvent {
 
     private static final long serialVersionUID = 1L;
-
     private final String speed;
-    private final String macAddress;
-    private final String name;
-    private final WifiType wifiType;
 
     public WifiDeviceConnected(final String speed, WifiType wifiType, String ipAddress, final String macAddress,
-            final String name) {
+            final String deviceName) {
+        super(wifiType, ipAddress, macAddress, deviceName);
         this.speed = speed;
-        this.wifiType = wifiType;
-        this.macAddress = macAddress;
-        this.name = name;
+    }
+
+    public String getSpeed() {
+        return speed;
     }
 
     @Override
@@ -43,25 +39,12 @@ public class WifiDeviceConnected extends Event {
         return "wifi connected: name=" + name + ", type " + wifiType + ", speed=" + speed + ", mac=" + macAddress;
     }
 
-    public WifiType getWifiType() {
-        return wifiType;
-    }
-
-    public String getSpeed() {
-        return speed;
-    }
-
-    public String getMacAddress() {
-        return macAddress;
-    }
-
-    public String getName() {
-        return name;
-    }
-
     @Override
     public int hashCode() {
-        return Objects.hash(macAddress, name, speed, wifiType);
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Objects.hash(speed);
+        return result;
     }
 
     @Override
@@ -69,14 +52,23 @@ public class WifiDeviceConnected extends Event {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
+        if (!super.equals(obj)) {
             return false;
         }
         if (getClass() != obj.getClass()) {
             return false;
         }
         final WifiDeviceConnected other = (WifiDeviceConnected) obj;
-        return Objects.equals(macAddress, other.macAddress) && Objects.equals(name, other.name)
-                && Objects.equals(speed, other.speed) && wifiType == other.wifiType;
+        return Objects.equals(speed, other.speed);
+    }
+
+    @Override
+    public boolean isConnectEvent() {
+        return true;
+    }
+
+    @Override
+    public boolean isDisconnectEvent() {
+        return false;
     }
 }

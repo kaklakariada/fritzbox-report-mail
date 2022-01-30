@@ -17,40 +17,13 @@
  */
 package com.github.kaklakariada.fritzbox.report.model.event;
 
-import java.util.Objects;
-
-import com.github.kaklakariada.fritzbox.report.model.Event;
-
-public class WifiDeviceDisconnected extends Event {
+public class WifiDeviceDisconnected extends WifiDeviceEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private final WifiType wifiType;
-    private final String ipAddress;
-    private final String macAddress;
-    private final String name;
-
-    public WifiDeviceDisconnected(WifiType wifiType, String ipAddress, final String macAddress, final String name) {
-        this.wifiType = wifiType;
-        this.ipAddress = ipAddress;
-        this.macAddress = macAddress;
-        this.name = name;
-    }
-
-    public String getMacAddress() {
-        return macAddress;
-    }
-
-    public String getIpAddress() {
-        return ipAddress;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public WifiType getWifiType() {
-        return wifiType;
+    public WifiDeviceDisconnected(WifiType wifiType, String ipAddress, final String macAddress,
+            final String deviceName) {
+        super(wifiType, ipAddress, macAddress, deviceName);
     }
 
     @Override
@@ -59,23 +32,12 @@ public class WifiDeviceDisconnected extends Event {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(ipAddress, macAddress, name, wifiType);
+    public boolean isConnectEvent() {
+        return false;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final WifiDeviceDisconnected other = (WifiDeviceDisconnected) obj;
-        return Objects.equals(ipAddress, other.ipAddress) && Objects.equals(macAddress, other.macAddress)
-                && Objects.equals(name, other.name) && wifiType == other.wifiType;
+    public boolean isDisconnectEvent() {
+        return true;
     }
 }

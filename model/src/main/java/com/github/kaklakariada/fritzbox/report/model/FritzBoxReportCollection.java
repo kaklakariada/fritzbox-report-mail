@@ -70,4 +70,9 @@ public class FritzBoxReportCollection implements Serializable {
                 .flatMap(r -> r.getEventLog().stream()) //
                 .sorted(comparing(EventLogEntry::getTimestamp));
     }
+
+    public Stream<WifiConnection> getWifiConnections() {
+        return this.reports.values().stream()
+                .flatMap(report -> report.getWifiConnections().stream());
+    }
 }
