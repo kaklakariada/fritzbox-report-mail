@@ -14,19 +14,19 @@ dependencies {
 }
 
 task runMailReader(type: JavaExec, group: 'run') {
-    mainClass = 'ReadMails'
+    mainClass = 'com.github.kaklakariada.fritzbox.report.ReadMails'
     workingDir = project.projectDir
     classpath = sourceSets.main.runtimeClasspath
 }
 
 task runMailParser(type: JavaExec, group: 'run') {
-    mainClass = 'ParseReportMails'
+    mainClass = 'com.github.kaklakariada.fritzbox.report.ParseReportMails'
     workingDir = project.projectDir
     classpath = sourceSets.main.runtimeClasspath
 }
 
 task runDbImport(type: JavaExec, group: 'run') {
-    mainClass = 'DbImporter'
+    mainClass = 'com.github.kaklakariada.fritzbox.report.DbImporter'
     workingDir = project.projectDir
     classpath = sourceSets.main.runtimeClasspath
 }

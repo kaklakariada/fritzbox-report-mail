@@ -1,12 +1,14 @@
+package com.github.kaklakariada.fritzbox.report;
+
 import java.time.Duration;
 import java.time.Instant;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.github.kaklakariada.fritzbox.dbloader.DbSchema;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportCollection;
 import com.github.kaklakariada.serialization.KryoSerializerService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DbImporter {
     private static final Logger LOG = LoggerFactory.getLogger(DbImporter.class);

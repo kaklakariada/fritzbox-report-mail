@@ -65,7 +65,7 @@ public class DataVolume implements Serializable, Comparable<DataVolume> {
 		final String trimmedValue = value.trim();
 		final String suffix = trimmedValue.substring(trimmedValue.length() - 2);
 		final String numberString = trimmedValue.subSequence(0, trimmedValue.length() - 2).toString().trim();
-		final double volume = Double.valueOf(numberString);
+		final double volume = Double.parseDouble(numberString);
 		final Unit unit = Unit.forName(suffix);
 		return new DataVolume(volume, unit);
 	}
@@ -129,10 +129,7 @@ public class DataVolume implements Serializable, Comparable<DataVolume> {
 		if (unit != other.unit) {
 			return false;
 		}
-		if (Double.doubleToLongBits(volume) != Double.doubleToLongBits(other.volume)) {
-			return false;
-		}
-		return true;
+		return Double.doubleToLongBits(volume) == Double.doubleToLongBits(other.volume);
 	}
 
 	@Override

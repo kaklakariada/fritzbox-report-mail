@@ -1,14 +1,15 @@
+package com.github.kaklakariada.fritzbox.report;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.github.kaklakariada.fritzbox.report.ReportService;
 import com.github.kaklakariada.fritzbox.report.convert.EmailContent;
 import com.github.kaklakariada.serialization.KryoSerializerService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReadMails {
     private static final Logger LOG = LoggerFactory.getLogger(ReadMails.class);
