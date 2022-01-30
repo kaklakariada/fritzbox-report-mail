@@ -29,7 +29,7 @@ To parse and import the reports into database schema `FRITZBOX` run the followin
 **This will drop the `FRITZBOX` schema if it exists!**
 
 ```shell
-./gradlew runMailParser runDbImport
+./gradlew runMailReader runMailParser runDbImport
 ```
 
 After the import is finished, you can visualize your data e.g. with [Metabase](https://www.metabase.com/) and the [Exasol driver for Metabase](https://github.com/exasol/metabase-driver).
@@ -39,5 +39,5 @@ After the import is finished, you can visualize your data e.g. with [Metabase](h
 ### Check if dependencies are up-to-date
 
 ```bash
-$ ./gradlew dependencyUpdates
+./gradlew dependencyUpdates
 ```

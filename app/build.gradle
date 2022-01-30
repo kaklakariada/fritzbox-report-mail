@@ -13,6 +13,12 @@ dependencies {
     implementation 'com.esotericsoftware:kryo:5.2.1'
 }
 
+task runMailReader(type: JavaExec, group: 'run') {
+    mainClass = 'ReadMails'
+    workingDir = project.projectDir
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 task runMailParser(type: JavaExec, group: 'run') {
     mainClass = 'ParseReportMails'
     workingDir = project.projectDir
@@ -24,3 +30,6 @@ task runDbImport(type: JavaExec, group: 'run') {
     workingDir = project.projectDir
     classpath = sourceSets.main.runtimeClasspath
 }
+
+runMailParser.mustRunAfter runMailReader
+runDbImport.mustRunAfter runMailParser
