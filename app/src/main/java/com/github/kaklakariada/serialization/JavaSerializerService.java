@@ -23,6 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,10 +47,21 @@ public class JavaSerializerService<T> extends SerializerService<T> {
     @Override
     protected T deserialize(final InputStream inputStream) {
         try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
-            final T object = type.cast(objectInputStream.readObject());
-            return object;
+            return type.cast(objectInputStream.readObject());
         } catch (final IOException | ClassNotFoundException e) {
             throw new RuntimeException("Error deserializing", e);
         }
+    }
+
+    @Override
+    protected void serializeStream(OutputStream outputStream, Stream<T> objects) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    protected Stream<T> deserializeStream(InputStream inputStream) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

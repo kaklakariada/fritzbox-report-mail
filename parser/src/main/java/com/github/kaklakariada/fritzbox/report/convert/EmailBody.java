@@ -17,11 +17,14 @@
  */
 package com.github.kaklakariada.fritzbox.report.convert;
 
+import java.io.Serializable;
+
 import org.jsoup.Jsoup;
 
 import com.github.kaklakariada.html.HtmlElement;
 
-public class EmailBody {
+public class EmailBody implements Serializable {
+    private static final long serialVersionUID = 1L;
     public String body;
 
     public enum Type {

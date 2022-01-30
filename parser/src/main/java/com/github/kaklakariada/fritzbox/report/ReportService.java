@@ -24,6 +24,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -32,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import com.github.kaklakariada.fritzbox.report.convert.EmailContent;
 import com.github.kaklakariada.fritzbox.report.convert.FritzBoxMessageConverter;
-import com.github.kaklakariada.fritzbox.report.convert.MailCollection;
 import com.github.kaklakariada.fritzbox.report.convert.MessageHtmlTextBodyConverter;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportCollection;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
@@ -47,16 +47,16 @@ public class ReportService {
                 .map(new MessageHtmlTextBodyConverter());
     }
 
-    public FritzBoxReportCollection parseMails(final MailCollection mailCollection) {
+    public FritzBoxReportCollection parseMails(final Stream<EmailContent> mails) {
         final Instant start = Instant.now();
-        final Map<LocalDate, FritzBoxReportMail> reports = mailCollection
-                .getMails().stream()
+        final AtomicInteger counter = new AtomicInteger(0);
+        final Map<LocalDate, FritzBoxReportMail> reports = mails.peek(mail -> counter.incrementAndGet())
                 .map(new FritzBoxMessageConverter())
                 .collect(toMap(FritzBoxReportMail::getDate, Function.identity(), this::merge));
         final FritzBoxReportCollection reportCollection = new FritzBoxReportCollection(reports);
         final Duration duration = Duration.between(start, Instant.now());
         LOG.info("Found {} reports in {} from {} mails", reportCollection.getReportCount(), duration,
-                mailCollection.getMails().size());
+                counter.get());
         return reportCollection;
     }
 

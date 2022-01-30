@@ -19,6 +19,7 @@ package com.github.kaklakariada.fritzbox.report.convert;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,8 +42,8 @@ public class FritzBoxMessageConverter implements Function<EmailContent, FritzBox
 
     @Override
     public FritzBoxReportMail apply(final EmailContent mail) {
-
-        final DataExtractor extractor = new DataExtractor(mail, nextReportId, logEntryIdGenerator);
+        final DataExtractor extractor = new DataExtractor(Objects.requireNonNull(mail, "mail"), nextReportId,
+                logEntryIdGenerator);
         final Map<TimePeriod, DataConnections> dataConnections = extractor.getDataConnections();
         final DataConnections connectionsYesterday = dataConnections.get(TimePeriod.YESTERDAY);
         final List<EventLogEntry> eventLog = extractor.getEventLog();

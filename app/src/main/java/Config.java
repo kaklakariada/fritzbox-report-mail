@@ -20,7 +20,7 @@ public class Config {
     }
 
     public Path getMboxPath() {
-        return Paths.get(properties.getProperty("mbox.path"));
+        return Paths.get(properties.getProperty("mbox.path")).toAbsolutePath();
     }
 
     public String getJdbcUrl() {
@@ -36,11 +36,11 @@ public class Config {
     }
 
     public Path getSerializedReportPath() {
-        return Paths.get("../data.kryo");
+        return Paths.get("../data.kryo").toAbsolutePath();
     }
 
     public Path getRawMailsPath() {
-        return Paths.get("../mails.kryo");
+        return Paths.get("../mails.kryo").toAbsolutePath();
     }
 
     public static Config readConfig() {

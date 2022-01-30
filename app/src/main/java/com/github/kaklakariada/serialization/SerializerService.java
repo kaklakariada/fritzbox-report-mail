@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,4 +69,25 @@ public abstract class SerializerService<T> {
     }
 
     protected abstract T deserialize(final InputStream inputStream);
+
+    public void serializeStream(final Path outputFile, final Stream<T> objects) {
+        try (OutputStream stream = Files.newOutputStream(outputFile)) {
+            serializeStream(stream, objects);
+        } catch (final IOException e) {
+            throw new UncheckedIOException("Error writing to " + outputFile, e);
+        }
+    }
+
+    protected abstract void serializeStream(final OutputStream outputStream, final Stream<T> objects);
+
+    public Stream<T> deserializeStream(final Path inputFile) {
+        try {
+            final InputStream stream = Files.newInputStream(inputFile);
+            return deserializeStream(stream);
+        } catch (final IOException e) {
+            throw new UncheckedIOException("Error reading from " + inputFile, e);
+        }
+    }
+
+    protected abstract Stream<T> deserializeStream(final InputStream inputStream);
 }

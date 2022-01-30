@@ -9,3 +9,4 @@ build/
 /application.properties
 /.README.md.html
 /data.kryo
+/mails.kryo

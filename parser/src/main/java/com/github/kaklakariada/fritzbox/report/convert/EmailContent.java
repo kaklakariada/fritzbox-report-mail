@@ -17,6 +17,7 @@
  */
 package com.github.kaklakariada.fritzbox.report.convert;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -27,47 +28,52 @@ import org.apache.james.mime4j.dom.Message;
 import com.github.kaklakariada.fritzbox.report.convert.EmailBody.Type;
 import com.github.kaklakariada.fritzbox.report.model.EmailMetadata;
 
-public class EmailContent {
-	private final Message message;
-	private final List<EmailBody> parts;
+public class EmailContent implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private final List<EmailBody> parts;
+    private final Instant instant;
+    private final String subject;
+    private final String messageId;
 
-	public EmailContent(Message message, List<EmailBody> parts) {
-		this.message = message;
-		this.parts = parts;
-	}
+    public EmailContent(Message message, List<EmailBody> parts) {
+        this.instant = message.getDate().toInstant();
+        this.messageId = message.getMessageId();
+        this.subject = message.getSubject();
+        this.parts = parts;
+    }
 
-	public List<EmailBody> getParts() {
-		return parts;
-	}
+    public List<EmailBody> getParts() {
+        return parts;
+    }
 
-	public EmailBody getPart(Type type) {
-		EmailBody found = null;
-		for (final EmailBody part : parts) {
-			if (part.getType() == type) {
-				if (found != null) {
-					throw new IllegalStateException(
-							"Found more than two parts of type " + type + ": " + found + " and " + part);
-				}
-				found = part;
-			}
-		}
-		return found;
-	}
+    public EmailBody getPart(Type type) {
+        EmailBody found = null;
+        for (final EmailBody part : parts) {
+            if (part.getType() == type) {
+                if (found != null) {
+                    throw new IllegalStateException(
+                            "Found more than two parts of type " + type + ": " + found + " and " + part);
+                }
+                found = part;
+            }
+        }
+        return found;
+    }
 
-	public LocalDate getDate() {
-		return LocalDate.ofInstant(getInstant(), ZoneId.systemDefault());
-	}
+    public LocalDate getDate() {
+        return LocalDate.ofInstant(getInstant(), ZoneId.systemDefault());
+    }
 
-	private Instant getInstant() {
-		return message.getDate().toInstant();
-	}
+    private Instant getInstant() {
+        return instant;
+    }
 
-	public EmailMetadata getMetadata() {
-		return new EmailMetadata(message.getMessageId(), getInstant(), message.getSubject());
-	}
+    public EmailMetadata getMetadata() {
+        return new EmailMetadata(messageId, instant, subject);
+    }
 
-	@Override
-	public String toString() {
-		return "EmailContent [part count=" + parts.size() + ", parts=" + parts + "]";
-	}
+    @Override
+    public String toString() {
+        return "EmailContent [part count=" + parts.size() + ", parts=" + parts + "]";
+    }
 }
