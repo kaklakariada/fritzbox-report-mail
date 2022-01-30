@@ -1,7 +1,6 @@
 drop schema if exists "FRITZBOX" cascade;
 create schema "FRITZBOX";
 open schema "FRITZBOX";
-
 create table "REPORT_MAIL" (
   id integer PRIMARY KEY,
   "DATE" date NOT NULL,
@@ -12,7 +11,6 @@ create table "REPORT_MAIL" (
   firmware_version varchar(100) not null,
   energy_usage_percent integer not null
 );
-
 create table "DATA_VOLUME" (
   report_id integer primary key REFERENCES "REPORT_MAIL" (id),
   "DATE" date,
@@ -20,7 +18,6 @@ create table "DATA_VOLUME" (
   "UPLOAD_MB" double NOT NULL,
   "TOTAL_MB" double NOT NULL
 );
-
 create table "LOG_ENTRY" (
   id integer PRIMARY KEY,
   report_id integer REFERENCES "REPORT_MAIL" (id),
@@ -28,7 +25,6 @@ create table "LOG_ENTRY" (
   "MESSAGE" VARCHAR(2000) NOT NULL,
   "EVENT" VARCHAR(200) NULL
 );
-
 create table wifi_event (
   log_entry_id integer primary key references log_entry (id),
   "TIMESTAMP" TIMESTAMP NOT NULL,
@@ -38,7 +34,6 @@ create table wifi_event (
   speed varchar(20) null,
   mac_address varchar(20) not null
 );
-
 create table wifi_connection (
   device_name varchar(50) not null,
   mac_address varchar(20) not null,
@@ -47,7 +42,33 @@ create table wifi_connection (
   "BEGIN" timestamp null,
   "END" timestamp null
 );
-
 CREATE OR REPLACE VIEW v_wifi_connection AS (
-SELECT DEVICE_NAME, MAC_ADDRESS, WIFI_TYPE, SPEED, "BEGIN", "END", SECONDS_BETWEEN("END", "BEGIN") AS duration_seconds
-FROM WIFI_CONNECTION);
+    SELECT DEVICE_NAME,
+      MAC_ADDRESS,
+      WIFI_TYPE,
+      SPEED,
+      "BEGIN",
+      "END",
+      SECONDS_BETWEEN("END", "BEGIN") AS duration_seconds
+    FROM WIFI_CONNECTION
+  );
+CREATE OR REPLACE VIEW v_daily_wifi_connection AS (
+    SELECT DEVICE_NAME,
+      MAC_ADDRESS,
+      "DATE",
+      count(1) AS connection_count,
+      sum(duration_seconds) AS total_connection_time_seconds
+    FROM (
+        SELECT DEVICE_NAME,
+          MAC_ADDRESS,
+          duration_seconds,
+          CASE
+            WHEN "BEGIN" IS NOT NULL THEN to_date("BEGIN")
+            ELSE to_date("END")
+          END AS "DATE"
+        FROM v_wifi_connection
+      )
+    GROUP BY DEVICE_NAME,
+      MAC_ADDRESS,
+      "DATE"
+  );
