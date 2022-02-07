@@ -34,13 +34,22 @@ create table wifi_event (
   speed varchar(20) null,
   mac_address varchar(20) not null
 );
+create table wifi_device_details (
+  device_name varchar(50) not null,
+  mac_address varchar(20) not null,
+  type varchar(50) not null,
+  readable_name varchar(50) not null,
+  owner varchar(50) null,
+  CONSTRAINT PRIMARY KEY (device_name, mac_address) ENABLE
+);
 create table wifi_connection (
   device_name varchar(50) not null,
   mac_address varchar(20) not null,
   wifi_type varchar(7) not null,
   speed varchar(20) null,
   "BEGIN" timestamp null,
-  "END" timestamp null
+  "END" timestamp null,
+  CONSTRAINT FOREIGN KEY (device_name, mac_address) REFERENCES wifi_device_details(device_name, mac_address) DISABLE
 );
 CREATE OR REPLACE VIEW v_wifi_connection AS (
     SELECT DEVICE_NAME,
