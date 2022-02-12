@@ -31,13 +31,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnected;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceEvent;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class FritzBoxReportCollection implements Serializable {
     private static final Logger LOG = LoggerFactory.getLogger(FritzBoxReportCollection.class);
@@ -80,23 +80,25 @@ public class FritzBoxReportCollection implements Serializable {
                 .sorted(comparing(EventLogEntry::getTimestamp));
     }
 
+    public Stream<EventLogEntry> getWifiLogEntries() {
+        return this.getLogEntries().filter(e -> e.getEvent().isPresent())
+                .filter(e -> (e.getEvent().get() instanceof WifiDeviceEvent));
+    }
+
     public Stream<WifiConnection> getWifiConnections() {
-        final List<EventLogEntry> wifiEvents = this.getLogEntries().sorted(comparing(EventLogEntry::getTimestamp))
-                .filter(e -> e.getEvent().isPresent())
-                .filter(e -> (e.getEvent().get() instanceof WifiDeviceEvent))
-                .sorted(Comparator.comparing(EventLogEntry::getTimestamp))
+        final List<EventLogEntry> wifiEvents = getWifiLogEntries()
+                .sorted(comparing(EventLogEntry::getTimestamp))
                 .toList();
         final List<WifiConnection> wifiConnections = new ArrayList<>();
-
         final Map<String, EventLogEntry> connectionStartEvents = new HashMap<>();
 
         for (final EventLogEntry logEntry : wifiEvents) {
-            final WifiDeviceEvent event = (WifiDeviceEvent) logEntry.getEvent().orElseThrow();
+            final WifiDeviceEvent event = logEntry.getEvent().map(WifiDeviceEvent.class::cast).orElseThrow();
             final String macAddress = event.getMacAddress();
             if (event.isConnectEvent()) {
                 if (connectionStartEvents.containsKey(macAddress)) {
                     final EventLogEntry existingEvent = connectionStartEvents.get(macAddress);
-                    LOG.trace("Two consecutive connection start events:\n - {}\n - {}",
+                    LOG.debug("Two consecutive connection start events:\n - {}\n - {}",
                             existingEvent, logEntry);
                     wifiConnections.add(createWifiConnectionEvent(logEntry, null));
                 }
@@ -106,7 +108,7 @@ public class FritzBoxReportCollection implements Serializable {
                     wifiConnections.add(createWifiConnectionEvent(connectionStartEvents.get(macAddress), logEntry));
                     connectionStartEvents.remove(macAddress);
                 } else {
-                    LOG.trace("Connection end event without start event: {}", logEntry);
+                    LOG.debug("Connection end event without start event: {}", logEntry);
                     wifiConnections.add(createWifiConnectionEvent(null, logEntry));
                 }
             }

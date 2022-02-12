@@ -4,13 +4,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Properties;
 
 import org.itsallcode.jdbc.ConnectionFactory;
 import org.itsallcode.jdbc.SimpleConnection;
 
+import com.github.kaklakariada.fritzbox.report.model.AggregatedVolume;
 import com.github.kaklakariada.fritzbox.report.model.Event;
+import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportCollection;
+import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnected;
 
@@ -42,25 +46,49 @@ public class DbSchema {
         }
     }
 
+    private Object[] mapReportMail(FritzBoxReportMail mail) {
+        return new Object[] { mail.getReportId(), mail.getDate(),
+                mail.getEmailMetadata().getTimestamp(), mail.getEmailMetadata().getMessageId(),
+                mail.getEmailMetadata().getSubject(), mail.getFritzBoxInfo().getProduct(),
+                mail.getFritzBoxInfo().getFirmwareVersion(), mail.getFritzBoxInfo().getEnergyUsagePercent() };
+    }
+
+    private Object[] mapDataVolume(AggregatedVolume volume) {
+        return new Object[] { volume.getReportId(), volume.getDay(),
+                volume.getSentVolume().getVolumeMb(), volume.getReveivedVolume().getVolumeMb(),
+                volume.getTotalVolume().getVolumeMb() };
+    }
+
+    private Object[] mapLogEntry(EventLogEntry entry) {
+        return new Object[] { entry.getLogEntryId(), entry.getReportId(), entry.getTimestamp(),
+                entry.getMessage(), entry.getEvent().map(Event::toString).orElse(null) };
+    }
+
+    private Object[] mapWifiConnection(EventLogEntry entry) {
+        if (entry.getEvent().get() instanceof final WifiDeviceConnected event) {
+            return new Object[] { entry.getLogEntryId(), entry.getTimestamp(), "connected",
+                    event.getWifiType().toString(), event.getName(), event.getSpeed(),
+                    event.getMacAddress() };
+        } else if (entry.getEvent().get() instanceof final WifiDeviceDisconnected event) {
+            return new Object[] { entry.getLogEntryId(), entry.getTimestamp(), "disconnected",
+                    event.getWifiType().toString(), event.getName(), null,
+                    event.getMacAddress() };
+        } else {
+            throw new IllegalStateException(
+                    "Unsupported event type " + entry.getEvent().get().getClass().getName());
+        }
+    }
+
     public void load(FritzBoxReportCollection reportCollection) {
-        connection.insert(
-                "insert into report_mail (id, \"DATE\", \"TIMESTAMP\", message_id, subject, product_name, firmware_version, energy_usage_percent) values (?, ?, ?, ?, ?, ?, ?, ?)",
-                mail -> new Object[] { mail.getReportId(), mail.getDate(),
-                        mail.getEmailMetadata().getTimestamp(), mail.getEmailMetadata().getMessageId(),
-                        mail.getEmailMetadata().getSubject(), mail.getFritzBoxInfo().getProduct(),
-                        mail.getFritzBoxInfo().getFirmwareVersion(), mail.getFritzBoxInfo().getEnergyUsagePercent() },
-                reportCollection.getReports());
+        connection.insert("REPORT_MAIL",
+                List.of("ID", "DATE", "TIMESTAMP", "MESSAGE_ID", "SUBJECT", "PRODUCT_NAME", "FIRMWARE_VERSION",
+                        "ENERGY_USAGE_PERCENT"),
+                this::mapReportMail, reportCollection.getReports());
 
-        connection.insert(
-                "insert into DATA_VOLUME (report_id, \"DATE\", UPLOAD_MB, DOWNLOAD_MB, total_mb) VALUES (?, ?, ?, ?, ?)",
-                volume -> new Object[] { volume.getReportId(), volume.getDay(),
-                        volume.getSentVolume().getVolumeMb(), volume.getReveivedVolume().getVolumeMb(),
-                        volume.getTotalVolume().getVolumeMb() },
-                reportCollection.getDataVolumeByDay());
+        connection.insert("DATA_VOLUME", List.of("REPORT_ID", "DATE", "UPLOAD_MB", "DOWNLOAD_MB", "TOTAL_MB"),
+                this::mapDataVolume, reportCollection.getDataVolumeByDay());
 
-        connection.insert("insert into LOG_ENTRY (id, report_id, \"TIMESTAMP\", MESSAGE, EVENT) VALUES (?, ?, ?, ?, ?)",
-                entry -> new Object[] { entry.getLogEntryId(), entry.getReportId(), entry.getTimestamp(),
-                        entry.getMessage(), entry.getEvent().map(Event::toString).orElse(null) },
+        connection.insert("LOG_ENTRY", List.of("ID", "REPORT_ID", "TIMESTAMP", "MESSAGE", "EVENT"), this::mapLogEntry,
                 reportCollection.getLogEntries());
 
         connection.insert(
@@ -69,24 +97,8 @@ public class DbSchema {
                         entry.getSpeed(), entry.getBegin(), entry.getEnd() },
                 reportCollection.getWifiConnections());
 
-        connection.insert(
-                "insert into wifi_event (log_entry_id, \"TIMESTAMP\", event_type, wifi_type, device_name, speed, mac_address) values (?,?,?,?,?,?,?)",
-                entry -> {
-                    if (entry.getEvent().get() instanceof final WifiDeviceConnected event) {
-                        return new Object[] { entry.getLogEntryId(), entry.getTimestamp(), "connected",
-                                event.getWifiType().toString(), event.getName(), event.getSpeed(),
-                                event.getMacAddress() };
-                    } else if (entry.getEvent().get() instanceof final WifiDeviceDisconnected event) {
-                        return new Object[] { entry.getLogEntryId(), entry.getTimestamp(), "disconnected",
-                                event.getWifiType().toString(), event.getName(), null,
-                                event.getMacAddress() };
-                    } else {
-                        throw new IllegalStateException(
-                                "Unsupported event type " + entry.getEvent().get().getClass().getName());
-                    }
-                },
-                reportCollection.getLogEntries().filter(e -> e.getEvent().isPresent())
-                        .filter(e -> (e.getEvent().get() instanceof WifiDeviceConnected
-                                || e.getEvent().get() instanceof WifiDeviceDisconnected)));
+        connection.insert("WIFI_EVENT",
+                List.of("LOG_ENTRY_ID", "TIMESTAMP", "EVENT_TYPE", "WIFI_TYPE", "DEVICE_NAME", "SPEED", "MAC_ADDRESS"),
+                this::mapWifiConnection, reportCollection.getWifiLogEntries());
     }
 }
