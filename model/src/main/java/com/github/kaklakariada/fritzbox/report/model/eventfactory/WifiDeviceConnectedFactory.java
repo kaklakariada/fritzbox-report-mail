@@ -30,6 +30,15 @@ public class WifiDeviceConnectedFactory extends AbstractEventLogEntryFactory<Wif
                 groups -> new WifiDeviceConnected(groups.get(0), null, null, groups.get(1), groups.get(2))),
 
                 Regex.create(
+                        "Neues WLAN-Gerät erstmalig angemeldet " + WIFI_TYPE_REGEXP + ", "
+                                + EVERYTHING_UNTIL_COMMA_REGEXP +
+                                ", " + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP " + IPV4_ADDRESS_REGEXP + ", MAC "
+                                + MAC_ADDRESS_REGEXP + "\\.",
+                        5,
+                        groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), groups.get(3),
+                                groups.get(4), groups.get(2))),
+
+                Regex.create(
                         "Neues WLAN-Gerät erstmalig angemeldet " + WIFI_TYPE_REGEXP + "\\. Geschwindigkeit "
                                 + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\. MAC-Adresse: " + MAC_ADDRESS_REGEXP
                                 + ", Name: " + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.",

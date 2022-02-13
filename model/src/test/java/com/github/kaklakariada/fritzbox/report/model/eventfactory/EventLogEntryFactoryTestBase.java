@@ -36,7 +36,7 @@ abstract class EventLogEntryFactoryTestBase<T extends Event> {
     final static String IP_ADDRESS4 = "111.122.133.144";
     final static String IP_ADDRESS_INVALID = "256.122.133.144";
     final static String IPv6_ADDRESS = "FEDC:BA98:7654:3210:FEDC:BA98:7654:3210";
-    final static String HOSTNAME = "hostname";
+    final static String HOSTNAME = "host-name.domain";
 
     @Test
     void testStringNoMatch() {

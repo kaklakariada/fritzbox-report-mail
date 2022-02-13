@@ -95,7 +95,7 @@ public class ExasolDao {
 
     public Stream<DeviceDetails> getDeviceDetails() {
         return connection.query("select w.device_name, w.mac_address, d.readable_name, d.type, d.owner "
-                + "from " + table("WIFI_CONNECTION")
+                + "from " + table("WIFI_EVENT")
                 + " w full outer join " + table("WIFI_DEVICE_DETAILS")
                 + " d ON w.mac_address = d.mac_address AND w.device_name = d.device_name "
                 + "group by w.device_name, w.mac_address, d.readable_name, d.type, d.owner "

@@ -30,12 +30,13 @@ import com.github.kaklakariada.fritzbox.report.model.regex.RegexMapper;
 public abstract class AbstractEventLogEntryFactory<T extends Event> {
 
     protected static final String MAC_ADDRESS_REGEXP = "((?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2})";
-    protected static final String IPV4_ADDRESS_REGEXP = "((?:25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\\."
+    private static final String IPV4_ADDRESS_REGEXP_ORG = "(?:25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\\."
             + "(?:25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\\."
             + "(?:25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\\."
-            + "(?:25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9]))";
+            + "(?:25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])";
+    protected static final String IPV4_ADDRESS_REGEXP = "(" + IPV4_ADDRESS_REGEXP_ORG + "|---)";
     protected static final String NON_WHITESPACE_REGEXP = "(\\S+)";
-    protected static final String EVERYTHING_UNTIL_PERIOD_REGEXP = "([^.]+?)";
+    protected static final String EVERYTHING_UNTIL_PERIOD_REGEXP = "(.+?)";
     protected static final String EVERYTHING_UNTIL_COMMA_REGEXP = "([^,]+?)";
     protected static final String WIFI_TYPE_REGEXP = "\\(([^)]+)\\)";
 

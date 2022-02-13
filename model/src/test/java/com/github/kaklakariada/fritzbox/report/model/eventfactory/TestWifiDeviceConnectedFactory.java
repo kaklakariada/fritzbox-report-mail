@@ -77,6 +77,24 @@ class TestWifiDeviceConnectedFactory extends EventLogEntryFactoryTestBase<WifiDe
     }
 
     @Test
+    void testMatchWithoutIP() {
+        assertEntry(
+                "WLAN-Gerät hat sich neu angemeldet (2,4 GHz), 72 Mbit/s, host-0123, IP ---, MAC "
+                        + MAC_ADDRESS + ".",
+                "72 Mbit/s", WifiType._2_4_GHZ, "---", MAC_ADDRESS, "host-0123");
+    }
+
+    @Test
+    void testMatchWithoutIP2() {
+        assertEntry(
+                "Neues WLAN-Gerät erstmalig angemeldet (5 GHz), 867 Mbit/s, " + HOSTNAME + ", IP ---, MAC "
+                        + MAC_ADDRESS + ".",
+                "867 Mbit/s", WifiType._5_GHZ, "---", MAC_ADDRESS, HOSTNAME);
+    }
+
+    //
+
+    @Test
     void testMatch9() {
         assertEntry(
                 "Neues WLAN-Gerät erstmalig angemeldet (2,4 GHz). Geschwindigkeit 72 Mbit/s. MAC-Adresse: "

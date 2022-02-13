@@ -21,6 +21,8 @@ import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,13 +57,24 @@ public class EventLogEntryFactory {
     }
 
     public Event createEventLogEntry(final String message) {
+        final String rawMessage = removeRepeatedSuffix(message);
         for (final AbstractEventLogEntryFactory<?> factory : factories) {
-            if (factory.matches(message)) {
-                LOG.trace("Factory {} can handle message '{}'.", factory.getClass().getSimpleName(), message);
-                return factory.createEventLogEntryInternal(message);
+            if (factory.matches(rawMessage)) {
+                LOG.trace("Factory {} can handle message '{}'.", factory.getClass().getSimpleName(), rawMessage);
+                return factory.createEventLogEntryInternal(rawMessage);
             }
         }
-        LOG.trace("None of the {} factories can handle message '{}'.", factories.size(), message);
+        LOG.trace("None of the {} factories can handle message '{}'.", factories.size(), rawMessage);
         return null;
+    }
+
+    private static Pattern REPEATED_SUFFIX = Pattern.compile("(.*) \\[\\d+ Meldungen seit .*?\\]");
+
+    private String removeRepeatedSuffix(String message) {
+        final Matcher matcher = REPEATED_SUFFIX.matcher(message);
+        if (matcher.matches()) {
+            return matcher.group(1);
+        }
+        return message;
     }
 }
