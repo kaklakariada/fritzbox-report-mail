@@ -30,14 +30,39 @@ public class WifiDeviceConnectedFactory extends AbstractEventLogEntryFactory<Wif
                 groups -> new WifiDeviceConnected(groups.get(0), null, null, groups.get(1), groups.get(2))),
 
                 Regex.create(
+                        "Neues WLAN-Gerät erstmalig angemeldet " + WIFI_TYPE_REGEXP + "\\. Geschwindigkeit "
+                                + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\. MAC-Adresse: " + MAC_ADDRESS_REGEXP
+                                + ", Name: " + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.",
+                        4,
+                        groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), null,
+                                groups.get(2), groups.get(3))),
+
+                Regex.create(
+                        "WLAN-Gerät hat sich neu angemeldet " + WIFI_TYPE_REGEXP + "\\. Geschwindigkeit "
+                                + EVERYTHING_UNTIL_PERIOD_REGEXP
+                                + "\\. MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: " + EVERYTHING_UNTIL_PERIOD_REGEXP
+                                + "\\.",
+                        4,
+                        groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), null,
+                                groups.get(2), groups.get(3))),
+
+                Regex.create(
                         "WLAN-Gerät (?:hat sich neu )?angemeldet " + WIFI_TYPE_REGEXP + ", "
                                 + EVERYTHING_UNTIL_COMMA_REGEXP + ", "
                                 + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP " + IPV4_ADDRESS_REGEXP + ", MAC "
                                 + MAC_ADDRESS_REGEXP + "(?:, Name: .+)?\\.",
                         5,
                         groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), groups.get(3),
-                                groups.get(4),
-                                groups.get(2))),
+                                groups.get(4), groups.get(2))),
+
+                Regex.create(
+                        "Neues WLAN-Gerät erstmalig angemeldet " + WIFI_TYPE_REGEXP + ", "
+                                + EVERYTHING_UNTIL_COMMA_REGEXP + ", " + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP "
+                                + IPV4_ADDRESS_REGEXP + ", MAC " + MAC_ADDRESS_REGEXP + ", Name: "
+                                + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.",
+                        6,
+                        groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), groups.get(3),
+                                groups.get(4), groups.get(2))),
 
                 Regex.create(
                         "WLAN-Gerät angemeldet " + WIFI_TYPE_REGEXP + ". Geschwindigkeit "

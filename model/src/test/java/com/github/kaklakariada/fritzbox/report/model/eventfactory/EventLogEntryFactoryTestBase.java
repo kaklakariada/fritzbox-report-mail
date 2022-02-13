@@ -19,12 +19,13 @@ package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.github.kaklakariada.fritzbox.report.model.Event;
-
 import org.junit.jupiter.api.Test;
+
+import com.github.kaklakariada.fritzbox.report.model.Event;
 
 abstract class EventLogEntryFactoryTestBase<T extends Event> {
 
@@ -54,14 +55,16 @@ abstract class EventLogEntryFactoryTestBase<T extends Event> {
 
     @SuppressWarnings("unchecked")
     protected void assertMatched(String message, T expectedEvent) {
-        assertEvent(expectedEvent, createFactory().createEventLogEntryInternal(message));
-        assertEvent(expectedEvent, (T) new EventLogEntryFactory().createEventLogEntry(message));
+        assertAll(
+                () -> assertEvent(expectedEvent, createFactory().createEventLogEntryInternal(message)),
+                () -> assertEvent(expectedEvent, (T) new EventLogEntryFactory().createEventLogEntry(message)));
     }
 
     private void assertEvent(T expectedEvent, final T actualEvent) {
-        assertThat(actualEvent, notNullValue());
-        assertEquals(expectedEvent.toString(), actualEvent.toString());
-        assertEquals(expectedEvent, actualEvent);
+        assertAll(
+                () -> assertThat(actualEvent, notNullValue()),
+                () -> assertEquals(expectedEvent.toString(), actualEvent.toString()),
+                () -> assertEquals(expectedEvent, actualEvent));
     }
 
     protected void assertMatchFailed(String message) {

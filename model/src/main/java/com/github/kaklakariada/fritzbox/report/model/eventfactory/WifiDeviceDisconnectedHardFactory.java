@@ -46,6 +46,16 @@ public class WifiDeviceDisconnectedHardFactory extends AbstractEventLogEntryFact
                 Regex.create(
                         "WLAN-Gerät wird abgemeldet " + WIFI_TYPE_REGEXP + ": WLAN-Gerät antwortet nicht, "
                                 + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP " + IPV4_ADDRESS_REGEXP + ", MAC "
+                                + MAC_ADDRESS_REGEXP + ", Name: " + EVERYTHING_UNTIL_PERIOD_REGEXP + ". "
+                                + DISCONNECT_CODE + "\\.",
+                        6,
+                        groups -> new WifiDeviceDisconnectedHard(WifiType.parse(groups.get(0)), groups.get(2),
+                                groups.get(3),
+                                groups.get(4), groups.get(5))),
+
+                Regex.create(
+                        "WLAN-Gerät wird abgemeldet " + WIFI_TYPE_REGEXP + ": WLAN-Gerät antwortet nicht, "
+                                + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP " + IPV4_ADDRESS_REGEXP + ", MAC "
                                 + MAC_ADDRESS_REGEXP + "\\. " + DISCONNECT_CODE + "\\.",
                         5,
                         groups -> new WifiDeviceDisconnectedHard(WifiType.parse(groups.get(0)), groups.get(2),
