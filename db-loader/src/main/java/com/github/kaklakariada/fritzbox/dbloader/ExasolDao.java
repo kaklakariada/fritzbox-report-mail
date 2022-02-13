@@ -19,6 +19,7 @@ import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
 import com.github.kaklakariada.fritzbox.report.model.WifiConnection;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnected;
+import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnectedHard;
 
 public class ExasolDao {
     private final SimpleConnection connection;
@@ -79,7 +80,8 @@ public class ExasolDao {
 
     public void insertWifiLogEntries(Stream<EventLogEntry> entries) {
         connection.insert(table("WIFI_EVENT"),
-                columns("LOG_ENTRY_ID", "TIMESTAMP", "EVENT_TYPE", "WIFI_TYPE", "DEVICE_NAME", "SPEED", "MAC_ADDRESS"),
+                columns("LOG_ENTRY_ID", "TIMESTAMP", "EVENT_TYPE", "WIFI_TYPE", "DEVICE_NAME", "SPEED", "MAC_ADDRESS",
+                        "DISCONNECT_CODE"),
                 this::mapWifiEvents, entries);
     }
 
@@ -88,11 +90,15 @@ public class ExasolDao {
         if (genericEvent instanceof final WifiDeviceConnected event) {
             return new Object[] { entry.getLogEntryId(), entry.getTimestamp(), "connected",
                     event.getWifiType().toString(), event.getName(), event.getSpeed(),
-                    event.getMacAddress() };
+                    event.getMacAddress(), null };
         } else if (genericEvent instanceof final WifiDeviceDisconnected event) {
+            String disconnectCode = null;
+            if (event instanceof final WifiDeviceDisconnectedHard hardDisconnect) {
+                disconnectCode = hardDisconnect.getCode();
+            }
             return new Object[] { entry.getLogEntryId(), entry.getTimestamp(), "disconnected",
                     event.getWifiType().toString(), event.getName(), null,
-                    event.getMacAddress() };
+                    event.getMacAddress(), disconnectCode };
         } else {
             throw new IllegalStateException(
                     "Unsupported event type " + entry.getEvent().get().getClass().getName());

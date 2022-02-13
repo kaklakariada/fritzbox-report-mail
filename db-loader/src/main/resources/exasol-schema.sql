@@ -32,7 +32,8 @@ create table wifi_event (
   wifi_type varchar(7) not null,
   device_name varchar(50) null,
   speed varchar(20) null,
-  mac_address varchar(20) not null
+  mac_address varchar(20) not null,
+  disconnect_code varchar(20) null
 );
 create table wifi_device_details (
   device_name varchar(50) not null,
