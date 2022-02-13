@@ -39,7 +39,7 @@ create table wifi_device_details (
   mac_address varchar(20) not null,
   type varchar(50) not null,
   readable_name varchar(50) not null,
-  owner varchar(50) null,
+  owner varchar(50) not null,
   CONSTRAINT PRIMARY KEY (device_name, mac_address) ENABLE
 );
 create table wifi_connection (

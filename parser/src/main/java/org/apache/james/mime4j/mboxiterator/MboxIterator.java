@@ -79,7 +79,6 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
             final int regexpFlags,
             final int MAX_MESSAGE_SIZE)
             throws IOException {
-        // TODO: do better exception handling - try to process some of them maybe?
         this.maxMessageSize = MAX_MESSAGE_SIZE;
         this.messageStart = Pattern.compile(regexpPattern, regexpFlags);
         this.decoder = charset.newDecoder();

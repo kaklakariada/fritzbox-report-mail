@@ -5,4 +5,5 @@ plugins {
 dependencies {
     implementation project(':model')
     implementation 'org.itsallcode:simple-jdbc:0.2.0'
+    implementation 'de.siegmar:fastcsv:2.1.0'
 }

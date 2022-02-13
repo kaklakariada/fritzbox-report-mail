@@ -31,5 +31,11 @@ task runDbImport(type: JavaExec, group: 'run') {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+task createWifiDeviceDetailsTemplate(type: JavaExec, group: 'run') {
+    mainClass = 'com.github.kaklakariada.fritzbox.report.CreateWifiDeviceDetailsTemplate'
+    workingDir = project.projectDir
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 runMailParser.mustRunAfter runMailReader
 runDbImport.mustRunAfter runMailParser

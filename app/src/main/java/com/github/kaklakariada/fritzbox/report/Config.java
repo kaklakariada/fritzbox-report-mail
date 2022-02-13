@@ -37,12 +37,20 @@ public class Config {
         return properties.getProperty("jdbc.password");
     }
 
+    public String getJdbcSchema() {
+        return properties.getProperty("jdbc.schema");
+    }
+
     public Path getSerializedReportPath() {
         return Paths.get("../data.kryo").toAbsolutePath();
     }
 
     public Path getRawMailsPath() {
         return Paths.get("../mails.kryo").toAbsolutePath();
+    }
+
+    public Path getWifiDeviceDetailsCsv() {
+        return Paths.get("../wifi-device-details.csv").toAbsolutePath();
     }
 
     public static Config readConfig() {
@@ -60,4 +68,5 @@ public class Config {
         }
         return new Config(properties);
     }
+
 }

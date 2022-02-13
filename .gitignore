@@ -10,3 +10,4 @@ build/
 /.README.md.html
 /data.kryo
 /mails.kryo
+wifi-device-details.csv

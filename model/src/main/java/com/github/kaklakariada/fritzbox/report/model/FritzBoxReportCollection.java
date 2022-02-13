@@ -98,7 +98,7 @@ public class FritzBoxReportCollection implements Serializable {
             if (event.isConnectEvent()) {
                 if (connectionStartEvents.containsKey(macAddress)) {
                     final EventLogEntry existingEvent = connectionStartEvents.get(macAddress);
-                    LOG.debug("Two consecutive connection start events:\n - {}\n - {}",
+                    LOG.trace("Two consecutive connection start events:\n - {}\n - {}",
                             existingEvent, logEntry);
                     wifiConnections.add(createWifiConnectionEvent(logEntry, null));
                 }
@@ -108,7 +108,7 @@ public class FritzBoxReportCollection implements Serializable {
                     wifiConnections.add(createWifiConnectionEvent(connectionStartEvents.get(macAddress), logEntry));
                     connectionStartEvents.remove(macAddress);
                 } else {
-                    LOG.debug("Connection end event without start event: {}", logEntry);
+                    LOG.trace("Connection end event without start event: {}", logEntry);
                     wifiConnections.add(createWifiConnectionEvent(null, logEntry));
                 }
             }
