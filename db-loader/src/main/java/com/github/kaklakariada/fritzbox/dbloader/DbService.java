@@ -60,7 +60,6 @@ public class DbService {
         dao.insertReportMails(reportCollection.getReports());
         dao.insertDataVolume(reportCollection.getDataVolumeByDay());
         dao.insertLogEntries(reportCollection.getLogEntries());
-        dao.insertWifiConnections(reportCollection.getWifiConnections());
         dao.insertWifiLogEntries(reportCollection.getWifiLogEntries());
     }
 

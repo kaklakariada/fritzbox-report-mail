@@ -43,42 +43,60 @@ create table wifi_device_details (
   owner varchar(50) not null,
   CONSTRAINT PRIMARY KEY (device_name, mac_address) ENABLE
 );
-create table wifi_connection (
-  device_name varchar(50) not null,
-  mac_address varchar(20) not null,
-  wifi_type varchar(7) not null,
-  speed varchar(20) null,
-  "BEGIN" timestamp null,
-  "END" timestamp null,
-  CONSTRAINT FOREIGN KEY (device_name, mac_address) REFERENCES wifi_device_details(device_name, mac_address) DISABLE
-);
 CREATE OR REPLACE VIEW v_wifi_connection AS (
-    SELECT DEVICE_NAME,
-      MAC_ADDRESS,
-      WIFI_TYPE,
-      SPEED,
-      "BEGIN",
-      "END",
-      SECONDS_BETWEEN("END", "BEGIN") AS duration_seconds
-    FROM WIFI_CONNECTION
+    with intermediate as (
+      SELECT we.MAC_ADDRESS,
+        we.DEVICE_NAME,
+        we.EVENT_TYPE,
+        we.wifi_type,
+        we.SPEED,
+        we."TIMESTAMP" AS connect_timestamp,
+        LEAD("TIMESTAMP") OVER (
+          PARTITION BY DEVICE_NAME,
+          MAC_ADDRESS
+          ORDER BY "TIMESTAMP" asc,
+            LOG_ENTRY_ID asc
+        ) AS DISCONNECT_timestamp,
+        LEAD(EVENT_TYPE) OVER (
+          PARTITION BY DEVICE_NAME,
+          MAC_ADDRESS
+          ORDER BY "TIMESTAMP" asc,
+            LOG_ENTRY_ID asc
+        ) AS DISCONNECT_event,
+        LEAD(DISCONNECT_CODE) OVER (
+          PARTITION BY DEVICE_NAME,
+          MAC_ADDRESS
+          ORDER BY "TIMESTAMP" asc,
+            LOG_ENTRY_ID asc
+        ) AS DISCONNECT_CODE
+      FROM WIFI_EVENT we
+    )
+    SELECT d.READABLE_NAME,
+      d."TYPE" AS device_type,
+      d.OWNER,
+      i.wifi_type,
+      i.speed,
+      i.connect_timestamp,
+      i.disconnect_timestamp,
+      SECONDS_BETWEEN(i.disconnect_timestamp, i.connect_timestamp) duration_seconds,
+      i.DISCONNECT_CODE
+    FROM intermediate i
+      LEFT OUTER JOIN wifi_device_details d ON i.mac_address = d.MAC_ADDRESS
+      AND i.device_name = d.DEVICE_NAME
+    WHERE i.EVENT_TYPE = 'connected'
+      AND i.disconnect_event = 'disconnected'
   );
 CREATE OR REPLACE VIEW v_daily_wifi_connection AS (
-    SELECT DEVICE_NAME,
-      MAC_ADDRESS,
-      "DATE",
-      count(1) AS connection_count,
-      sum(duration_seconds) AS total_connection_time_seconds
-    FROM (
-        SELECT DEVICE_NAME,
-          MAC_ADDRESS,
-          duration_seconds,
-          CASE
-            WHEN "BEGIN" IS NOT NULL THEN to_date("BEGIN")
-            ELSE to_date("END")
-          END AS "DATE"
-        FROM v_wifi_connection
-      )
-    GROUP BY DEVICE_NAME,
-      MAC_ADDRESS,
-      "DATE"
+    SELECT READABLE_NAME,
+      DEVICE_TYPE,
+      OWNER,
+      to_date(CONNECT_TIMESTAMP) AS "DATE",
+      to_date(max(DISCONNECT_TIMESTAMP)) AS DISCONNECT_DATE,
+      count(1) AS "COUNT",
+      round(sum(duration_seconds) / (60 * 60), 2) AS duration_hours
+    FROM V_WIFI_CONNECTION
+    GROUP BY READABLE_NAME,
+      DEVICE_TYPE,
+      OWNER,
+      to_date(CONNECT_TIMESTAMP)
   );

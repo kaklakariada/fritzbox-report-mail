@@ -24,12 +24,7 @@ import java.util.Map;
 
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class FritzBoxReportMail implements Serializable {
-    private static final Logger LOG = LoggerFactory.getLogger(FritzBoxReportMail.class);
-
     private static final long serialVersionUID = 1L;
     private final int reportId;
     private final Map<TimePeriod, DataConnections> dataConnections;

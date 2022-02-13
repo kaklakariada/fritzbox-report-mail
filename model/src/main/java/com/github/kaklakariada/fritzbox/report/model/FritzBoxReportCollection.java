@@ -23,24 +23,15 @@ import static java.util.stream.Collectors.reducing;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
-import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
-import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnected;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceEvent;
 
 public class FritzBoxReportCollection implements Serializable {
-    private static final Logger LOG = LoggerFactory.getLogger(FritzBoxReportCollection.class);
     private static final long serialVersionUID = 1L;
     private final Map<LocalDate, FritzBoxReportMail> reports;
 
@@ -83,55 +74,5 @@ public class FritzBoxReportCollection implements Serializable {
     public Stream<EventLogEntry> getWifiLogEntries() {
         return this.getLogEntries().filter(e -> e.getEvent().isPresent())
                 .filter(e -> (e.getEvent().get() instanceof WifiDeviceEvent));
-    }
-
-    public Stream<WifiConnection> getWifiConnections() {
-        final List<EventLogEntry> wifiEvents = getWifiLogEntries()
-                .sorted(comparing(EventLogEntry::getTimestamp))
-                .toList();
-        final List<WifiConnection> wifiConnections = new ArrayList<>();
-        final Map<String, EventLogEntry> connectionStartEvents = new HashMap<>();
-
-        for (final EventLogEntry logEntry : wifiEvents) {
-            final WifiDeviceEvent event = logEntry.getEvent().map(WifiDeviceEvent.class::cast).orElseThrow();
-            final String macAddress = event.getMacAddress();
-            if (event.isConnectEvent()) {
-                if (connectionStartEvents.containsKey(macAddress)) {
-                    final EventLogEntry existingEvent = connectionStartEvents.get(macAddress);
-                    LOG.trace("Two consecutive connection start events:\n - {}\n - {}",
-                            existingEvent, logEntry);
-                    wifiConnections.add(createWifiConnectionEvent(logEntry, null));
-                }
-                connectionStartEvents.put(macAddress, logEntry);
-            } else {
-                if (connectionStartEvents.containsKey(macAddress)) {
-                    wifiConnections.add(createWifiConnectionEvent(connectionStartEvents.get(macAddress), logEntry));
-                    connectionStartEvents.remove(macAddress);
-                } else {
-                    LOG.trace("Connection end event without start event: {}", logEntry);
-                    wifiConnections.add(createWifiConnectionEvent(null, logEntry));
-                }
-            }
-        }
-        return wifiConnections.stream();
-    }
-
-    private WifiConnection createWifiConnectionEvent(EventLogEntry startEvent, EventLogEntry endEvent) {
-        if (startEvent != null) {
-            final WifiDeviceConnected connectedEvent = startEvent.getEvent().map(WifiDeviceConnected.class::cast)
-                    .orElseThrow();
-            return new WifiConnection(connectedEvent.getName(), connectedEvent.getMacAddress(),
-                    connectedEvent.getSpeed(), connectedEvent.getWifiType(), startEvent.getTimestamp(),
-                    endEvent != null ? endEvent.getTimestamp() : null);
-        }
-        if (endEvent != null) {
-            final WifiDeviceDisconnected disconnectedEvent = endEvent.getEvent()
-                    .map(WifiDeviceDisconnected.class::cast)
-                    .orElseThrow();
-            return new WifiConnection(disconnectedEvent.getName(), disconnectedEvent.getMacAddress(), null,
-                    disconnectedEvent.getWifiType(), null,
-                    endEvent.getTimestamp());
-        }
-        throw new IllegalArgumentException("Neither start nor end event given");
     }
 }

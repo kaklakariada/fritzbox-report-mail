@@ -16,7 +16,6 @@ import com.github.kaklakariada.fritzbox.report.model.AggregatedVolume;
 import com.github.kaklakariada.fritzbox.report.model.Event;
 import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
-import com.github.kaklakariada.fritzbox.report.model.WifiConnection;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnected;
 import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnectedHard;
@@ -65,17 +64,6 @@ public class ExasolDao {
     private Object[] mapLogEntry(EventLogEntry entry) {
         return new Object[] { entry.getLogEntryId(), entry.getReportId(), entry.getTimestamp(),
                 entry.getMessage(), entry.getEvent().map(Event::toString).orElse(null) };
-    }
-
-    public void insertWifiConnections(Stream<WifiConnection> entries) {
-        connection.insert(table("WIFI_CONNECTION"),
-                columns("DEVICE_NAME", "MAC_ADDRESS", "WIFI_TYPE", "SPEED", "BEGIN", "END"),
-                this::mapWifiConnection, entries);
-    }
-
-    private Object[] mapWifiConnection(WifiConnection entry) {
-        return new Object[] { entry.getDeviceName(), entry.getMacAddress(), entry.getWifiType().toString(),
-                entry.getSpeed(), entry.getBegin(), entry.getEnd() };
     }
 
     public void insertWifiLogEntries(Stream<EventLogEntry> entries) {
