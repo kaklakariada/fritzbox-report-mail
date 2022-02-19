@@ -355,7 +355,7 @@ org.eclipse.jdt.core.formatter.insert_space_between_empty_parens_in_enum_constan
 org.eclipse.jdt.core.formatter.insert_space_between_empty_parens_in_method_declaration=do not insert
 org.eclipse.jdt.core.formatter.insert_space_between_empty_parens_in_method_invocation=do not insert
 org.eclipse.jdt.core.formatter.join_lines_in_comments=true
-org.eclipse.jdt.core.formatter.join_wrapped_lines=false
+org.eclipse.jdt.core.formatter.join_wrapped_lines=true
 org.eclipse.jdt.core.formatter.keep_annotation_declaration_on_one_line=one_line_never
 org.eclipse.jdt.core.formatter.keep_anonymous_type_declaration_on_one_line=one_line_never
 org.eclipse.jdt.core.formatter.keep_code_block_on_one_line=one_line_never
@@ -398,7 +398,7 @@ org.eclipse.jdt.core.formatter.parentheses_positions_in_record_declaration=commo
 org.eclipse.jdt.core.formatter.parentheses_positions_in_switch_statement=common_lines
 org.eclipse.jdt.core.formatter.parentheses_positions_in_try_clause=common_lines
 org.eclipse.jdt.core.formatter.put_empty_statement_on_new_line=true
-org.eclipse.jdt.core.formatter.tabulation.char=space
+org.eclipse.jdt.core.formatter.tabulation.char=tab
 org.eclipse.jdt.core.formatter.tabulation.size=4
 org.eclipse.jdt.core.formatter.text_block_indentation=0
 org.eclipse.jdt.core.formatter.use_on_off_tags=true
