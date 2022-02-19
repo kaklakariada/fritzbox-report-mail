@@ -14,15 +14,6 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Cache Gradle packages and wrapper
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle*') }}
-        restore-keys: ${{ runner.os }}-gradle
-
     - name: Cache SonarQube packages
       uses: actions/cache@v2
       with:
@@ -37,6 +28,10 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: 17
+        cache: 'gradle'
+
+    - name: Enable testcontainer reuse
+      run: echo 'testcontainers.reuse.enable=true' > "/home/runner/.testcontainers.properties"
 
     - name: Build with Gradle
       run: ./gradlew clean build --info --warning-mode all
