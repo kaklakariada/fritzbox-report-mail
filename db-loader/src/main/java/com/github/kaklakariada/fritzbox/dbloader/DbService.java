@@ -13,15 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.itsallcode.jdbc.ConnectionFactory;
-import org.itsallcode.jdbc.SimpleConnection;
-
 import com.github.kaklakariada.fritzbox.dbloader.model.DeviceDetails;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportCollection;
+
+import org.itsallcode.jdbc.ConnectionFactory;
+import org.itsallcode.jdbc.SimpleConnection;
 
 import de.siegmar.fastcsv.reader.NamedCsvReader;
 import de.siegmar.fastcsv.writer.CsvWriter;
@@ -30,21 +29,23 @@ public class DbService {
 
     private final SimpleConnection connection;
     private final ExasolDao dao;
+    private final String schema;
 
     public DbService(SimpleConnection connection, String schema) {
         this.connection = connection;
+        this.schema = schema;
         this.dao = new ExasolDao(connection, schema);
     }
 
     public static DbService connect(String jdbcUrl, String user, String password, String schema) {
-        final Properties info = new Properties();
-        info.put("user", user);
-        info.put("password", password);
-        final SimpleConnection connection = ConnectionFactory.create().create(jdbcUrl, info);
+        final SimpleConnection connection = ConnectionFactory.create().create(jdbcUrl, user, password);
         return new DbService(connection, schema);
     }
 
     public void createSchema() {
+        connection.executeStatement("drop schema if exists \"" + schema + "\" cascade");
+        connection.executeStatement("create schema \"" + schema + "\"");
+        connection.executeStatement("open schema \"" + schema + "\"");
         connection.executeScript(readSchemaScript("/exasol-schema.sql"));
     }
 
@@ -89,8 +90,7 @@ public class DbService {
 
     private void checkForDuplicateKeys(final List<DeviceDetails> deviceDetails, Path inputPath) {
         final Map<String, Long> primaryKeyFrequencies = deviceDetails.stream()
-                .map(d -> d.deviceName() + "," + d.macAddress())
-                .collect(groupingBy(Function.identity(), counting()));
+                .map(d -> d.deviceName() + "," + d.macAddress()).collect(groupingBy(Function.identity(), counting()));
         final List<String> duplicateKeys = new ArrayList<String>();
         for (final Entry<String, Long> entry : primaryKeyFrequencies.entrySet()) {
             if (entry.getValue().longValue() > 1) {

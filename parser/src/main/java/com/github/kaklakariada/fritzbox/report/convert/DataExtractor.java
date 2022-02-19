@@ -110,7 +110,7 @@ class DataExtractor {
     private DataConnections convertNewDataConnection(LocalDate date, HtmlElement row) {
         final HtmlElement firstCol = row.selectSingleElement("tr>*:nth-child(1)");
         if (!firstCol.getName().equals("td")) {
-            LOG.fine(() -> "Ignore row " + row + " with first col " + firstCol);
+            LOG.finest(() -> "Ignore row " + row + " with first col " + firstCol);
             return null;
         }
         final List<HtmlElement> cells = row.select("td");

@@ -18,7 +18,7 @@ tasks.withType(JavaExec) {
     workingDir = project.projectDir
     classpath = sourceSets.main.runtimeClasspath
     workingDir = project.projectDir
-    systemProperty 'java.util.logging.config.file', file('src/main/resources/logging.properties').toString()
+    systemProperty 'java.util.logging.config.file', file('src/main/resources/logging.properties')
 }
 
 task runMailReader(type: JavaExec, group: 'run') {

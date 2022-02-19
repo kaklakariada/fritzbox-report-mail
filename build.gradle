@@ -1,6 +1,4 @@
 plugins {
-    id "java-library"
-    id "jacoco"
     id "org.sonarqube" version "3.3"
     id "com.github.ben-manes.versions" version "0.42.0"
 }
@@ -34,7 +32,7 @@ subprojects {
     testing {
         suites {
             test {
-                useJUnitJupiter('5.8.2')
+                useJUnitJupiter(libs.versions.junitJupiter.get())
             }
         }
     }
@@ -44,7 +42,7 @@ subprojects {
             testLogging.showStandardStreams = true
         }
         jvmArgs '-XX:+HeapDumpOnOutOfMemoryError', '-enableassertions'
-        systemProperty 'java.util.logging.config.file', file('src/test/resources/logging.properties').toString()
+        systemProperty 'java.util.logging.config.file', file('src/test/resources/logging.properties')
     }
 
     jacocoTestReport {

@@ -1,6 +1,3 @@
-drop schema if exists "FRITZBOX" cascade;
-create schema "FRITZBOX";
-open schema "FRITZBOX";
 create table "REPORT_MAIL" (
   id integer PRIMARY KEY,
   "DATE" date NOT NULL,
