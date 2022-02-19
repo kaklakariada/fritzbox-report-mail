@@ -1,4 +1,0 @@
-mbox.path = /Users/user/Library/Thunderbird/Profiles/profile.default/ImapMail/server/FritzBox.sbd/Report
-jdbc.url = jdbc:exa:localhost:8563;fingerprint=<fingerprint>
-jdbc.user = <user>
-jdbc.password = <password>

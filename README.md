@@ -20,7 +20,15 @@ A Java API for parsing and processing status report mails of a FritzBox.
     docker run --publish 8563:8563 --detach --privileged --stop-timeout 120 --volume $HOME/exadata/:/exa exasol/docker-db:7.1.4
     ```
 
-* Copy file `application.properties.template` to `application.properties`, add the path to your mbox file and your database connection.
+* Create file `application.properties` with the following content and adapt the configuration for your setup
+
+```properties
+mbox.path = /Users/user/Library/Thunderbird/Profiles/profile.default/ImapMail/server/FritzBox.sbd/Report
+jdbc.url = jdbc:exa:localhost:8563;fingerprint=<fingerprint>
+jdbc.user = <user>
+jdbc.password = <password>
+jdbc.schema = fritzbox
+```
 
 ### Importing Report Mails
 
