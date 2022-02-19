@@ -7,10 +7,13 @@ dependencies {
     implementation project(':db-loader')
     implementation project(':model')
 
-    runtimeOnly 'ch.qos.logback:logback-classic:1.2.10'
-    runtimeOnly 'com.exasol:exasol-jdbc:7.1.4'
+    implementation libs.slf4jApi
+    implementation libs.kryo
 
-    implementation 'com.esotericsoftware:kryo:5.3.0'
+    runtimeOnly libs.exasolJdbc
+    runtimeOnly libs.logback
+
+    testImplementation libs.bundles.testUtils
 }
 
 task runMailReader(type: JavaExec, group: 'run') {

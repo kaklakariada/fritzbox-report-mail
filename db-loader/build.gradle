@@ -4,6 +4,11 @@ plugins {
 
 dependencies {
     implementation project(':model')
-    implementation 'org.itsallcode:simple-jdbc:0.2.0'
-    implementation 'de.siegmar:fastcsv:2.1.0'
+    implementation libs.simpleJdbc
+    implementation libs.fastcsv
+    implementation libs.slf4jApi
+
+    runtimeOnly libs.logback
+
+    testImplementation libs.bundles.testUtils
 }

@@ -5,8 +5,12 @@ plugins {
 dependencies {
     implementation project(':model')
     
-    implementation 'org.apache.james:apache-mime4j-core:0.8.6'
-    implementation 'org.apache.james:apache-mime4j-dom:0.8.6'
-    implementation 'org.jsoup:jsoup:1.14.3'
-    implementation 'com.sun.mail:jakarta.mail:2.0.1'
+    implementation libs.bundles.mime4j
+    implementation libs.jsoup
+    implementation libs.jakartaMail
+    implementation libs.slf4jApi
+
+    runtimeOnly libs.logback
+
+    testImplementation libs.bundles.testUtils
 }
