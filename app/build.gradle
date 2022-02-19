@@ -14,28 +14,27 @@ dependencies {
     testImplementation libs.bundles.testUtils
 }
 
-task runMailReader(type: JavaExec, group: 'run') {
-    mainClass = 'com.github.kaklakariada.fritzbox.report.ReadMails'
+tasks.withType(JavaExec) {
     workingDir = project.projectDir
     classpath = sourceSets.main.runtimeClasspath
+    workingDir = project.projectDir
+    systemProperty 'java.util.logging.config.file', file('src/main/resources/logging.properties').toString()
+}
+
+task runMailReader(type: JavaExec, group: 'run') {
+    mainClass = 'com.github.kaklakariada.fritzbox.report.ReadMails'
 }
 
 task runMailParser(type: JavaExec, group: 'run') {
     mainClass = 'com.github.kaklakariada.fritzbox.report.ParseReportMails'
-    workingDir = project.projectDir
-    classpath = sourceSets.main.runtimeClasspath
 }
 
 task runDbImport(type: JavaExec, group: 'run') {
     mainClass = 'com.github.kaklakariada.fritzbox.report.DbImporter'
-    workingDir = project.projectDir
-    classpath = sourceSets.main.runtimeClasspath
 }
 
 task createWifiDeviceDetailsTemplate(type: JavaExec, group: 'run') {
     mainClass = 'com.github.kaklakariada.fritzbox.report.CreateWifiDeviceDetailsTemplate'
-    workingDir = project.projectDir
-    classpath = sourceSets.main.runtimeClasspath
 }
 
 runMailParser.mustRunAfter runMailReader

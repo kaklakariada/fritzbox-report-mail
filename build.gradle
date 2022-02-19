@@ -44,6 +44,7 @@ subprojects {
             testLogging.showStandardStreams = true
         }
         jvmArgs '-XX:+HeapDumpOnOutOfMemoryError', '-enableassertions'
+        systemProperty 'java.util.logging.config.file', file('src/test/resources/logging.properties').toString()
     }
 
     jacocoTestReport {
