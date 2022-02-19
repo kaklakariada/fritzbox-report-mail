@@ -34,6 +34,20 @@ To parse and import the reports into database schema `FRITZBOX` run the followin
 
 After the import is finished, you can visualize your data e.g. with [Metabase](https://www.metabase.com/) and the [Exasol driver for Metabase](https://github.com/exasol/metabase-driver).
 
+### Adding Custom Device Names
+
+To add readable device names, first generate a template for `wifi-device-details.csv`:
+
+```shell
+./gradlew createWifiDeviceDetailsTemplate
+```
+
+This CSV has fields `DEVICE_NAME` and `MAC_ADDRESS` already filled out, just add values for the remaining fields `READABLE_NAME`, `TYPE` and `OWNER`. Then run the import again with `./gradlew runDbImport`.
+
+When new devices are added after some time, follow the same process. Data already entered will be already filled in the template.
+
+Make sure to backup `wifi-device-details.csv`.
+
 ## Development
 
 ### Check if dependencies are up-to-date
