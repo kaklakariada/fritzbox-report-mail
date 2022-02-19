@@ -91,7 +91,7 @@ public class DbService {
     private void checkForDuplicateKeys(final List<DeviceDetails> deviceDetails, Path inputPath) {
         final Map<String, Long> primaryKeyFrequencies = deviceDetails.stream()
                 .map(d -> d.deviceName() + "," + d.macAddress()).collect(groupingBy(Function.identity(), counting()));
-        final List<String> duplicateKeys = new ArrayList<String>();
+        final List<String> duplicateKeys = new ArrayList<>();
         for (final Entry<String, Long> entry : primaryKeyFrequencies.entrySet()) {
             if (entry.getValue().longValue() > 1) {
                 duplicateKeys.add(entry.getKey());

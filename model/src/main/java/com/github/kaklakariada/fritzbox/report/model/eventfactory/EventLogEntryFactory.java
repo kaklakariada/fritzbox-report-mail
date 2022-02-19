@@ -60,7 +60,7 @@ public class EventLogEntryFactory {
         return null;
     }
 
-    private static final Pattern REPEATED_SUFFIX = Pattern.compile("(.*) \\[\\d+ Meldungen seit [^\\]]*+\\]");
+    private static final Pattern REPEATED_SUFFIX = Pattern.compile("^(.*) \\[\\d+ Meldungen seit [^\\]]*+\\]$");
 
     private String removeRepeatedSuffix(String message) {
         final Matcher matcher = REPEATED_SUFFIX.matcher(message);

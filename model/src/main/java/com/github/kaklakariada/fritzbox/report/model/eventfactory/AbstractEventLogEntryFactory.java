@@ -55,7 +55,7 @@ public abstract class AbstractEventLogEntryFactory<T extends Event> {
     }
 
     private Optional<MatchedRegex> firstMatchingMatcher(final String message) {
-        return regex.stream().map(regex -> regex.matches(message))
+        return regex.stream().map(r -> r.matches(message))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst();

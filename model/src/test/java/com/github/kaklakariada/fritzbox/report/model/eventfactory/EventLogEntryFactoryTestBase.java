@@ -23,9 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.jupiter.api.Test;
-
 import com.github.kaklakariada.fritzbox.report.model.Event;
+
+import org.junit.jupiter.api.Test;
 
 abstract class EventLogEntryFactoryTestBase<T extends Event> {
 
@@ -50,7 +50,8 @@ abstract class EventLogEntryFactoryTestBase<T extends Event> {
 
     @Test
     void testNullStringNoMatch() {
-        assertThrows(NullPointerException.class, () -> createFactory().createEventLogEntryInternal(null));
+        AbstractEventLogEntryFactory<T> factory = createFactory();
+        assertThrows(NullPointerException.class, () -> factory.createEventLogEntryInternal(null));
     }
 
     @SuppressWarnings("unchecked")

@@ -1,17 +1,22 @@
 package com.github.kaklakariada.fritzbox.dbloader;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.itsallcode.jdbc.SimpleConnection;
-import org.itsallcode.jdbc.identifier.*;
-
 import com.github.kaklakariada.fritzbox.dbloader.model.DeviceDetails;
-import com.github.kaklakariada.fritzbox.report.model.*;
-import com.github.kaklakariada.fritzbox.report.model.event.*;
+import com.github.kaklakariada.fritzbox.report.model.AggregatedVolume;
+import com.github.kaklakariada.fritzbox.report.model.Event;
+import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
+import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
+import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
+import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnected;
+import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnectedHard;
+
+import org.itsallcode.jdbc.SimpleConnection;
+import org.itsallcode.jdbc.identifier.Identifier;
+import org.itsallcode.jdbc.identifier.QualifiedIdentifier;
+import org.itsallcode.jdbc.identifier.SimpleIdentifier;
 
 public class ExasolDao {
 	private final SimpleConnection connection;
@@ -72,7 +77,8 @@ public class ExasolDao {
 			return new Object[] { entry.getLogEntryId(), entry.getTimestamp(), "disconnected",
 					event.getWifiType().toString(), event.getName(), null, event.getMacAddress(), disconnectCode };
 		} else {
-			throw new IllegalStateException("Unsupported event type " + entry.getEvent().get().getClass().getName());
+			throw new IllegalStateException(
+					"Unsupported event type " + entry.getEvent().orElseThrow().getClass().getName());
 		}
 	}
 
@@ -97,7 +103,7 @@ public class ExasolDao {
 	}
 
 	private List<Identifier> columns(String... columns) {
-		return Arrays.stream(columns).map(this::id).collect(toList());
+		return Arrays.stream(columns).map(this::id).toList();
 	}
 
 	private Identifier id(String id) {

@@ -19,13 +19,13 @@ package com.github.kaklakariada.fritzbox.report.convert;
 
 import java.io.Serializable;
 
-import org.jsoup.Jsoup;
-
 import com.github.kaklakariada.html.HtmlElement;
+
+import org.jsoup.Jsoup;
 
 public class EmailBody implements Serializable {
     private static final long serialVersionUID = 1L;
-    public String body;
+    private final String body;
 
     public enum Type {
         PNG, CSV, HTML
