@@ -8,9 +8,6 @@ dependencies {
     implementation libs.bundles.mime4j
     implementation libs.jsoup
     implementation libs.jakartaMail
-    implementation libs.slf4jApi
-
-    runtimeOnly libs.logback
 
     testImplementation libs.bundles.testUtils
 }

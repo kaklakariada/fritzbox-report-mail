@@ -3,9 +3,5 @@ plugins {
 }
 
 dependencies {
-    implementation libs.slf4jApi
-
-    runtimeOnly libs.logback
-
     testImplementation libs.bundles.testUtils
 }

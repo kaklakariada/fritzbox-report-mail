@@ -27,13 +27,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public abstract class SerializerService<T> {
-    private static final Logger LOG = LoggerFactory.getLogger(SerializerService.class);
+    private static final Logger LOG = Logger.getLogger(SerializerService.class.getName());
 
     protected final Class<T> type;
 
@@ -49,7 +47,7 @@ public abstract class SerializerService<T> {
             throw new UncheckedIOException("Error writing file " + outputFile, e);
         }
         final Duration duration = Duration.between(start, Instant.now());
-        LOG.debug("Wrote object to file {} in {}", outputFile, duration);
+        LOG.fine(() -> "Wrote object to file " + outputFile + " in " + duration);
     }
 
     protected abstract void serialize(final OutputStream outputStream, final T reports);
@@ -64,7 +62,7 @@ public abstract class SerializerService<T> {
             throw new UncheckedIOException("Error reading file " + inputFile, e);
         }
         final Duration duration = Duration.between(start, Instant.now());
-        LOG.debug("Read object from file {} in {}", inputFile, duration);
+        LOG.fine(() -> "Read object from file " + inputFile + " in " + duration);
         return object;
     }
 

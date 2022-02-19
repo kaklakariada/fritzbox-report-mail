@@ -23,13 +23,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class JavaSerializerService<T> extends SerializerService<T> {
-    static final Logger logger = LoggerFactory.getLogger(JavaSerializerService.class);
+    static final Logger logger = Logger.getLogger(JavaSerializerService.class.getName());
 
     public JavaSerializerService(final Class<T> type) {
         super(type);

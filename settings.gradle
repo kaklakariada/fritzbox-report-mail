@@ -26,12 +26,10 @@ dependencyResolutionManagement {
         libs {
             version('mime4j', '0.8.6')
 
-            library('slf4jApi', 'org.slf4j:slf4j-api:1.7.36')
-            library('logback', 'ch.qos.logback:logback-classic:1.2.10')
             library('exasolJdbc', 'com.exasol:exasol-jdbc:7.1.4')
             library('kryo', 'com.esotericsoftware:kryo:5.3.0')
             library('fastcsv', 'de.siegmar:fastcsv:2.1.0')
-            library('simpleJdbc', 'org.itsallcode:simple-jdbc:0.2.0')
+            library('simpleJdbc', 'org.itsallcode:simple-jdbc:0.3.0')
             library('mime4j.core', 'org.apache.james', 'apache-mime4j-core').versionRef('mime4j')
             library('mime4j.dom', 'org.apache.james', 'apache-mime4j-dom').versionRef('mime4j')
             library('jsoup', 'org.jsoup:jsoup:1.14.3')

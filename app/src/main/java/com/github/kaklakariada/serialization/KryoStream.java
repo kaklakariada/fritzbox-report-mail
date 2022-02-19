@@ -1,16 +1,14 @@
 package com.github.kaklakariada.serialization;
 
+import java.util.logging.Logger;
 import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Input;
 
 class KryoStream<T> {
-    private static final Logger LOG = LoggerFactory.getLogger(KryoStream.class);
+    private static final Logger LOG = Logger.getLogger(KryoStream.class.getName());
 
     private final Kryo kryo;
     private final Class<T> type;
@@ -43,7 +41,7 @@ class KryoStream<T> {
             return kryo.readObject(input, type);
         } catch (final KryoException e) {
             if (e.getMessage().startsWith("Buffer underflow.")) {
-                LOG.info("End of input {} reached: {}", input, e.getMessage());
+                LOG.fine(() -> "End of input " + input + " reached: " + e.getMessage());
                 return null;
             }
             throw new IllegalStateException("Error reading " + type.getName() + " from input " + input, e);

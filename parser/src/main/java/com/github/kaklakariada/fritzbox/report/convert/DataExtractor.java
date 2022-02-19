@@ -24,10 +24,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.github.kaklakariada.fritzbox.report.LogEntryIdGenerator;
 import com.github.kaklakariada.fritzbox.report.convert.EmailBody.Type;
@@ -41,7 +39,7 @@ import com.github.kaklakariada.fritzbox.report.model.eventfactory.EventLogEntryF
 import com.github.kaklakariada.html.HtmlElement;
 
 class DataExtractor {
-    private static final Logger LOG = LoggerFactory.getLogger(DataExtractor.class);
+    private static final Logger LOG = Logger.getLogger(DataExtractor.class.getName());
     private static final DateTimeFormatter NEW_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private static final DateTimeFormatter OLD_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter
             .ofPattern("dd.MM.yyyy HH:mm");
@@ -61,8 +59,8 @@ class DataExtractor {
         return mail.getPart(Type.HTML).getElement();
     }
 
-    private DataExtractor(final HtmlElement rootElement, EventLogEntryFactory eventLogEntryFactory,
-            int reportId, LogEntryIdGenerator logEntryIdGenerator) {
+    private DataExtractor(final HtmlElement rootElement, EventLogEntryFactory eventLogEntryFactory, int reportId,
+            LogEntryIdGenerator logEntryIdGenerator) {
         this.rootElement = rootElement;
         this.eventLogEntryFactory = eventLogEntryFactory;
         this.reportId = reportId;
@@ -112,11 +110,11 @@ class DataExtractor {
     private DataConnections convertNewDataConnection(LocalDate date, HtmlElement row) {
         final HtmlElement firstCol = row.selectSingleElement("tr>*:nth-child(1)");
         if (!firstCol.getName().equals("td")) {
-            LOG.trace("Ignore row {} with first col {}", row, firstCol);
+            LOG.fine(() -> "Ignore row " + row + " with first col " + firstCol);
             return null;
         }
         final List<HtmlElement> cells = row.select("td");
-        LOG.trace("Parse {} cells: {}", cells.size(), row);
+        LOG.finest(() -> "Parse " + cells.size() + " cells: " + row);
         if (cells.size() != 7) {
             throw new IllegalStateException("Expected 7 cells but got " + cells.size() + ": " + row);
         }
@@ -190,8 +188,7 @@ class DataExtractor {
 
     private HtmlElement getSection(final String sectionName) {
         final String selector = "div.content div.foretitel:containsOwn(" + sectionName + ")";
-        final HtmlElement sectionTitle = rootElement
-                .selectOptionalSingleElement(selector);
+        final HtmlElement sectionTitle = rootElement.selectOptionalSingleElement(selector);
         if (sectionTitle != null) {
             final HtmlElement oldContentDiv = sectionTitle.getNthAncestor(6);
             if (oldContentDiv.getCssClass().equals("content") && oldContentDiv.getName().equals("div")) {
@@ -225,7 +222,6 @@ class DataExtractor {
     }
 
     private String getProductInfo() {
-        return rootElement.selectSingleElement("td:containsOwn(Produktname) ~ td")
-                .getText();
+        return rootElement.selectSingleElement("td:containsOwn(Produktname) ~ td").getText();
     }
 }

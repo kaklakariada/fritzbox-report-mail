@@ -6,9 +6,6 @@ dependencies {
     implementation project(':model')
     implementation libs.simpleJdbc
     implementation libs.fastcsv
-    implementation libs.slf4jApi
-
-    runtimeOnly libs.logback
 
     testImplementation libs.bundles.testUtils
 }

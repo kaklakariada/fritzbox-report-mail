@@ -7,11 +7,9 @@ dependencies {
     implementation project(':db-loader')
     implementation project(':model')
 
-    implementation libs.slf4jApi
     implementation libs.kryo
 
     runtimeOnly libs.exasolJdbc
-    runtimeOnly libs.logback
 
     testImplementation libs.bundles.testUtils
 }

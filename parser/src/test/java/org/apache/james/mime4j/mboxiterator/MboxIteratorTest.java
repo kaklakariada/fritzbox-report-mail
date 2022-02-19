@@ -9,19 +9,14 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Tests for {@link MboxIterator}.
  */
 class MboxIteratorTest {
-
-    private final static Logger LOG = LoggerFactory.getLogger(MboxIteratorTest.class);
-
     static final String MBOX_PATH = "src/test/resources/test-1/mbox.rlug";
     private final int DEFAULT_MESSAGE_SIZE = 10 * 1024;
-    // number of chars oin our largest test message
+    /** number of chars in our largest test message */
     private static final int CHARS_IN_MAX_MSG = 3500;
     private static final int MORE_THAN_FILE_SIZE = 13291;
 
@@ -39,7 +34,6 @@ class MboxIteratorTest {
     @Test
     void testIteratorLoop() throws FileNotFoundException, IOException {
         for (int i = CHARS_IN_MAX_MSG; i < MORE_THAN_FILE_SIZE; i++) {
-            LOG.trace("Runinng iteration {}  with message size {}", i - CHARS_IN_MAX_MSG, i);
             iterateWithMaxMessage(i);
         }
     }

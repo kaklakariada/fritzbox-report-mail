@@ -24,12 +24,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.github.kaklakariada.fritzbox.report.convert.EmailContent;
 import com.github.kaklakariada.fritzbox.report.convert.FritzBoxMessageConverter;
@@ -39,30 +36,25 @@ import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
 
 public class ReportService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ReportService.class);
+    private static final Logger LOG = Logger.getLogger(ReportService.class.getName());
 
     public Stream<EmailContent> loadRawThunderbirdMails(final Path mboxFile) {
-        return new ThunderbirdMboxReader()
-                .readMbox(mboxFile)
-                .map(new MessageHtmlTextBodyConverter());
+        return new ThunderbirdMboxReader().readMbox(mboxFile).map(new MessageHtmlTextBodyConverter());
     }
 
     public FritzBoxReportCollection parseMails(final Stream<EmailContent> mails) {
         final Instant start = Instant.now();
-        final AtomicInteger counter = new AtomicInteger(0);
-        final Map<LocalDate, FritzBoxReportMail> reports = mails.peek(mail -> counter.incrementAndGet())
-                .map(new FritzBoxMessageConverter())
+        final Map<LocalDate, FritzBoxReportMail> reports = mails.map(new FritzBoxMessageConverter())
                 .collect(toMap(FritzBoxReportMail::getDate, Function.identity(), this::merge));
         final FritzBoxReportCollection reportCollection = new FritzBoxReportCollection(reports);
         final Duration duration = Duration.between(start, Instant.now());
-        LOG.info("Found {} reports in {} from {} mails", reportCollection.getReportCount(), duration,
-                counter.get());
+        LOG.fine(() -> "Found " + reportCollection.getReportCount() + " reports in " + duration);
         return reportCollection;
     }
 
     private FritzBoxReportMail merge(FritzBoxReportMail a, FritzBoxReportMail b) {
-        LOG.warn("Found two mails for {} with same date:\n\t{}\n\t{}", a.getDate(),
-                a.getEmailMetadata(), b.getEmailMetadata());
+        LOG.warning(() -> "Found two mails for " + a.getDate() + " with same date:\n\t" + a.getEmailMetadata() + "\n\t"
+                + b.getEmailMetadata());
         if (a.getEmailMetadata().getTimestamp().isAfter(b.getEmailMetadata().getTimestamp())) {
             return a;
         } else {
@@ -71,10 +63,8 @@ public class ReportService {
     }
 
     public Stream<FritzBoxReportMail> streamReports(final Path mboxFile) {
-        LOG.info("Loading reports from mbox file {}...", mboxFile);
-        return new ThunderbirdMboxReader()
-                .readMbox(mboxFile)
-                .map(new MessageHtmlTextBodyConverter())
+        LOG.fine(() -> "Loading reports from mbox file " + mboxFile + "...");
+        return new ThunderbirdMboxReader().readMbox(mboxFile).map(new MessageHtmlTextBodyConverter())
                 .map(new FritzBoxMessageConverter());
     }
 }

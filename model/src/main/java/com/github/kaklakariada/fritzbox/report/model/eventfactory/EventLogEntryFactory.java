@@ -21,17 +21,15 @@ import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.github.kaklakariada.fritzbox.report.model.Event;
 
 public class EventLogEntryFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EventLogEntryFactory.class);
+    private static final Logger LOG = Logger.getLogger(EventLogEntryFactory.class.getName());
 
     private final List<AbstractEventLogEntryFactory<?>> factories;
 
@@ -40,19 +38,12 @@ public class EventLogEntryFactory {
     }
 
     public EventLogEntryFactory() {
-        this(asList(new WifiDeviceConnectedFactory(),
-                new WifiDeviceDisconnectedFactory(),
-                new WifiDeviceDisconnectedHardFactory(),
-                new WifiGuestDeviceConnectedFactory(),
-                new WifiGuestDeviceDisconnectedFactory(),
-                new WifiGuestDeviceDisconnectedHardFactory(),
-                new WifiDeviceDisconnectedHardFactory(),
-                new WifiDeviceAuthorizationFailedFactory(),
-                new IPv4InternetConnectionEstablishedFactory(),
-                new IPv6InternetConnectionEstablishedFactory(),
-                new IPv6PrefixAssignedFactory(),
-                new DslSyncFailedFactory(),
-                new DslSyncSuccessfulFactory(),
+        this(asList(new WifiDeviceConnectedFactory(), new WifiDeviceDisconnectedFactory(),
+                new WifiDeviceDisconnectedHardFactory(), new WifiGuestDeviceConnectedFactory(),
+                new WifiGuestDeviceDisconnectedFactory(), new WifiGuestDeviceDisconnectedHardFactory(),
+                new WifiDeviceDisconnectedHardFactory(), new WifiDeviceAuthorizationFailedFactory(),
+                new IPv4InternetConnectionEstablishedFactory(), new IPv6InternetConnectionEstablishedFactory(),
+                new IPv6PrefixAssignedFactory(), new DslSyncFailedFactory(), new DslSyncSuccessfulFactory(),
                 new InternetDisconnectedFactory()));
     }
 
@@ -60,15 +51,16 @@ public class EventLogEntryFactory {
         final String rawMessage = removeRepeatedSuffix(message);
         for (final AbstractEventLogEntryFactory<?> factory : factories) {
             if (factory.matches(rawMessage)) {
-                LOG.trace("Factory {} can handle message '{}'.", factory.getClass().getSimpleName(), rawMessage);
+                LOG.finest(
+                        () -> "Factory " + factory.getClass().getName() + " can handle message '" + rawMessage + "'.");
                 return factory.createEventLogEntryInternal(rawMessage);
             }
         }
-        LOG.trace("None of the {} factories can handle message '{}'.", factories.size(), rawMessage);
+        LOG.finest(() -> "None of the factories can handle message '" + rawMessage + "'.");
         return null;
     }
 
-    private static Pattern REPEATED_SUFFIX = Pattern.compile("(.*) \\[\\d+ Meldungen seit .*?\\]");
+    private static final Pattern REPEATED_SUFFIX = Pattern.compile("(.*) \\[\\d+ Meldungen seit [^\\]]*+\\]");
 
     private String removeRepeatedSuffix(String message) {
         final Matcher matcher = REPEATED_SUFFIX.matcher(message);
