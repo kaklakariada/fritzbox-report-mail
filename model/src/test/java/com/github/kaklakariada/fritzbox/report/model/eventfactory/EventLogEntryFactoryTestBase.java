@@ -19,13 +19,11 @@ package com.github.kaklakariada.fritzbox.report.model.eventfactory;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import com.github.kaklakariada.fritzbox.report.model.Event;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+
+import com.github.kaklakariada.fritzbox.report.model.Event;
 
 abstract class EventLogEntryFactoryTestBase<T extends Event> {
 
@@ -50,15 +48,13 @@ abstract class EventLogEntryFactoryTestBase<T extends Event> {
 
     @Test
     void testNullStringNoMatch() {
-        AbstractEventLogEntryFactory<T> factory = createFactory();
+        final AbstractEventLogEntryFactory<T> factory = createFactory();
         assertThrows(NullPointerException.class, () -> factory.createEventLogEntryInternal(null));
     }
 
     @SuppressWarnings("unchecked")
     protected void assertMatched(String message, T expectedEvent) {
-        assertAll(
-                () -> assertEvent(expectedEvent, createFactory().createEventLogEntryInternal(message)),
-                () -> assertEvent(expectedEvent, (T) new EventLogEntryFactory().createEventLogEntry(message)));
+        assertEvent(expectedEvent, (T) new EventLogEntryFactory().createEventLogEntry(message));
     }
 
     private void assertEvent(T expectedEvent, final T actualEvent) {
@@ -70,7 +66,6 @@ abstract class EventLogEntryFactoryTestBase<T extends Event> {
 
     protected void assertMatchFailed(String message) {
         final AbstractEventLogEntryFactory<T> factory = createFactory();
-
         assertThrows(IllegalStateException.class, () -> factory.createEventLogEntryInternal(message));
     }
 

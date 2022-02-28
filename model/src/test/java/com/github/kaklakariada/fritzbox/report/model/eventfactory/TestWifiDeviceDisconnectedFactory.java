@@ -72,6 +72,15 @@ class TestWifiDeviceDisconnectedFactory extends EventLogEntryFactoryTestBase<Wif
                 WifiType._2_4_GHZ, IP_ADDRESS1, MAC_ADDRESS, "host-0123");
     }
 
+    @Test
+    void testMatchWithRepeatSuffix() {
+        assertEntry(
+                "WLAN-Gerät hat sich abgemeldet (2,4 GHz), " + HOSTNAME + ", IP " + IP_ADDRESS1 + ", MAC " + MAC_ADDRESS
+                        + ". [2 Meldungen seit 18.02.22 13:54:30]",
+                WifiType._2_4_GHZ,
+                IP_ADDRESS1, MAC_ADDRESS, HOSTNAME);
+    }
+
     private void assertEntry(String message, WifiType wifiType, String expectedIpAddress, final String expectedMac,
             final String expectedName) {
         assertMatched(message, new WifiDeviceDisconnected(wifiType, expectedIpAddress, expectedMac, expectedName));

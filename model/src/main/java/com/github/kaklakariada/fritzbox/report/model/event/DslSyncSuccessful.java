@@ -60,9 +60,6 @@ public class DslSyncSuccessful extends Event {
         if (downloadKbitPs != other.downloadKbitPs) {
             return false;
         }
-        if (uploadKbitPs != other.uploadKbitPs) {
-            return false;
-        }
-        return true;
+        return uploadKbitPs == other.uploadKbitPs;
     }
 }
