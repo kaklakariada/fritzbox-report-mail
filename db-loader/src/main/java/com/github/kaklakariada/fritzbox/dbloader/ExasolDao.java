@@ -1,22 +1,14 @@
 package com.github.kaklakariada.fritzbox.dbloader;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
-import com.github.kaklakariada.fritzbox.dbloader.model.DeviceDetails;
-import com.github.kaklakariada.fritzbox.report.model.AggregatedVolume;
-import com.github.kaklakariada.fritzbox.report.model.Event;
-import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
-import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
-import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
-import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnected;
-import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnectedHard;
-
 import org.itsallcode.jdbc.SimpleConnection;
-import org.itsallcode.jdbc.identifier.Identifier;
-import org.itsallcode.jdbc.identifier.QualifiedIdentifier;
-import org.itsallcode.jdbc.identifier.SimpleIdentifier;
+import org.itsallcode.jdbc.identifier.*;
+
+import com.github.kaklakariada.fritzbox.dbloader.model.DeviceDetails;
+import com.github.kaklakariada.fritzbox.report.model.*;
+import com.github.kaklakariada.fritzbox.report.model.event.*;
 
 public class ExasolDao {
 	private final SimpleConnection connection;
@@ -24,7 +16,7 @@ public class ExasolDao {
 
 	public ExasolDao(SimpleConnection connection, String schema) {
 		this.connection = connection;
-		this.schema = schema;
+		this.schema = Objects.requireNonNull(schema, "schema");
 	}
 
 	public void insertReportMails(Stream<FritzBoxReportMail> reports) {

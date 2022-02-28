@@ -1,11 +1,7 @@
 package com.github.kaklakariada.fritzbox.report;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.*;
+import java.nio.file.*;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -14,17 +10,19 @@ public class Config {
     private static final Path DEFAULT_CONFIG_FILE = Paths.get("../application.properties");
 
     private final Properties properties;
+    private final Path path;
 
-    private Config(Properties properties) {
+    private Config(Path path, Properties properties) {
+        this.path = path;
         this.properties = properties;
     }
 
     public Path getMboxPath() {
-        return Paths.get(properties.getProperty("mbox.path")).toAbsolutePath();
+        return Paths.get(getRequiredProperty("mbox.path")).toAbsolutePath();
     }
 
     public String getJdbcUrl() {
-        return properties.getProperty("jdbc.url");
+        return getRequiredProperty("jdbc.url");
     }
 
     public String getJdbcUser() {
@@ -36,7 +34,15 @@ public class Config {
     }
 
     public String getJdbcSchema() {
-        return properties.getProperty("jdbc.schema");
+        return getRequiredProperty("jdbc.schema");
+    }
+
+    private String getRequiredProperty(String key) {
+        String value = properties.getProperty(key);
+        if (value == null) {
+            throw new IllegalArgumentException("Property '" + key + "' not defined in " + path);
+        }
+        return value;
     }
 
     public Path getSerializedReportPath() {
@@ -64,7 +70,6 @@ public class Config {
         } catch (final IOException e) {
             throw new UncheckedIOException("Error loading configuration from " + absolutePath, e);
         }
-        return new Config(properties);
+        return new Config(path, properties);
     }
-
 }
