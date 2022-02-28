@@ -33,6 +33,7 @@ dependencyResolutionManagement {
             library('simpleJdbc', 'org.itsallcode:simple-jdbc:0.3.0')
             library('mime4j.core', 'org.apache.james', 'apache-mime4j-core').versionRef('mime4j')
             library('mime4j.dom', 'org.apache.james', 'apache-mime4j-dom').versionRef('mime4j')
+            library('mime4j.mboxIterator', 'org.apache.james', 'apache-mime4j-mbox-iterator').versionRef('mime4j')
             library('jsoup', 'org.jsoup:jsoup:1.14.3')
             library('jakartaMail', 'com.sun.mail:jakarta.mail:2.0.1')
             
@@ -46,7 +47,7 @@ dependencyResolutionManagement {
             
             bundle('testUtils', ['assertj', 'junitPioneer', 'equalsverifier', 'hamcrest', 'mockito'])
             bundle('testcontainers', ['exasolTestcontainers', 'testcontainersJupiter'])
-            bundle('mime4j', ['mime4j.core', 'mime4j.dom'])
+            bundle('mime4j', ['mime4j.core', 'mime4j.dom', 'mime4j.mboxIterator'])
         }
     }
 }

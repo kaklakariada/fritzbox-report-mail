@@ -34,39 +34,43 @@ import org.apache.james.mime4j.message.DefaultMessageBuilder;
 
 public class ThunderbirdMboxReader {
 
-	/**
-	 * Matches other type of From_ line (without @): From MAILER-DAEMON Wed Oct 05
-	 * 21:54:09 2011 Thunderbird mbox content: From - Wed Apr 02 06:51:08 2014
-	 */
-	private static final String DEFAULT2 = "^From \\S+.*\\d{4}$";
+    /**
+     * Matches other type of From_ line (without @): From MAILER-DAEMON Wed Oct 05
+     * 21:54:09 2011 Thunderbird mbox content: From - Wed Apr 02 06:51:08 2014
+     */
+    private static final String DEFAULT2 = "^From \\S+.*\\d{4}$";
 
-	private static final Charset CHARSET_ENCODING = StandardCharsets.UTF_8;
-	private final MessageBuilder messageBuilder = new DefaultMessageBuilder();
+    private static final Charset CHARSET_ENCODING = StandardCharsets.UTF_8;
+    private final MessageBuilder messageBuilder = new DefaultMessageBuilder();
 
-	public Stream<Message> readMbox(final Path mboxFile) {
-		return readCharBufferStream(mboxFile).map(this::convert);
-	}
+    public Stream<Message> readMbox(final Path mboxFile) {
+        return readCharBufferStream(mboxFile).map(this::convert);
+    }
 
-	private Stream<CharBufferWrapper> readCharBufferStream(final Path mboxFile) {
-		// parallel processing not supported by MboxIterator
-		final boolean parallel = false;
-		return StreamSupport.stream(createIterator(mboxFile).spliterator(), parallel);
-	}
+    private Stream<CharBufferWrapper> readCharBufferStream(final Path mboxFile) {
+        // parallel processing not supported by MboxIterator
+        final boolean parallel = false;
+        return StreamSupport.stream(createIterator(mboxFile).spliterator(), parallel);
+    }
 
-	private MboxIterator createIterator(final Path mboxFile) {
-		return MboxIterator.fromFile(mboxFile.toFile())
-				.charset(CHARSET_ENCODING)
-				.fromLine(DEFAULT2)
-				.build();
-	}
+    private MboxIterator createIterator(final Path mboxFile) {
+        try {
+            return MboxIterator.fromFile(mboxFile.toFile())
+                    .charset(CHARSET_ENCODING)
+                    .fromLine(DEFAULT2)
+                    .build();
+        } catch (final IOException exception) {
+            throw new UncheckedIOException("error reading mbox " + mboxFile, exception);
+        }
+    }
 
-	private Message convert(final CharBufferWrapper message) {
-		try {
-			return messageBuilder.parseMessage(message.asInputStream(CHARSET_ENCODING));
-		} catch (IOException e) {
-			throw new UncheckedIOException("Error parsing message " + message, e);
-		} catch (MimeException e) {
-			throw new IllegalStateException("Error parsing message " + message, e);
-		}
-	}
+    private Message convert(final CharBufferWrapper message) {
+        try {
+            return messageBuilder.parseMessage(message.asInputStream(CHARSET_ENCODING));
+        } catch (final IOException e) {
+            throw new UncheckedIOException("Error parsing message " + message, e);
+        } catch (final MimeException e) {
+            throw new IllegalStateException("Error parsing message " + message, e);
+        }
+    }
 }
