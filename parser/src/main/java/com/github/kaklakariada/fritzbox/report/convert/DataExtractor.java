@@ -17,9 +17,7 @@
  */
 package com.github.kaklakariada.fritzbox.report.convert;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -29,16 +27,13 @@ import java.util.stream.Collectors;
 
 import com.github.kaklakariada.fritzbox.report.LogEntryIdGenerator;
 import com.github.kaklakariada.fritzbox.report.convert.EmailBody.Type;
-import com.github.kaklakariada.fritzbox.report.model.DataConnections;
+import com.github.kaklakariada.fritzbox.report.model.*;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
-import com.github.kaklakariada.fritzbox.report.model.DataVolume;
-import com.github.kaklakariada.fritzbox.report.model.Event;
-import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
-import com.github.kaklakariada.fritzbox.report.model.FritzBoxInfo;
 import com.github.kaklakariada.fritzbox.report.model.eventfactory.EventLogEntryFactory;
 import com.github.kaklakariada.html.HtmlElement;
 
 class DataExtractor {
+    private static final int MINIMUM_DAILY_LOG_ENTRY_COUNT = 5;
     private static final Logger LOG = Logger.getLogger(DataExtractor.class.getName());
     private static final DateTimeFormatter NEW_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private static final DateTimeFormatter OLD_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter
@@ -67,28 +62,28 @@ class DataExtractor {
         this.logEntryIdGenerator = logEntryIdGenerator;
     }
 
-    public String getHtmlTitle() {
-        return rootElement.selectSingleElement("html>head>title").text();
-    }
-
     public LocalDate getDate() {
         if (date == null) {
-            final String oldDate = rootElement.getOptionalRegexpResult(
-                    "td:containsOwn(Ihre FRITZ!Box Verbindungsübersicht)",
-                    "Ihre FRITZ!Box Verbindungsübersicht vom ([\\d\\.: ]+) Uhr");
-            if (oldDate != null) {
-                final LocalDateTime dateTime = LocalDateTime.parse(oldDate, OLD_REPORT_TIMESTAMP_FORMAT);
-                return dateTime.toLocalDate().minusDays(1);
-            }
-            final String newDate = rootElement.getOptionalRegexpResult(
-                    "td:containsOwn(Ihre tägliche FRITZ!Box Verbindungsübersicht vom)",
-                    "Ihre tägliche FRITZ!Box Verbindungsübersicht vom ([\\d\\.]+)(:? .*)?");
-            if (newDate == null) {
-                throw new IllegalStateException("No date found in " + rootElement);
-            }
-            this.date = LocalDate.parse(newDate, NEW_REPORT_TIMESTAMP_FORMAT);
+            this.date = extractDate();
         }
         return date;
+    }
+
+    private LocalDate extractDate() {
+        final String oldDate = rootElement.getOptionalRegexpResult(
+                "td:containsOwn(Ihre FRITZ!Box Verbindungsübersicht)",
+                "Ihre FRITZ!Box Verbindungsübersicht vom ([\\d\\.: ]+) Uhr");
+        if (oldDate != null) {
+            final LocalDateTime dateTime = LocalDateTime.parse(oldDate, OLD_REPORT_TIMESTAMP_FORMAT);
+            return dateTime.toLocalDate().minusDays(1);
+        }
+        final String newDate = rootElement.getOptionalRegexpResult(
+                "td:containsOwn(Ihre tägliche FRITZ!Box Verbindungsübersicht vom)",
+                "Ihre tägliche FRITZ!Box Verbindungsübersicht vom ([\\d\\.]+)(:? .*)?");
+        if (newDate == null) {
+            throw new IllegalStateException("No date found in " + rootElement);
+        }
+        return LocalDate.parse(newDate, NEW_REPORT_TIMESTAMP_FORMAT);
     }
 
     public Map<TimePeriod, DataConnections> getDataConnections() {
@@ -102,7 +97,7 @@ class DataExtractor {
         }
 
         if (connectionsList.size() < 4) {
-            throw new AssertionError("Did not find all data connections in " + section);
+            throw new AssertionError("Did not find all data connections in " + section + " for report " + date);
         }
         return connectionsList.stream().collect(Collectors.toMap(DataConnections::getTimePeriod, Function.identity()));
     }
@@ -167,8 +162,17 @@ class DataExtractor {
         if (!entries.isEmpty()) {
             return entries;
         }
-        return section.map("table>tbody>tr:nth-child(2)>td>table>tbody>tr:nth-child(2)>td>table>tbody>tr",
+        List<EventLogEntry> logEntries = section.map(
+                "table>tbody>tr:nth-child(2)>td>table>tbody>tr:nth-child(2)>td>table>tbody>tr",
                 this::convertEventLog);
+        if (logEntries.size() < MINIMUM_DAILY_LOG_ENTRY_COUNT) {
+            throw new IllegalStateException(
+                    "Found only " + logEntries.size() + " log entries for report on " + date + ", expected at least "
+                            + MINIMUM_DAILY_LOG_ENTRY_COUNT);
+        } else {
+            LOG.finest(() -> "Found " + logEntries.size() + " for report " + date);
+        }
+        return logEntries;
     }
 
     private EventLogEntry convertEventLog(final HtmlElement element) {
@@ -205,7 +209,11 @@ class DataExtractor {
 
     private int getEnergyUsage() {
         final HtmlElement element = rootElement.selectSingleElement("td:containsOwn(Energieverbrauch) ~ td");
-        return Integer.parseInt(element.getText().replace('%', ' ').trim());
+        int energyUsage = Integer.parseInt(element.getText().replace('%', ' ').trim());
+        if (energyUsage < 0 || energyUsage > 100) {
+            throw new IllegalStateException("Invalid energy usage " + energyUsage + " found for report " + date);
+        }
+        return energyUsage;
     }
 
     private String getProductVersion() {
@@ -218,10 +226,18 @@ class DataExtractor {
         if (version.startsWith(prefix)) {
             version = version.substring(prefix.length());
         }
-        return version.trim();
+        version = version.trim();
+        if (version.isEmpty()) {
+            throw new IllegalStateException("No version number found for report " + date);
+        }
+        return version;
     }
 
     private String getProductInfo() {
-        return rootElement.selectSingleElement("td:containsOwn(Produktname) ~ td").getText();
+        String productInfo = rootElement.selectSingleElement("td:containsOwn(Produktname) ~ td").getText().trim();
+        if (productInfo.isEmpty()) {
+            throw new IllegalStateException("No product info found for report " + date);
+        }
+        return productInfo;
     }
 }

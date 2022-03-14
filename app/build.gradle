@@ -37,5 +37,9 @@ task createWifiDeviceDetailsTemplate(type: JavaExec, group: 'run') {
     mainClass = 'com.github.kaklakariada.fritzbox.report.CreateWifiDeviceDetailsTemplate'
 }
 
+task runParseAndImport(type: JavaExec, group: 'run') {
+    mainClass = 'com.github.kaklakariada.fritzbox.report.ParseAndImport'
+}
+
 runMailParser.mustRunAfter runMailReader
 runDbImport.mustRunAfter runMailParser

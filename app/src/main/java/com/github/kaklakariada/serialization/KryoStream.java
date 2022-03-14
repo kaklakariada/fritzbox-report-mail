@@ -41,7 +41,7 @@ class KryoStream<T> {
             return kryo.readObject(input, type);
         } catch (final KryoException e) {
             if (e.getMessage().startsWith("Buffer underflow.")) {
-                LOG.fine(() -> "End of input " + input + " reached: " + e.getMessage());
+                LOG.finest(() -> "End of input " + input + " reached: " + e.getMessage());
                 return null;
             }
             throw new IllegalStateException("Error reading " + type.getName() + " from input " + input, e);

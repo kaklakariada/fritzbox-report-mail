@@ -20,17 +20,13 @@ package com.github.kaklakariada.fritzbox.report;
 import static java.util.stream.Collectors.toMap;
 
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
+import java.time.*;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import com.github.kaklakariada.fritzbox.report.convert.EmailContent;
-import com.github.kaklakariada.fritzbox.report.convert.FritzBoxMessageConverter;
-import com.github.kaklakariada.fritzbox.report.convert.MessageHtmlTextBodyConverter;
+import com.github.kaklakariada.fritzbox.report.convert.*;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportCollection;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
 
@@ -49,11 +45,15 @@ public class ReportService {
         final FritzBoxReportCollection reportCollection = new FritzBoxReportCollection(reports);
         final Duration duration = Duration.between(start, Instant.now());
         LOG.fine(() -> "Found " + reportCollection.getReportCount() + " reports in " + duration);
+        long logEntries = reportCollection.getLogEntries().count();
+        long logEntriesWithEvent = reportCollection.getLogEntries().filter(e -> e.getEvent().isPresent()).count();
+        LOG.fine(() -> "Found " + logEntriesWithEvent + " of " + logEntries + " ("
+                + (100 * logEntriesWithEvent / logEntries) + "%) log entries with events");
         return reportCollection;
     }
 
     private FritzBoxReportMail merge(FritzBoxReportMail a, FritzBoxReportMail b) {
-        LOG.warning(() -> "Found two mails for " + a.getDate() + " with same date:\n\t" + a.getEmailMetadata() + "\n\t"
+        LOG.finest(() -> "Found two mails for " + a.getDate() + " with same date:\n\t" + a.getEmailMetadata() + "\n\t"
                 + b.getEmailMetadata());
         if (a.getEmailMetadata().getTimestamp().isAfter(b.getEmailMetadata().getTimestamp())) {
             return a;
