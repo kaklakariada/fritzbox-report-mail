@@ -97,3 +97,11 @@ CREATE OR REPLACE VIEW v_daily_wifi_connection AS (
       OWNER,
       to_date(CONNECT_TIMESTAMP)
   );
+CREATE OR REPLACE VIEW v_log_entry_without_event AS (
+    SELECT id,
+      report_id,
+      "TIMESTAMP",
+      message
+    FROM log_entry
+    WHERE event IS NULL
+  );
