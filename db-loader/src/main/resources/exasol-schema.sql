@@ -97,11 +97,47 @@ CREATE OR REPLACE VIEW v_daily_wifi_connection AS (
       OWNER,
       to_date(CONNECT_TIMESTAMP)
   );
-CREATE OR REPLACE VIEW v_log_entry_without_event AS (
-    SELECT id,
-      report_id,
-      "TIMESTAMP",
-      message
-    FROM log_entry
-    WHERE event IS NULL
+--
+-- List count of all log entries and all log entries with parsed event
+--
+CREATE OR REPLACE VIEW v_log_entry_event_count AS (
+    select r."DATE",
+      count(*) as log_entry_count,
+      count(l.event) as log_entry_with_event_count,
+      round(100 * count(l.event) / count(*), 1) as percentage
+    from log_entry l
+      join report_mail r on l.report_id = r.id
+    group by r."DATE"
+  );
+--
+-- List all dates between the first and last report
+--
+CREATE OR REPLACE VIEW v_all_dates AS (
+    with n as (
+      select level - 1 as n
+      from dual connect by level < (
+          select max("DATE") - min("DATE")
+          from report_mail
+        ) + 2
+    )
+    select add_days(
+        (
+          select min("DATE")
+          from report_mail
+        ),
+        n.n
+      ) as "DATE"
+    from n
+  );
+--
+-- List dates where reports are missing
+--
+CREATE OR REPLACE VIEW v_dates_with_missing_reports AS (
+    select "DATE"
+    from v_all_dates a
+    where not exists (
+        select 1
+        from report_mail r
+        where r."DATE" = a."DATE"
+      )
   );
