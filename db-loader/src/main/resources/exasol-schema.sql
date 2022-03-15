@@ -40,62 +40,77 @@ create table wifi_device_details (
   owner varchar(50) not null,
   CONSTRAINT PRIMARY KEY (device_name, mac_address) ENABLE
 );
+--
+-- Correlates a "connected" with its matching "disconnected" Wifi event
+-- and returns Wifi connections with begin and end timestamp.
+---
 CREATE OR REPLACE VIEW v_wifi_connection AS (
-    with intermediate as (
-      SELECT we.MAC_ADDRESS,
-        we.DEVICE_NAME,
-        we.EVENT_TYPE,
+    WITH INTERMEDIATE AS (
+      SELECT we.mac_address,
+        we.device_name,
+        we.event_type,
         we.wifi_type,
-        we.SPEED,
+        we.speed,
         we."TIMESTAMP" AS connect_timestamp,
         LEAD("TIMESTAMP") OVER (
-          PARTITION BY DEVICE_NAME,
-          MAC_ADDRESS
-          ORDER BY "TIMESTAMP" asc,
-            LOG_ENTRY_ID asc
-        ) AS DISCONNECT_timestamp,
+          PARTITION BY device_name,
+          mac_address
+          ORDER BY "TIMESTAMP" ASC,
+            log_entry_id ASC
+        ) AS disconnect_timestamp,
         LEAD(EVENT_TYPE) OVER (
-          PARTITION BY DEVICE_NAME,
-          MAC_ADDRESS
-          ORDER BY "TIMESTAMP" asc,
-            LOG_ENTRY_ID asc
-        ) AS DISCONNECT_event,
-        LEAD(DISCONNECT_CODE) OVER (
-          PARTITION BY DEVICE_NAME,
-          MAC_ADDRESS
-          ORDER BY "TIMESTAMP" asc,
-            LOG_ENTRY_ID asc
-        ) AS DISCONNECT_CODE
-      FROM WIFI_EVENT we
+          PARTITION BY device_name,
+          mac_address
+          ORDER BY "TIMESTAMP" ASC,
+            log_entry_id ASC
+        ) AS disconnect_event_type,
+        LEAD(disconnect_code) OVER (
+          PARTITION BY device_name,
+          mac_address
+          ORDER BY "TIMESTAMP" ASC,
+            log_entry_id ASC
+        ) AS disconnect_code
+      FROM wifi_event we
     )
-    SELECT d.READABLE_NAME,
+    SELECT i.device_name,
+      i.mac_address,
+      d.readable_name,
       d."TYPE" AS device_type,
-      d.OWNER,
+      d.owner,
       i.wifi_type,
       i.speed,
       i.connect_timestamp,
       i.disconnect_timestamp,
-      SECONDS_BETWEEN(i.disconnect_timestamp, i.connect_timestamp) duration_seconds,
-      i.DISCONNECT_CODE
+      ROUND(
+        SECONDS_BETWEEN(i.disconnect_timestamp, i.connect_timestamp)
+      ) duration_seconds,
+      i.disconnect_code
     FROM intermediate i
-      LEFT OUTER JOIN wifi_device_details d ON i.mac_address = d.MAC_ADDRESS
-      AND i.device_name = d.DEVICE_NAME
-    WHERE i.EVENT_TYPE = 'connected'
-      AND i.disconnect_event = 'disconnected'
+      LEFT OUTER JOIN wifi_device_details d ON i.mac_address = d.mac_address
+      AND i.device_name = d.device_name
+    WHERE i.event_type = 'connected'
+      AND i.disconnect_event_type = 'disconnected'
   );
+--
+-- Accumulated Wifi connection duration in hours per device
+--
 CREATE OR REPLACE VIEW v_daily_wifi_connection AS (
-    SELECT READABLE_NAME,
-      DEVICE_TYPE,
-      OWNER,
-      to_date(CONNECT_TIMESTAMP) AS "DATE",
-      to_date(max(DISCONNECT_TIMESTAMP)) AS DISCONNECT_DATE,
-      count(1) AS "COUNT",
-      round(sum(duration_seconds) / (60 * 60), 2) AS duration_hours
-    FROM V_WIFI_CONNECTION
-    GROUP BY READABLE_NAME,
-      DEVICE_TYPE,
-      OWNER,
-      to_date(CONNECT_TIMESTAMP)
+    SELECT device_name,
+      mac_address,
+      readable_name,
+      device_type,
+      owner,
+      TO_DATE(connect_timestamp) AS "DATE",
+      TO_DATE(MAX(disconnect_timestamp)) AS disconnect_date,
+      COUNT(1) AS "COUNT",
+      ROUND(SUM(duration_seconds) / (60 * 60), 2) AS duration_hours
+    FROM v_wifi_connection
+    GROUP BY device_name,
+      mac_address,
+      readable_name,
+      device_type,
+      owner,
+      TO_DATE(connect_timestamp)
   );
 --
 -- List count of all log entries and all log entries with parsed event
@@ -110,34 +125,31 @@ CREATE OR REPLACE VIEW v_log_entry_event_count AS (
     group by r."DATE"
   );
 --
--- List all dates between the first and last report
---
-CREATE OR REPLACE VIEW v_all_dates AS (
-    with n as (
-      select level - 1 as n
-      from dual connect by level < (
-          select max("DATE") - min("DATE")
-          from report_mail
-        ) + 2
-    )
-    select add_days(
-        (
-          select min("DATE")
-          from report_mail
-        ),
-        n.n
-      ) as "DATE"
-    from n
-  );
---
 -- List dates where reports are missing
 --
 CREATE OR REPLACE VIEW v_dates_with_missing_reports AS (
-    select "DATE"
-    from v_all_dates a
-    where not exists (
-        select 1
-        from report_mail r
-        where r."DATE" = a."DATE"
+    SELECT "DATE"
+    FROM (
+        -- List all dates between the first and last report
+        WITH n AS (
+          SELECT level - 1 AS n
+          FROM dual CONNECT BY level < (
+              SELECT CURRENT_DATE() - 1 - MIN("DATE")
+              FROM report_mail
+            ) + 2
+        )
+        SELECT ADD_DAYS(
+            (
+              SELECT MIN("DATE")
+              FROM report_mail
+            ),
+            n.n
+          ) as "DATE"
+        FROM n
+      ) all_dates
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM report_mail r
+        WHERE r."DATE" = all_dates."DATE"
       )
   );
