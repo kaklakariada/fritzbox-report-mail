@@ -4,9 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import com.exasol.containers.ExasolContainer;
-import com.exasol.containers.ExasolService;
-
 import org.itsallcode.jdbc.ConnectionFactory;
 import org.itsallcode.jdbc.SimpleConnection;
 import org.itsallcode.jdbc.resultset.Row;
@@ -14,6 +11,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import com.exasol.containers.ExasolContainer;
+import com.exasol.containers.ExasolService;
 
 @Testcontainers
 class DbServiceTest {
@@ -46,8 +46,8 @@ class DbServiceTest {
         assertThat(result.get(0).getColumnValue(0).getValue()).isEqualTo(SCHEMA);
         assertThat(
                 connection.query("SELECT count(*) FROM exa_user_tables").toList().get(0).getColumnValue(0).getValue())
-                        .as("table count").isEqualTo(5L);
+                .as("table count").isEqualTo(5L);
         assertThat(connection.query("SELECT count(*) FROM exa_user_views").toList().get(0).getColumnValue(0).getValue())
-                .as("view count").isEqualTo(2L);
+                .as("view count").isEqualTo(3L);
     }
 }

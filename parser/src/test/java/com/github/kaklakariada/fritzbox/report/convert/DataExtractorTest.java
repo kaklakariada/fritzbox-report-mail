@@ -10,25 +10,17 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import com.github.kaklakariada.fritzbox.report.LogEntryIdGenerator;
-import com.github.kaklakariada.fritzbox.report.model.DataConnections;
-import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
-import com.github.kaklakariada.fritzbox.report.model.DataVolume;
-import com.github.kaklakariada.fritzbox.report.model.DataVolume.Unit;
-import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
+import java.nio.file.*;
+import java.time.*;
+import java.util.*;
 
 import org.apache.james.mime4j.dom.Message;
 import org.junit.jupiter.api.Test;
+
+import com.github.kaklakariada.fritzbox.report.LogEntryIdGenerator;
+import com.github.kaklakariada.fritzbox.report.model.*;
+import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
+import com.github.kaklakariada.fritzbox.report.model.DataVolume.Unit;
 
 class DataExtractorTest {
 
@@ -88,7 +80,9 @@ class DataExtractorTest {
         final LocalDate day = LocalDate.of(2015, 12, 18);
         assertLog(ReportVersion.V06_50, logEntry(0, day.atTime(22, 28, 25), "event1"),
                 logEntry(1, day.atTime(22, 23, 19), "event2"),
-                logEntry(2, day.atTime(22, 23, 01), "event3"));
+                logEntry(2, day.atTime(22, 23, 01), "event3"),
+                logEntry(3, day.atTime(22, 23, 01), "event4"),
+                logEntry(4, day.atTime(22, 23, 01), "event5"));
     }
 
     private EventLogEntry logEntry(int id, LocalDateTime timestamp, String message) {
