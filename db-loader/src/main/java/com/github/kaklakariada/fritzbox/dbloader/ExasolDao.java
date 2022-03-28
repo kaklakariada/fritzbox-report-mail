@@ -1,14 +1,23 @@
 package com.github.kaklakariada.fritzbox.dbloader;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
-import org.itsallcode.jdbc.SimpleConnection;
-import org.itsallcode.jdbc.identifier.*;
-
 import com.github.kaklakariada.fritzbox.dbloader.model.DeviceDetails;
-import com.github.kaklakariada.fritzbox.report.model.*;
-import com.github.kaklakariada.fritzbox.report.model.event.*;
+import com.github.kaklakariada.fritzbox.report.model.AggregatedVolume;
+import com.github.kaklakariada.fritzbox.report.model.Event;
+import com.github.kaklakariada.fritzbox.report.model.EventLogEntry;
+import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportMail;
+import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceConnected;
+import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnected;
+import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceDisconnectedHard;
+
+import org.itsallcode.jdbc.SimpleConnection;
+import org.itsallcode.jdbc.identifier.Identifier;
+import org.itsallcode.jdbc.identifier.QualifiedIdentifier;
+import org.itsallcode.jdbc.identifier.SimpleIdentifier;
 
 public class ExasolDao {
 	private final SimpleConnection connection;
@@ -76,7 +85,8 @@ public class ExasolDao {
 
 	public Stream<DeviceDetails> getDeviceDetails() {
 		return connection.query(
-				"select w.device_name, w.mac_address, d.readable_name, d.type, d.owner " + "from " + table("WIFI_EVENT")
+				"select w.device_name, w.mac_address, d.readable_name, d.type, d.owner " //
+						+ "from " + table("WIFI_EVENT")
 						+ " w full outer join " + table("WIFI_DEVICE_DETAILS")
 						+ " d ON w.mac_address = d.mac_address AND w.device_name = d.device_name "
 						+ "group by w.device_name, w.mac_address, d.readable_name, d.type, d.owner "
