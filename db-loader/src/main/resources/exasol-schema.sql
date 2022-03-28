@@ -49,20 +49,17 @@ CREATE OR REPLACE VIEW v_wifi_connection AS (
         we.SPEED,
         we."TIMESTAMP" AS connect_timestamp,
         LEAD("TIMESTAMP") OVER (
-          PARTITION BY DEVICE_NAME,
-          MAC_ADDRESS
+          PARTITION BY MAC_ADDRESS
           ORDER BY "TIMESTAMP" asc,
             LOG_ENTRY_ID asc
         ) AS DISCONNECT_timestamp,
         LEAD(EVENT_TYPE) OVER (
-          PARTITION BY DEVICE_NAME,
-          MAC_ADDRESS
+          PARTITION BY MAC_ADDRESS
           ORDER BY "TIMESTAMP" asc,
             LOG_ENTRY_ID asc
         ) AS DISCONNECT_event,
         LEAD(DISCONNECT_CODE) OVER (
-          PARTITION BY DEVICE_NAME,
-          MAC_ADDRESS
+          PARTITION BY MAC_ADDRESS
           ORDER BY "TIMESTAMP" asc,
             LOG_ENTRY_ID asc
         ) AS DISCONNECT_CODE
@@ -71,6 +68,8 @@ CREATE OR REPLACE VIEW v_wifi_connection AS (
     SELECT d.READABLE_NAME,
       d."TYPE" AS device_type,
       d.OWNER,
+      i.device_name,
+      i.mac_address,
       i.wifi_type,
       i.speed,
       i.connect_timestamp,
@@ -83,20 +82,6 @@ CREATE OR REPLACE VIEW v_wifi_connection AS (
     WHERE i.EVENT_TYPE = 'connected'
       AND i.disconnect_event = 'disconnected'
   );
-CREATE OR REPLACE VIEW v_daily_wifi_connection AS (
-    SELECT READABLE_NAME,
-      DEVICE_TYPE,
-      OWNER,
-      to_date(CONNECT_TIMESTAMP) AS "DATE",
-      to_date(max(DISCONNECT_TIMESTAMP)) AS DISCONNECT_DATE,
-      count(1) AS "COUNT",
-      round(sum(duration_seconds) / (60 * 60), 2) AS duration_hours
-    FROM V_WIFI_CONNECTION
-    GROUP BY READABLE_NAME,
-      DEVICE_TYPE,
-      OWNER,
-      to_date(CONNECT_TIMESTAMP)
-  );
 CREATE OR REPLACE VIEW v_log_entry_without_event AS (
     SELECT id,
       report_id,
@@ -105,3 +90,39 @@ CREATE OR REPLACE VIEW v_log_entry_without_event AS (
     FROM log_entry
     WHERE event IS NULL
   );
+--
+CREATE OR REPLACE LUA SCALAR SCRIPT LUA_MAX(a NUMBER, b number) RETURNS number AS function run(ctx) return math.max(ctx [1], ctx [2])
+end;
+CREATE OR REPLACE LUA SCALAR SCRIPT LUA_MIN(a NUMBER, b number) RETURNS number AS function run(ctx) return math.min(ctx [1], ctx [2])
+end;
+--
+CREATE OR REPLACE VIEW v_daily_wifi_connection AS (
+    SELECT r."DATE",
+      c.readable_name,
+      c.owner,
+      c.device_type,
+      c.mac_address,
+      SUM(
+        (
+          lua_min(
+            POSIX_TIME(c.disconnect_timestamp),
+            POSIX_TIME(TO_TIMESTAMP(r."DATE") + 1)
+          ) - lua_max(
+            POSIX_TIME(c.connect_timestamp),
+            POSIX_TIME(TO_TIMESTAMP(r."DATE"))
+          )
+        )
+      ) as duration_seconds,
+      sum(1) AS connection_count
+    FROM report_mail r,
+      v_wifi_connection c
+    WHERE c.connect_timestamp <= TO_TIMESTAMP(r."DATE") + 1
+      AND c.disconnect_timestamp >= TO_TIMESTAMP(r."DATE")
+    GROUP BY c.readable_name,
+      c.device_type,
+      c.owner,
+      c.device_type,
+      c.mac_address,
+      r."DATE"
+  );
+--
