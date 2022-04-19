@@ -18,7 +18,7 @@ import com.exasol.containers.ExasolService;
 @Testcontainers
 class DbServiceTest {
     private static final String SCHEMA = "testing_schema";
-    private static final String EXASOL_VERSION = "7.1.6";
+    private static final String EXASOL_VERSION = "7.1.9";
     private static final ConnectionFactory CONNECTION_FACTORY = ConnectionFactory.create();
 
     @Container
