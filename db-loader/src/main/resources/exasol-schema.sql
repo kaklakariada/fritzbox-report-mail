@@ -61,7 +61,7 @@ CREATE OR REPLACE VIEW v_wifi_connection AS (
           PARTITION BY MAC_ADDRESS
           ORDER BY "TIMESTAMP" asc,
             LOG_ENTRY_ID asc
-        ) AS DISCONNECT_event,
+        ) AS disconnect_event_type,
         LEAD(DISCONNECT_CODE) OVER (
           PARTITION BY MAC_ADDRESS
           ORDER BY "TIMESTAMP" asc,
@@ -74,8 +74,6 @@ CREATE OR REPLACE VIEW v_wifi_connection AS (
       d.readable_name,
       d."TYPE" AS device_type,
       d.OWNER,
-      i.device_name,
-      i.mac_address,
       i.wifi_type,
       i.speed,
       i.connect_timestamp,
