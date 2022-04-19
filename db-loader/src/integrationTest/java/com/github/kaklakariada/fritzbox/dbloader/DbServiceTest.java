@@ -48,6 +48,6 @@ class DbServiceTest {
                 connection.query("SELECT count(*) FROM exa_user_tables").toList().get(0).getColumnValue(0).getValue())
                 .as("table count").isEqualTo(5L);
         assertThat(connection.query("SELECT count(*) FROM exa_user_views").toList().get(0).getColumnValue(0).getValue())
-                .as("view count").isEqualTo(3L);
+                .as("view count").isEqualTo(5L);
     }
 }
