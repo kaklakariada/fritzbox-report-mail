@@ -150,6 +150,9 @@ CREATE OR REPLACE VIEW v_dates_with_missing_reports AS (
         WHERE r."DATE" = all_dates."DATE"
       )
   );
+--
+-- Log entries without a parsable event
+--
 CREATE OR REPLACE VIEW v_log_entry_without_event AS (
     SELECT id,
       report_id,
@@ -194,3 +197,41 @@ CREATE OR REPLACE VIEW v_daily_wifi_connection AS (
       r."DATE"
   );
 --
+-- Report mail table with cleaned up firmware version number
+--
+CREATE OR REPLACE VIEW v_report_mail AS (
+    SELECT ID,
+      "DATE",
+      "TIMESTAMP",
+      message_id,
+      subject,
+      product_name,
+      REGEXP_SUBSTR(firmware_version, '^[\d.]+') AS firmware_version,
+      energy_usage_percent
+    FROM report_mail
+  );
+--
+-- Firmware updates
+--
+CREATE OR REPLACE VIEW v_firmware_updates AS (
+    SELECT curr_day."DATE",
+      prev_day.firmware_version AS previous_version,
+      curr_day.firmware_version AS new_version
+    FROM v_report_mail curr_day,
+      v_report_mail prev_day
+    WHERE curr_day."DATE" -1 = prev_day."DATE"
+      AND curr_day.firmware_version != prev_day.firmware_version
+  );
+--
+-- Energy usage vs. firmware updates
+--
+CREATE OR REPLACE VIEW v_energy_usage AS(
+    SELECT mail."DATE",
+      mail.energy_usage_percent,
+      fw.previous_version,
+      fw.new_version,
+      IF fw.new_version IS NULL THEN 0
+      ELSE 1 ENDIF AS update_count
+    FROM v_report_mail mail
+      LEFT OUTER JOIN v_firmware_updates fw ON mail."DATE" = fw."DATE"
+  );

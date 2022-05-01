@@ -32,9 +32,9 @@ jdbc.schema = fritzbox
 
 ### Importing Report Mails
 
-To parse and import the reports into database schema `FRITZBOX` run the following command.
+To parse and import the reports into the database schema specified as `jdbc.schema` run the following command.
 
-**This will drop the `FRITZBOX` schema if it exists!**
+**This will drop the schema if it exists!**
 
 ```shell
 ./gradlew runMailReader runMailParser runDbImport
