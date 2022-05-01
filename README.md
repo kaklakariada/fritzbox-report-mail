@@ -7,17 +7,59 @@
 A Java API for parsing and processing status report mails of a FritzBox.
 
 ## Usage
+
+### Initial Setup
+
 * Configure FritzBox to send daily reports.
-* Create a mail rule that puts all report mails into a folder.
-* Download this folder with [Thunderbird](https://mozilla.org/thunderbird) or another email client that uses mbox format.
-* Use class [`ReportService`](https://github.com/kaklakariada/fritzbox-report-mail/blob/main/src/main/java/com/github/kaklakariada/fritzbox/report/ReportService.java) to read the mbox file.
+* Create a mail rule that puts all report mails into a separate folder.
+* Setup your mail account in [Thunderbird](https://mozilla.org/thunderbird) (or any other email client that uses the same mbox format) and sync all mails in this folder.
+* Start an Exasol instance
 
-## Running the example program
-* Copy file `application.properties.template` to `application.properties` and the path to your mbox file.
-* Read mbox file using class [`ReadThunderbirdReportMails`](https://github.com/kaklakariada/fritzbox-report-mail/blob/main/src/main/java/ReadThunderbirdReportMails.java). This will parse the reports and aggregate data volume statistics.
+    ```shell
+    mkdir $HOME/exadata
+    docker run --publish 8563:8563 --detach --privileged --stop-timeout 120 --volume $HOME/exadata/:/exa exasol/docker-db:7.1.9
+    ```
 
-## Check if dependencies are up-to-date
+* Create file `application.properties` with the following content and adapt the configuration for your setup
+
+```properties
+mbox.path = /Users/user/Library/Thunderbird/Profiles/profile.default/ImapMail/server/FritzBox.sbd/Report
+jdbc.url = jdbc:exa:localhost:8563;fingerprint=<fingerprint>
+jdbc.user = <user>
+jdbc.password = <password>
+jdbc.schema = fritzbox
+```
+
+### Importing Report Mails
+
+To parse and import the reports into the database schema specified as `jdbc.schema` run the following command.
+
+**This will drop the schema if it exists!**
+
+```shell
+./gradlew runMailReader runMailParser runDbImport
+```
+
+After the import is finished, you can visualize your data e.g. with [Metabase](https://www.metabase.com/) and the [Exasol driver for Metabase](https://github.com/exasol/metabase-driver).
+
+### Adding Custom Device Names
+
+To add readable device names, first generate a template for `wifi-device-details.csv`:
+
+```shell
+./gradlew createWifiDeviceDetailsTemplate
+```
+
+This CSV has fields `DEVICE_NAME` and `MAC_ADDRESS` already filled out, just add values for the remaining fields `READABLE_NAME`, `TYPE` and `OWNER`. Then run the import again with `./gradlew runDbImport`.
+
+When new devices are added after some time, follow the same process. Data already entered will be already filled in the template.
+
+Make sure to backup `wifi-device-details.csv`.
+
+## Development
+
+### Check if dependencies are up-to-date
 
 ```bash
-$ ./gradlew dependencyUpdates
+./gradlew dependencyUpdates
 ```

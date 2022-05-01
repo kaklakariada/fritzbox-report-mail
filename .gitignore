@@ -1,9 +1,13 @@
 hs_err_pid*
-/bin/
 /.gradle/
-/.classpath
-/.project
+bin/
+.classpath
+.project
 /.settings/org.eclipse.buildship.core.prefs
-/build/
+/*/.settings/org.eclipse.buildship.core.prefs
+build/
 /application.properties
 /.README.md.html
+/data.kryo
+/mails.kryo
+wifi-device-details.csv

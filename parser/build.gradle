@@ -1,0 +1,9 @@
+dependencies {
+    implementation project(':model')
+    
+    implementation libs.bundles.mime4j
+    implementation libs.jsoup
+    implementation libs.jakartaMail
+
+    testImplementation libs.bundles.testUtils
+}

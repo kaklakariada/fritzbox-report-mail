@@ -1,0 +1,45 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    implementation project(':parser')
+    implementation project(':db-loader')
+    implementation project(':model')
+
+    implementation libs.kryo
+
+    runtimeOnly libs.exasolJdbc
+
+    testImplementation libs.bundles.testUtils
+}
+
+tasks.withType(JavaExec) {
+    workingDir = project.projectDir
+    classpath = sourceSets.main.runtimeClasspath
+    workingDir = project.projectDir
+    systemProperty 'java.util.logging.config.file', file('src/main/resources/logging.properties')
+}
+
+task runMailReader(type: JavaExec, group: 'run') {
+    mainClass = 'com.github.kaklakariada.fritzbox.report.ReadMails'
+}
+
+task runMailParser(type: JavaExec, group: 'run') {
+    mainClass = 'com.github.kaklakariada.fritzbox.report.ParseReportMails'
+}
+
+task runDbImport(type: JavaExec, group: 'run') {
+    mainClass = 'com.github.kaklakariada.fritzbox.report.DbImporter'
+}
+
+task createWifiDeviceDetailsTemplate(type: JavaExec, group: 'run') {
+    mainClass = 'com.github.kaklakariada.fritzbox.report.CreateWifiDeviceDetailsTemplate'
+}
+
+task runParseAndImport(type: JavaExec, group: 'run') {
+    mainClass = 'com.github.kaklakariada.fritzbox.report.ParseAndImport'
+}
+
+runMailParser.mustRunAfter runMailReader
+runDbImport.mustRunAfter runMailParser

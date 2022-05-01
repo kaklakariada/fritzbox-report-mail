@@ -1,0 +1,33 @@
+dependencies {
+    implementation project(':model')
+    implementation libs.simpleJdbc
+    implementation libs.fastcsv
+}
+
+testing {
+    suites {
+        integrationTest(JvmTestSuite) {
+            useJUnitJupiter(libs.versions.junitJupiter.get())
+            dependencies {
+                implementation project
+                implementation libs.simpleJdbc
+                implementation libs.bundles.testUtils
+                implementation libs.bundles.testcontainers
+
+                runtimeOnly libs.exasolJdbc
+            }
+            targets {
+                all {
+                    testTask.configure {
+                        shouldRunAfter(test)
+                        systemProperty 'java.util.logging.config.file', file('src/test/resources/logging.properties')
+                    }
+                }
+            }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn(testing.suites.integrationTest)
+}
