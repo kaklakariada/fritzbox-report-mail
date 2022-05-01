@@ -33,7 +33,8 @@ class TestWifiDeviceHardDisconnectedFactory extends EventLogEntryFactoryTestBase
     @Test
     void testMatch2() {
         assertEntry("WLAN-Gerät wird abgemeldet (2,4 GHz): WLAN-Gerät antwortet nicht. MAC-Adresse: " + MAC_ADDRESS
-                + ", Name: " + HOSTNAME + ". (#0302).", WifiType._2_4_GHZ, null, MAC_ADDRESS, HOSTNAME, "0302");
+                + ", Name: " + HOSTNAME + ". (#0302).", WifiType.TWO_POINT_FOUR_GHZ, null, MAC_ADDRESS, HOSTNAME,
+                "0302");
     }
 
     @Test
@@ -41,7 +42,7 @@ class TestWifiDeviceHardDisconnectedFactory extends EventLogEntryFactoryTestBase
         assertEntry(
                 "WLAN-Gerät wird abgemeldet (2,4 GHz): WLAN-Gerät antwortet nicht, " + HOSTNAME + ", IP " + IP_ADDRESS1
                         + ", MAC " + MAC_ADDRESS + ". (#0104).",
-                WifiType._2_4_GHZ, IP_ADDRESS1, MAC_ADDRESS, HOSTNAME, "0104");
+                WifiType.TWO_POINT_FOUR_GHZ, IP_ADDRESS1, MAC_ADDRESS, HOSTNAME, "0104");
     }
 
     @Test
@@ -49,7 +50,7 @@ class TestWifiDeviceHardDisconnectedFactory extends EventLogEntryFactoryTestBase
         assertEntry(
                 "WLAN-Gerät wird abgemeldet (2,4 GHz): WLAN-Gerät antwortet nicht, " + HOSTNAME + ", IP " + IP_ADDRESS1
                         + ", MAC " + MAC_ADDRESS + ", Name: " + HOSTNAME + ". (#0302).",
-                WifiType._2_4_GHZ, IP_ADDRESS1, MAC_ADDRESS, HOSTNAME, "0302");
+                WifiType.TWO_POINT_FOUR_GHZ, IP_ADDRESS1, MAC_ADDRESS, HOSTNAME, "0302");
     }
 
     private void assertEntry(String message, WifiType type, String ipAddress, final String expectedMac,

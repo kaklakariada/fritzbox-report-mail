@@ -23,64 +23,90 @@ import com.github.kaklakariada.fritzbox.report.model.regex.Regex;
 
 public class WifiDeviceConnectedFactory extends AbstractEventLogEntryFactory<WifiDeviceConnected> {
 
-    WifiDeviceConnectedFactory() {
-        super(Regex.create("(?:Neues )?WLAN-Gerät (?:erstmalig )?(?:hat sich neu )?angemeldet\\. Geschwindigkeit "
-                + EVERYTHING_UNTIL_PERIOD_REGEXP + ". MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: "
-                + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.", 3,
-                groups -> new WifiDeviceConnected(groups.get(0), null, null, groups.get(1), groups.get(2))),
+        private static final String DOT_MAC_ADDRESS = "\\. MAC-Adresse: ";
+        private static final String COMMA_MAC = ", MAC ";
+        private static final String COMMA_IP = ", IP ";
+        private static final String NEW_WIFI_DEVICE = "Neues WLAN-Gerät erstmalig angemeldet ";
+        private static final String COMMA_NAME_COLON = ", Name: ";
 
-                Regex.create(
-                        "Neues WLAN-Gerät erstmalig angemeldet " + WIFI_TYPE_REGEXP + ", "
-                                + EVERYTHING_UNTIL_COMMA_REGEXP +
-                                ", " + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP " + IPV4_ADDRESS_REGEXP + ", MAC "
-                                + MAC_ADDRESS_REGEXP + "\\.",
-                        5,
-                        groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), groups.get(3),
-                                groups.get(4), groups.get(2))),
+        WifiDeviceConnectedFactory() {
+                super(Regex.create(
+                                "(?:Neues )?WLAN-Gerät (?:erstmalig )?(?:hat sich neu )?angemeldet\\. Geschwindigkeit "
+                                                + EVERYTHING_UNTIL_PERIOD_REGEXP + ". MAC-Adresse: "
+                                                + MAC_ADDRESS_REGEXP + COMMA_NAME_COLON
+                                                + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.",
+                                3,
+                                groups -> new WifiDeviceConnected(groups.get(0), null, null, groups.get(1),
+                                                groups.get(2))),
 
-                Regex.create(
-                        "Neues WLAN-Gerät erstmalig angemeldet " + WIFI_TYPE_REGEXP + "\\. Geschwindigkeit "
-                                + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\. MAC-Adresse: " + MAC_ADDRESS_REGEXP
-                                + ", Name: " + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.",
-                        4,
-                        groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), null,
-                                groups.get(2), groups.get(3))),
+                                Regex.create(
+                                                NEW_WIFI_DEVICE + WIFI_TYPE_REGEXP + ", "
+                                                                + EVERYTHING_UNTIL_COMMA_REGEXP +
+                                                                ", " + EVERYTHING_UNTIL_COMMA_REGEXP + COMMA_IP
+                                                                + IPV4_ADDRESS_REGEXP + COMMA_MAC
+                                                                + MAC_ADDRESS_REGEXP + "\\.",
+                                                5,
+                                                groups -> new WifiDeviceConnected(groups.get(1),
+                                                                WifiType.parse(groups.get(0)), groups.get(3),
+                                                                groups.get(4), groups.get(2))),
 
-                Regex.create(
-                        "WLAN-Gerät hat sich neu angemeldet " + WIFI_TYPE_REGEXP + "\\. Geschwindigkeit "
-                                + EVERYTHING_UNTIL_PERIOD_REGEXP
-                                + "\\. MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: " + EVERYTHING_UNTIL_PERIOD_REGEXP
-                                + "\\.",
-                        4,
-                        groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), null,
-                                groups.get(2), groups.get(3))),
+                                Regex.create(
+                                                NEW_WIFI_DEVICE + WIFI_TYPE_REGEXP
+                                                                + "\\. Geschwindigkeit "
+                                                                + EVERYTHING_UNTIL_PERIOD_REGEXP + DOT_MAC_ADDRESS
+                                                                + MAC_ADDRESS_REGEXP
+                                                                + COMMA_NAME_COLON + EVERYTHING_UNTIL_PERIOD_REGEXP
+                                                                + "\\.",
+                                                4,
+                                                groups -> new WifiDeviceConnected(groups.get(1),
+                                                                WifiType.parse(groups.get(0)), null,
+                                                                groups.get(2), groups.get(3))),
 
-                Regex.create(
-                        "WLAN-Gerät (?:hat sich neu )?angemeldet " + WIFI_TYPE_REGEXP + ", "
-                                + EVERYTHING_UNTIL_COMMA_REGEXP + ", "
-                                + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP " + IPV4_ADDRESS_REGEXP + ", MAC "
-                                + MAC_ADDRESS_REGEXP + "(?:, Name: .+)?\\.",
-                        5,
-                        groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), groups.get(3),
-                                groups.get(4), groups.get(2))),
+                                Regex.create(
+                                                "WLAN-Gerät hat sich neu angemeldet " + WIFI_TYPE_REGEXP
+                                                                + "\\. Geschwindigkeit "
+                                                                + EVERYTHING_UNTIL_PERIOD_REGEXP
+                                                                + DOT_MAC_ADDRESS + MAC_ADDRESS_REGEXP
+                                                                + COMMA_NAME_COLON + EVERYTHING_UNTIL_PERIOD_REGEXP
+                                                                + "\\.",
+                                                4,
+                                                groups -> new WifiDeviceConnected(groups.get(1),
+                                                                WifiType.parse(groups.get(0)), null,
+                                                                groups.get(2), groups.get(3))),
 
-                Regex.create(
-                        "Neues WLAN-Gerät erstmalig angemeldet " + WIFI_TYPE_REGEXP + ", "
-                                + EVERYTHING_UNTIL_COMMA_REGEXP + ", " + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP "
-                                + IPV4_ADDRESS_REGEXP + ", MAC " + MAC_ADDRESS_REGEXP + ", Name: "
-                                + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.",
-                        6,
-                        groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), groups.get(3),
-                                groups.get(4), groups.get(2))),
+                                Regex.create(
+                                                "WLAN-Gerät (?:hat sich neu )?angemeldet " + WIFI_TYPE_REGEXP + ", "
+                                                                + EVERYTHING_UNTIL_COMMA_REGEXP + ", "
+                                                                + EVERYTHING_UNTIL_COMMA_REGEXP + COMMA_IP
+                                                                + IPV4_ADDRESS_REGEXP + COMMA_MAC
+                                                                + MAC_ADDRESS_REGEXP + "(?:, Name: .+)?\\.",
+                                                5,
+                                                groups -> new WifiDeviceConnected(groups.get(1),
+                                                                WifiType.parse(groups.get(0)), groups.get(3),
+                                                                groups.get(4), groups.get(2))),
 
-                Regex.create(
-                        "WLAN-Gerät angemeldet " + WIFI_TYPE_REGEXP + ". Geschwindigkeit "
-                                + EVERYTHING_UNTIL_PERIOD_REGEXP
-                                + "\\. MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: " + EVERYTHING_UNTIL_PERIOD_REGEXP
-                                + "\\.",
-                        4,
-                        groups -> new WifiDeviceConnected(groups.get(1), WifiType.parse(groups.get(0)), null,
-                                groups.get(2),
-                                groups.get(3))));
-    }
+                                Regex.create(
+                                                NEW_WIFI_DEVICE + WIFI_TYPE_REGEXP + ", "
+                                                                + EVERYTHING_UNTIL_COMMA_REGEXP + ", "
+                                                                + EVERYTHING_UNTIL_COMMA_REGEXP + COMMA_IP
+                                                                + IPV4_ADDRESS_REGEXP + COMMA_MAC + MAC_ADDRESS_REGEXP
+                                                                + COMMA_NAME_COLON
+                                                                + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\.",
+                                                6,
+                                                groups -> new WifiDeviceConnected(groups.get(1),
+                                                                WifiType.parse(groups.get(0)), groups.get(3),
+                                                                groups.get(4), groups.get(2))),
+
+                                Regex.create(
+                                                "WLAN-Gerät angemeldet " + WIFI_TYPE_REGEXP + ". Geschwindigkeit "
+                                                                + EVERYTHING_UNTIL_PERIOD_REGEXP
+                                                                + DOT_MAC_ADDRESS + MAC_ADDRESS_REGEXP
+                                                                + COMMA_NAME_COLON + EVERYTHING_UNTIL_PERIOD_REGEXP
+                                                                + "\\.",
+                                                4,
+                                                groups -> new WifiDeviceConnected(groups.get(1),
+                                                                WifiType.parse(groups.get(0)), null,
+                                                                groups.get(2),
+                                                                groups.get(3))));
+        }
 }

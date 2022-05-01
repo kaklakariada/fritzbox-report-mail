@@ -33,7 +33,7 @@ public class EventLogEntryFactory {
 
     private final List<AbstractEventLogEntryFactory<?>> factories;
 
-    private EventLogEntryFactory(List<AbstractEventLogEntryFactory<?>> factories) {
+    private EventLogEntryFactory(final List<AbstractEventLogEntryFactory<?>> factories) {
         this.factories = new ArrayList<>(factories);
     }
 
@@ -60,10 +60,11 @@ public class EventLogEntryFactory {
         return null;
     }
 
+    @SuppressWarnings("java:S5852") // Input size is small, no risk of catastrophic backtracking.
     private static final Pattern REPEATED_SUFFIX = Pattern
             .compile("^(.*?)\\s*\\[\\d+ Meldungen seit [\\d\\.\\s:]{8,20}\\]$");
 
-    private String removeRepeatedSuffix(String message) {
+    private String removeRepeatedSuffix(final String message) {
         final Matcher matcher = REPEATED_SUFFIX.matcher(message);
         if (matcher.matches()) {
             return matcher.group(1);

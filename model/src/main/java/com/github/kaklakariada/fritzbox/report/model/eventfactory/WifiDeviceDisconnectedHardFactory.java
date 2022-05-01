@@ -23,42 +23,57 @@ import com.github.kaklakariada.fritzbox.report.model.regex.Regex;
 
 public class WifiDeviceDisconnectedHardFactory extends AbstractEventLogEntryFactory<WifiDeviceDisconnectedHard> {
 
-    private static final String DISCONNECT_CODE = "\\(#(\\d+)\\)";
+        private static final String WIFI_DEVICE_DISCONNECTED = "WLAN-Gerät wird abgemeldet ";
+        private static final String COMMA_NAME_COLON = ", Name: ";
+        private static final String DISCONNECT_CODE = "\\(#(\\d+)\\)";
 
-    protected WifiDeviceDisconnectedHardFactory() {
-        super(
-                Regex.create(
-                        "WLAN-Gerät wird abgemeldet: WLAN-Gerät antwortet nicht\\. MAC-Adresse: " + MAC_ADDRESS_REGEXP
-                                + ", Name: "
-                                + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\. " + DISCONNECT_CODE + "\\.",
-                        3,
-                        groups -> new WifiDeviceDisconnectedHard(null, null, groups.get(0), groups.get(1),
-                                groups.get(2))),
+        protected WifiDeviceDisconnectedHardFactory() {
+                super(
+                                Regex.create(
+                                                "WLAN-Gerät wird abgemeldet: WLAN-Gerät antwortet nicht\\. MAC-Adresse: "
+                                                                + MAC_ADDRESS_REGEXP
+                                                                + COMMA_NAME_COLON
+                                                                + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\. "
+                                                                + DISCONNECT_CODE + "\\.",
+                                                3,
+                                                groups -> new WifiDeviceDisconnectedHard(null, null, groups.get(0),
+                                                                groups.get(1),
+                                                                groups.get(2))),
 
-                Regex.create(
-                        "WLAN-Gerät wird abgemeldet " + WIFI_TYPE_REGEXP
-                                + ": WLAN-Gerät antwortet nicht\\. MAC-Adresse: " + MAC_ADDRESS_REGEXP + ", Name: "
-                                + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\. " + DISCONNECT_CODE + "\\.",
-                        4,
-                        groups -> new WifiDeviceDisconnectedHard(WifiType.parse(groups.get(0)), null, groups.get(1),
-                                groups.get(2), groups.get(3))),
+                                Regex.create(
+                                                WIFI_DEVICE_DISCONNECTED + WIFI_TYPE_REGEXP
+                                                                + ": WLAN-Gerät antwortet nicht\\. MAC-Adresse: "
+                                                                + MAC_ADDRESS_REGEXP + COMMA_NAME_COLON
+                                                                + EVERYTHING_UNTIL_PERIOD_REGEXP + "\\. "
+                                                                + DISCONNECT_CODE + "\\.",
+                                                4,
+                                                groups -> new WifiDeviceDisconnectedHard(WifiType.parse(groups.get(0)),
+                                                                null, groups.get(1),
+                                                                groups.get(2), groups.get(3))),
 
-                Regex.create(
-                        "WLAN-Gerät wird abgemeldet " + WIFI_TYPE_REGEXP + ": WLAN-Gerät antwortet nicht, "
-                                + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP " + IPV4_ADDRESS_REGEXP + ", MAC "
-                                + MAC_ADDRESS_REGEXP + ", Name: " + EVERYTHING_UNTIL_PERIOD_REGEXP + ". "
-                                + DISCONNECT_CODE + "\\.",
-                        6,
-                        groups -> new WifiDeviceDisconnectedHard(WifiType.parse(groups.get(0)), groups.get(2),
-                                groups.get(3),
-                                groups.get(4), groups.get(5))),
+                                Regex.create(
+                                                WIFI_DEVICE_DISCONNECTED + WIFI_TYPE_REGEXP
+                                                                + ": WLAN-Gerät antwortet nicht, "
+                                                                + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP "
+                                                                + IPV4_ADDRESS_REGEXP + ", MAC "
+                                                                + MAC_ADDRESS_REGEXP + COMMA_NAME_COLON
+                                                                + EVERYTHING_UNTIL_PERIOD_REGEXP + ". "
+                                                                + DISCONNECT_CODE + "\\.",
+                                                6,
+                                                groups -> new WifiDeviceDisconnectedHard(WifiType.parse(groups.get(0)),
+                                                                groups.get(2),
+                                                                groups.get(3),
+                                                                groups.get(4), groups.get(5))),
 
-                Regex.create(
-                        "WLAN-Gerät wird abgemeldet " + WIFI_TYPE_REGEXP + ": WLAN-Gerät antwortet nicht, "
-                                + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP " + IPV4_ADDRESS_REGEXP + ", MAC "
-                                + MAC_ADDRESS_REGEXP + "\\. " + DISCONNECT_CODE + "\\.",
-                        5,
-                        groups -> new WifiDeviceDisconnectedHard(WifiType.parse(groups.get(0)), groups.get(2),
-                                groups.get(3), groups.get(1), groups.get(4))));
-    }
+                                Regex.create(
+                                                WIFI_DEVICE_DISCONNECTED + WIFI_TYPE_REGEXP
+                                                                + ": WLAN-Gerät antwortet nicht, "
+                                                                + EVERYTHING_UNTIL_COMMA_REGEXP + ", IP "
+                                                                + IPV4_ADDRESS_REGEXP + ", MAC "
+                                                                + MAC_ADDRESS_REGEXP + "\\. " + DISCONNECT_CODE + "\\.",
+                                                5,
+                                                groups -> new WifiDeviceDisconnectedHard(WifiType.parse(groups.get(0)),
+                                                                groups.get(2),
+                                                                groups.get(3), groups.get(1), groups.get(4))));
+        }
 }
