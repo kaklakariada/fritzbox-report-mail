@@ -25,25 +25,25 @@ public class AggregatedVolume {
     private final LocalDate day;
     private final DataVolume totalVolume;
     private final DataVolume sentVolume;
-    private final DataVolume reveivedVolume;
+    private final DataVolume receivedVolume;
     private final int numberOfConnections;
     private final Duration onlineTime;
     private final int reportId;
 
     public AggregatedVolume(int reportId, final LocalDate day, final DataConnections conn) {
-        this(reportId, day, conn.getTotalVolume(), conn.getSentVolume(), conn.getReveivedVolume(),
+        this(reportId, day, conn.getTotalVolume(), conn.getSentVolume(), conn.getReceivedVolume(),
                 conn.getNumberOfConnections(),
                 conn.getOnlineTime());
     }
 
     private AggregatedVolume(int reportId, final LocalDate day, final DataVolume totalVolume,
             final DataVolume sentVolume,
-            final DataVolume reveivedVolume, final int numberOfConnections, final Duration onlineTime) {
+            final DataVolume receivedVolume, final int numberOfConnections, final Duration onlineTime) {
         this.reportId = reportId;
         this.day = day;
         this.totalVolume = totalVolume;
         this.sentVolume = sentVolume;
-        this.reveivedVolume = reveivedVolume;
+        this.receivedVolume = receivedVolume;
         this.numberOfConnections = numberOfConnections;
         this.onlineTime = onlineTime;
     }
@@ -64,7 +64,7 @@ public class AggregatedVolume {
         return new AggregatedVolume(-1, newDay, //
                 this.totalVolume.plus(other.totalVolume), //
                 this.sentVolume.plus(other.sentVolume), //
-                this.reveivedVolume.plus(other.reveivedVolume), //
+                this.receivedVolume.plus(other.receivedVolume), //
                 this.numberOfConnections + other.numberOfConnections, //
                 this.onlineTime.plus(other.onlineTime));
     }
@@ -81,8 +81,8 @@ public class AggregatedVolume {
         return sentVolume;
     }
 
-    public DataVolume getReveivedVolume() {
-        return reveivedVolume;
+    public DataVolume getReceivedVolume() {
+        return receivedVolume;
     }
 
     public int getNumberOfConnections() {
@@ -96,13 +96,13 @@ public class AggregatedVolume {
     @Override
     public String toString() {
         return "AggregatedVolume [day=" + day + ", totalVolume=" + totalVolume + ", sentVolume=" + sentVolume
-                + ", reveivedVolume=" + reveivedVolume + ", numberOfConnections=" + numberOfConnections
+                + ", receivedVolume=" + receivedVolume + ", numberOfConnections=" + numberOfConnections
                 + ", onlineTime=" + onlineTime + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(day, numberOfConnections, onlineTime, reportId, reveivedVolume, sentVolume, totalVolume);
+        return Objects.hash(day, numberOfConnections, onlineTime, reportId, receivedVolume, sentVolume, totalVolume);
     }
 
     @Override
@@ -119,7 +119,7 @@ public class AggregatedVolume {
         final AggregatedVolume other = (AggregatedVolume) obj;
         return Objects.equals(day, other.day) && numberOfConnections == other.numberOfConnections
                 && Objects.equals(onlineTime, other.onlineTime) && reportId == other.reportId
-                && Objects.equals(reveivedVolume, other.reveivedVolume) && Objects.equals(sentVolume, other.sentVolume)
+                && Objects.equals(receivedVolume, other.receivedVolume) && Objects.equals(sentVolume, other.sentVolume)
                 && Objects.equals(totalVolume, other.totalVolume);
     }
 

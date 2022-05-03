@@ -117,9 +117,9 @@ class DataExtractor {
         final Duration onlineTime = parseDuration(cells.get(1).text());
         final DataVolume totalVolume = DataVolume.parse(cells.get(2).text());
         final DataVolume sentVolume = DataVolume.parse(cells.get(3).text());
-        final DataVolume reveivedVolume = DataVolume.parse(cells.get(4).text());
+        final DataVolume receivedVolume = DataVolume.parse(cells.get(4).text());
         final int numberOfConnections = cells.get(5).number();
-        return new DataConnections(reportId, date, timePeriod, onlineTime, totalVolume, sentVolume, reveivedVolume,
+        return new DataConnections(reportId, date, timePeriod, onlineTime, totalVolume, sentVolume, receivedVolume,
                 numberOfConnections);
     }
 
@@ -135,14 +135,14 @@ class DataExtractor {
         final TimePeriod timePeriod = TimePeriod.forName(firstCol);
         final Duration onlineTime = parseDuration(cells.get(0).text());
         final DataVolume totalVolume = DataVolume.parse(cells.get(1).text());
-        final String[] sentReceivedVolumen = cells.get(2).text().split("/");
-        if (sentReceivedVolumen.length != 2) {
+        final String[] sentReceivedVolume = cells.get(2).text().split("/");
+        if (sentReceivedVolume.length != 2) {
             throw new IllegalStateException("Sent/received volume has wrong format: " + cells.get(2).text());
         }
-        final DataVolume sentVolume = DataVolume.parse(sentReceivedVolumen[0]);
-        final DataVolume reveivedVolume = DataVolume.parse(sentReceivedVolumen[1]);
+        final DataVolume sentVolume = DataVolume.parse(sentReceivedVolume[0]);
+        final DataVolume receivedVolume = DataVolume.parse(sentReceivedVolume[1]);
         final int numberOfConnections = cells.get(3).number();
-        return new DataConnections(reportId, date, timePeriod, onlineTime, totalVolume, sentVolume, reveivedVolume,
+        return new DataConnections(reportId, date, timePeriod, onlineTime, totalVolume, sentVolume, receivedVolume,
                 numberOfConnections);
     }
 

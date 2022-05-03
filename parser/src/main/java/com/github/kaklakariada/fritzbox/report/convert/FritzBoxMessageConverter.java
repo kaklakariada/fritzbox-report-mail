@@ -42,7 +42,7 @@ public class FritzBoxMessageConverter implements Function<EmailContent, FritzBox
 		final List<EventLogEntry> eventLog = extractor.getEventLog();
 		final List<InternetConnection> connections = eventLog.stream().flatMap(this::convertInternetConnection)
 				.toList();
-		LOG.finest(() -> extractor.getDate() + ": received " + connectionsYesterday.getReveivedVolume() + ", sent "
+		LOG.finest(() -> extractor.getDate() + ": received " + connectionsYesterday.getReceivedVolume() + ", sent "
 				+ connectionsYesterday.getSentVolume() + ", log entries: " + eventLog.size()
 				+ ", internet connections: " + connections.size());
 		return new FritzBoxReportMail(nextReportId++, extractor.getDate(), mail.getMetadata(),

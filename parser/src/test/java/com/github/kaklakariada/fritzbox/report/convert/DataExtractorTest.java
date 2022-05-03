@@ -102,8 +102,8 @@ class DataExtractorTest {
     }
 
     private DataConnections connection(TimePeriod timePeriod, LocalDate date, Duration onlineTime,
-            DataVolume totalVolume, DataVolume sentVolume, DataVolume reveivedVolume, int numberOfConnections) {
-        return new DataConnections(REPORT_ID, date, timePeriod, onlineTime, totalVolume, sentVolume, reveivedVolume,
+            DataVolume totalVolume, DataVolume sentVolume, DataVolume receivedVolume, int numberOfConnections) {
+        return new DataConnections(REPORT_ID, date, timePeriod, onlineTime, totalVolume, sentVolume, receivedVolume,
                 numberOfConnections);
     }
 

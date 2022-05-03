@@ -31,14 +31,14 @@ public class DataConnections implements Serializable {
     private final TimePeriod timePeriod;
     private final DataVolume totalVolume;
     private final DataVolume sentVolume;
-    private final DataVolume reveivedVolume;
+    private final DataVolume receivedVolume;
     private final int numberOfConnections;
     private final Duration onlineTime;
     private final LocalDate date;
     private final int reportId;
 
     public DataConnections(int reportId, final LocalDate date, final TimePeriod timePeriod, final Duration onlineTime,
-            final DataVolume totalVolume, final DataVolume sentVolume, final DataVolume reveivedVolume,
+            final DataVolume totalVolume, final DataVolume sentVolume, final DataVolume receivedVolume,
             final int numberOfConnections) {
         this.reportId = reportId;
         this.date = Objects.requireNonNull(date);
@@ -46,7 +46,7 @@ public class DataConnections implements Serializable {
         this.onlineTime = onlineTime;
         this.totalVolume = totalVolume;
         this.sentVolume = sentVolume;
-        this.reveivedVolume = reveivedVolume;
+        this.receivedVolume = receivedVolume;
         this.numberOfConnections = numberOfConnections;
     }
 
@@ -91,8 +91,8 @@ public class DataConnections implements Serializable {
         return sentVolume;
     }
 
-    public DataVolume getReveivedVolume() {
-        return reveivedVolume;
+    public DataVolume getReceivedVolume() {
+        return receivedVolume;
     }
 
     public int getNumberOfConnections() {
@@ -110,13 +110,13 @@ public class DataConnections implements Serializable {
     @Override
     public String toString() {
         return "DataConnections [timePeriod=" + timePeriod + ", onlineTime=" + onlineTime + ", totalVolume="
-                + totalVolume + ", sentVolume=" + sentVolume + ", reveivedVolume=" + reveivedVolume
+                + totalVolume + ", sentVolume=" + sentVolume + ", receivedVolume=" + receivedVolume
                 + ", numberOfConnections=" + numberOfConnections + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(date, numberOfConnections, onlineTime, reportId, reveivedVolume, sentVolume, timePeriod,
+        return Objects.hash(date, numberOfConnections, onlineTime, reportId, receivedVolume, sentVolume, timePeriod,
                 totalVolume);
     }
 
@@ -134,7 +134,7 @@ public class DataConnections implements Serializable {
         final DataConnections other = (DataConnections) obj;
         return Objects.equals(date, other.date) && numberOfConnections == other.numberOfConnections
                 && Objects.equals(onlineTime, other.onlineTime) && reportId == other.reportId
-                && Objects.equals(reveivedVolume, other.reveivedVolume) && Objects.equals(sentVolume, other.sentVolume)
+                && Objects.equals(receivedVolume, other.receivedVolume) && Objects.equals(sentVolume, other.sentVolume)
                 && timePeriod == other.timePeriod && Objects.equals(totalVolume, other.totalVolume);
     }
 }
