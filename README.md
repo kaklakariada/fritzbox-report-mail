@@ -38,6 +38,8 @@ To parse and import the reports into the database schema specified as `jdbc.sche
 
 ```shell
 ./gradlew runMailReader runMailParser runDbImport
+# or
+./gradlew runParseAndImport
 ```
 
 After the import is finished, you can visualize your data e.g. with [Metabase](https://www.metabase.com/) and the [Exasol driver for Metabase](https://github.com/exasol/metabase-driver).
