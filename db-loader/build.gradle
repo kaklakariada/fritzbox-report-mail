@@ -9,7 +9,7 @@ testing {
         integrationTest(JvmTestSuite) {
             useJUnitJupiter(libs.versions.junitJupiter.get())
             dependencies {
-                implementation project
+                implementation project()
                 implementation libs.simpleJdbc
                 implementation libs.bundles.testUtils
                 implementation libs.bundles.testcontainers
