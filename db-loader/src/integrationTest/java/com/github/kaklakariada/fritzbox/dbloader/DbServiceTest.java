@@ -18,11 +18,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 class DbServiceTest {
     private static final String SCHEMA = "testing_schema";
-    private static final String EXASOL_VERSION = "7.1.9";
     private static final ConnectionFactory CONNECTION_FACTORY = ConnectionFactory.create();
 
     @Container
-    private static final ExasolContainer<? extends ExasolContainer<?>> CONTAINER = new ExasolContainer<>(EXASOL_VERSION)
+    private static final ExasolContainer<? extends ExasolContainer<?>> CONTAINER = new ExasolContainer<>()
             .withRequiredServices(ExasolService.JDBC).withReuse(true);
 
     private DbService dbService;
