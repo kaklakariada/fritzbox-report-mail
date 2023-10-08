@@ -54,6 +54,13 @@ subprojects {
     rootProject.tasks["sonarqube"].dependsOn(tasks["jacocoTestReport"])
 }
 
+sonar {
+  properties {
+    property("sonar.organization", "kaklakariada-github")
+    property("sonar.host.url", "https://sonarcloud.io")
+  }
+}
+
 def isNonStable = { String version ->
     def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
     def regex = /^[0-9,.v-]+(-r)?$/
