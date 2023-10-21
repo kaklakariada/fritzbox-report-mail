@@ -27,7 +27,7 @@ dependencyResolutionManagement {
             library('exasolJdbc', 'com.exasol:exasol-jdbc:7.1.20')
             library('kryo', 'com.esotericsoftware:kryo:5.5.0')
             library('fastcsv', 'de.siegmar:fastcsv:2.2.2')
-            library('simpleJdbc', 'org.itsallcode:simple-jdbc:0.3.0')
+            library('simpleJdbc', 'org.itsallcode:simple-jdbc:0.4.0')
             library('mime4j.core', 'org.apache.james', 'apache-mime4j-core').versionRef('mime4j')
             library('mime4j.dom', 'org.apache.james', 'apache-mime4j-dom').versionRef('mime4j')
             library('mime4j.mboxIterator', 'org.apache.james', 'apache-mime4j-mbox-iterator').versionRef('mime4j')
