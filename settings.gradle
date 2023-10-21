@@ -31,7 +31,7 @@ dependencyResolutionManagement {
             library('mime4j.core', 'org.apache.james', 'apache-mime4j-core').versionRef('mime4j')
             library('mime4j.dom', 'org.apache.james', 'apache-mime4j-dom').versionRef('mime4j')
             library('mime4j.mboxIterator', 'org.apache.james', 'apache-mime4j-mbox-iterator').versionRef('mime4j')
-            library('jsoup', 'org.jsoup:jsoup:1.16.1')
+            library('jsoup', 'org.jsoup:jsoup:1.16.2')
             library('jakartaMail', 'com.sun.mail:jakarta.mail:2.0.1')
             
             library('assertj', 'org.assertj:assertj-core:3.24.2')

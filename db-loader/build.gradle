@@ -11,8 +11,15 @@ testing {
             dependencies {
                 implementation project()
                 implementation libs.simpleJdbc
-                implementation libs.bundles.testUtils
-                implementation libs.bundles.testcontainers
+
+                implementation libs.assertj
+                implementation libs.junitPioneer
+                implementation libs.equalsverifier
+                implementation libs.hamcrest
+                implementation libs.mockito
+            
+                implementation libs.exasolTestcontainers
+                implementation libs.testcontainersJupiter
 
                 runtimeOnly libs.exasolJdbc
             }
