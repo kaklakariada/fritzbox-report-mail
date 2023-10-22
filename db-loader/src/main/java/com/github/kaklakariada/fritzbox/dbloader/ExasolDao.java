@@ -63,15 +63,17 @@ public class ExasolDao {
     private Object[] mapWifiEvents(final EventLogEntry entry) {
         final Event genericEvent = entry.getEvent().orElseThrow();
         if (genericEvent instanceof final WifiDeviceConnected event) {
+            final String wifiType = event.getWifiType() != null ? event.getWifiType().toString() : null;
             return new Object[] { entry.getLogEntryId(), entry.getTimestamp(), "connected",
-                    event.getWifiType().toString(), event.getName(), event.getSpeed(), event.getMacAddress(), null };
+                    wifiType, event.getName(), event.getSpeed(), event.getMacAddress(), null };
         } else if (genericEvent instanceof final WifiDeviceDisconnected event) {
             String disconnectCode = null;
             if (event instanceof final WifiDeviceDisconnectedHard hardDisconnect) {
                 disconnectCode = hardDisconnect.getCode();
             }
+            final String wifiType = event.getWifiType() != null ? event.getWifiType().toString() : null;
             return new Object[] { entry.getLogEntryId(), entry.getTimestamp(), "disconnected",
-                    event.getWifiType().toString(), event.getName(), null, event.getMacAddress(), disconnectCode };
+                    wifiType, event.getName(), null, event.getMacAddress(), disconnectCode };
         } else {
             throw new IllegalStateException(
                     "Unsupported event type " + entry.getEvent().orElseThrow().getClass().getName());

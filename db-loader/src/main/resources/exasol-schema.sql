@@ -4,7 +4,7 @@ create table "REPORT_MAIL" (
   "TIMESTAMP" TIMESTAMP NOT NULL,
   message_id varchar(100) NOT NULL,
   subject varchar(100) NOT NULL,
-  product_name varchar(20) not null,
+  product_name varchar(25) not null,
   firmware_version varchar(100) not null,
   energy_usage_percent integer not null
 );
@@ -26,7 +26,7 @@ create table wifi_event (
   log_entry_id integer primary key references log_entry (id),
   "TIMESTAMP" TIMESTAMP NOT NULL,
   event_type varchar(12) not null,
-  wifi_type varchar(7) not null,
+  wifi_type varchar(7) null,
   device_name varchar(50) null,
   speed varchar(20) null,
   mac_address varchar(20) not null,
@@ -161,6 +161,27 @@ CREATE OR REPLACE VIEW v_log_entry_without_event AS (
     FROM log_entry
     WHERE event IS NULL
   );
+--
+-- Top log messages without parsable event
+--
+CREATE OR REPLACE VIEW v_top_log_entries_without_event AS (
+  SELECT count(*) AS count, message FROM V_LOG_ENTRY_WITHOUT_EVENT
+  GROUP BY MESSAGE
+  ORDER BY count(*) DESC
+);
+--
+-- Top unknown devices
+--
+CREATE OR REPLACE VIEW v_top_unknown_devices AS (
+  SELECT count(*) AS count, MAC_ADDRESS, DEVICE_NAME, WIFI_TYPE,
+    min("TIMESTAMP") AS first_occurrence, max("TIMESTAMP") AS latest_occurrence
+  FROM WIFI_EVENT WHERE NOT EXISTS (
+    SELECT 1 FROM WIFI_DEVICE_DETAILS WHERE MAC_ADDRESS = WIFI_EVENT.MAC_ADDRESS)
+  GROUP BY MAC_ADDRESS, DEVICE_NAME , WIFI_TYPE
+  ORDER BY count(*) DESC
+);
+--
+-- Lua scalar scripts
 --
 CREATE OR REPLACE LUA SCALAR SCRIPT LUA_MAX(a NUMBER, b number) RETURNS number AS function run(ctx) return math.max(ctx [1], ctx [2])
 end;

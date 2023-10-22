@@ -13,12 +13,12 @@ public abstract class WifiDeviceEvent extends Event {
     protected final WifiType wifiType;
     protected final String ipAddress;
 
-    protected WifiDeviceEvent(WifiType wifiType, String ipAddress, final String macAddress,
+    protected WifiDeviceEvent(final WifiType wifiType, final String ipAddress, final String macAddress,
             final String name) {
         this.wifiType = wifiType;
         this.ipAddress = ipAddress;
-        this.macAddress = macAddress;
-        this.name = name;
+        this.macAddress = Objects.requireNonNull(macAddress, "macAddress");
+        this.name = Objects.requireNonNull(name, "name");
     }
 
     public String getMacAddress() {
@@ -47,7 +47,7 @@ public abstract class WifiDeviceEvent extends Event {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

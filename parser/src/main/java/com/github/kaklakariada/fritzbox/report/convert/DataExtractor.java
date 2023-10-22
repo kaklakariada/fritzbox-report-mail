@@ -190,12 +190,6 @@ class DataExtractor {
         return new EventLogEntry(reportId, logEntryIdGenerator.getNextId(), timestamp, message, event);
     }
 
-    private HtmlElement getSection(final String sectionName) {
-        return getOptionalSection(sectionName)
-                .orElseThrow(
-                        () -> new IllegalStateException("Section '" + sectionName + "' not found in " + rootElement));
-    }
-
     private Optional<HtmlElement> getOptionalSection(final String sectionName) {
         final String selector = "div.content div.foretitel:containsOwn(" + sectionName + ")";
         final HtmlElement sectionTitle = rootElement.selectOptionalSingleElement(selector);

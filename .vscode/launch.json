@@ -8,6 +8,14 @@
             "mainClass": "com.github.kaklakariada.fritzbox.report.ParseReportMails",
             "projectName": "app",
             "cwd": "${workspaceFolder}/app"
+        },
+        {
+            "type": "java",
+            "name": "Import into DB",
+            "request": "launch",
+            "mainClass": "com.github.kaklakariada.fritzbox.report.DbImporter",
+            "projectName": "app",
+            "cwd": "${workspaceFolder}/app"
         }
     ]
 }
