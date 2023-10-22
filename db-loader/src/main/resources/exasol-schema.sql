@@ -3,7 +3,7 @@ create table "REPORT_MAIL" (
   "DATE" date NOT NULL,
   "TIMESTAMP" TIMESTAMP NOT NULL,
   message_id varchar(100) NOT NULL,
-  subject varchar(100) NOT NULL,
+  subject varchar(105) NOT NULL,
   product_name varchar(25) not null,
   firmware_version varchar(100) not null,
   energy_usage_percent integer not null
@@ -248,6 +248,7 @@ CREATE OR REPLACE VIEW v_firmware_updates AS (
 --
 CREATE OR REPLACE VIEW v_energy_usage AS(
     SELECT mail."DATE",
+      mail.PRODUCT_NAME,
       mail.energy_usage_percent,
       fw.previous_version,
       fw.new_version,

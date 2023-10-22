@@ -17,12 +17,14 @@
  */
 package com.github.kaklakariada.fritzbox.report;
 
-import static java.util.stream.Collectors.toMap;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.groupingBy;
 
 import java.nio.file.Path;
 import java.time.*;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -40,26 +42,31 @@ public class ReportService {
 
     public FritzBoxReportCollection parseMails(final Stream<EmailContent> mails) {
         final Instant start = Instant.now();
-        final Map<LocalDate, FritzBoxReportMail> reports = mails.map(new FritzBoxMessageConverter())
-                .collect(toMap(FritzBoxReportMail::getDate, Function.identity(), this::merge));
+        final List<FritzBoxReportMail> reports = mails.map(new FritzBoxMessageConverter())
+                .collect(groupingBy(FritzBoxReportMail::getDate))
+                .entrySet().stream()
+                .flatMap(this::removeDuplicates).toList();
         final FritzBoxReportCollection reportCollection = new FritzBoxReportCollection(reports);
         final Duration duration = Duration.between(start, Instant.now());
         LOG.fine(() -> "Found " + reportCollection.getReportCount() + " reports in " + duration);
-        long logEntries = reportCollection.getLogEntries().count();
-        long logEntriesWithEvent = reportCollection.getLogEntries().filter(e -> e.getEvent().isPresent()).count();
+        final long logEntries = reportCollection.getLogEntries().count();
+        final long logEntriesWithEvent = reportCollection.getLogEntries().filter(e -> e.getEvent().isPresent()).count();
         LOG.fine(() -> "Found " + logEntriesWithEvent + " of " + logEntries + " ("
                 + (100 * logEntriesWithEvent / logEntries) + "%) log entries with events");
         return reportCollection;
     }
 
-    private FritzBoxReportMail merge(FritzBoxReportMail a, FritzBoxReportMail b) {
-        LOG.finest(() -> "Found two mails for " + a.getDate() + " with same date:\n\t" + a.getEmailMetadata() + "\n\t"
-                + b.getEmailMetadata());
-        if (a.getEmailMetadata().getTimestamp().isAfter(b.getEmailMetadata().getTimestamp())) {
-            return a;
-        } else {
-            return b;
-        }
+    private Stream<FritzBoxReportMail> removeDuplicates(final Entry<LocalDate, List<FritzBoxReportMail>> mails) {
+        final Map<Object, List<FritzBoxReportMail>> mailsByProductName = mails.getValue().stream()
+                .collect(groupingBy(m -> m.getFritzBoxInfo().getProduct()));
+        return mailsByProductName.values().stream().map(this::findLatest);
+    }
+
+    private FritzBoxReportMail findLatest(final List<FritzBoxReportMail> mails) {
+        return mails.stream()
+                .sorted(comparing((final FritzBoxReportMail m) -> m.getEmailMetadata().getTimestamp()).reversed())
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Empty list"));
     }
 
     public Stream<FritzBoxReportMail> streamReports(final Path mboxFile) {

@@ -37,13 +37,17 @@ public class EmailContent implements Serializable {
     public EmailContent(final Message message, final List<EmailBody> parts) {
         Objects.requireNonNull(message, "message");
         this.headerDate = message.getDate().toInstant();
-        this.messageId = message.getMessageId();
-        this.subject = message.getSubject();
-        this.parts = parts;
+        this.messageId = Objects.requireNonNull(message.getMessageId(), "messageId");
+        this.subject = Objects.requireNonNull(message.getSubject(), "subject");
+        this.parts = Objects.requireNonNull(parts, "parts");
     }
 
     public List<EmailBody> getParts() {
         return parts;
+    }
+
+    public String getSubject() {
+        return subject;
     }
 
     public EmailBody getPart(final Type type) {

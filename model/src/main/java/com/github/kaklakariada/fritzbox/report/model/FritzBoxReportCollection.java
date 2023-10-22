@@ -22,7 +22,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.reducing;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -31,14 +30,14 @@ import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceEvent;
 
 public class FritzBoxReportCollection implements Serializable {
     private static final long serialVersionUID = 1L;
-    private final Map<LocalDate, FritzBoxReportMail> reports;
+    private final List<FritzBoxReportMail> reports;
 
-    public FritzBoxReportCollection(final Map<LocalDate, FritzBoxReportMail> reports) {
+    public FritzBoxReportCollection(final List<FritzBoxReportMail> reports) {
         this.reports = reports;
     }
 
     public Stream<FritzBoxReportMail> getReports() {
-        return reports.values().stream();
+        return reports.stream();
     }
 
     public int getReportCount() {
@@ -46,7 +45,7 @@ public class FritzBoxReportCollection implements Serializable {
     }
 
     public Stream<AggregatedVolume> getDataVolumeByDay() {
-        return reports.values().stream()
+        return getReports()
                 .map(FritzBoxReportMail::getDataConnections)
                 .map(connections -> connections.get(TimePeriod.YESTERDAY))
                 .filter(Objects::nonNull)
@@ -64,7 +63,7 @@ public class FritzBoxReportCollection implements Serializable {
     }
 
     public Stream<EventLogEntry> getLogEntries() {
-        return this.reports.values().stream()
+        return getReports()
                 .sorted(comparing(FritzBoxReportMail::getDate)) //
                 .flatMap(r -> r.getEventLog().stream()) //
                 .sorted(comparing(EventLogEntry::getTimestamp));
@@ -73,5 +72,11 @@ public class FritzBoxReportCollection implements Serializable {
     public Stream<EventLogEntry> getWifiLogEntries() {
         return this.getLogEntries().filter(e -> e.getEvent().isPresent())
                 .filter(e -> (e.getEvent().get() instanceof WifiDeviceEvent));
+    }
+
+    public String toString() {
+        return "FritzBoxReportCollection [report count=" + reports.size() + ", log entries=" + getLogEntries().count()
+                + ", wifi log entries=" + getWifiLogEntries().count() + ", data volume count="
+                + getDataVolumeByDay().count() + "]";
     }
 }

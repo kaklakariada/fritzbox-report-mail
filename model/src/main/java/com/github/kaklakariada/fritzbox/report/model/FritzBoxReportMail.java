@@ -73,4 +73,11 @@ public class FritzBoxReportMail implements Serializable {
     public List<InternetConnection> getConnections() {
         return connections;
     }
+
+    @Override
+    public String toString() {
+        return "FritzBoxReportMail [reportId=" + reportId + ", date=" + date + ", fritzBoxInfo=" + fritzBoxInfo
+                + ", dataConnections=" + dataConnections.size() + ", eventLog=" + eventLog.size() + ", connections="
+                + connections.size() + ", emailMetadata=" + emailMetadata + "]";
+    }
 }
