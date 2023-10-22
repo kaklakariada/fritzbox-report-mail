@@ -130,6 +130,8 @@ class DataExtractorTest {
         final String htmlContent = readFile(path);
         final Message messageMock = mock(Message.class);
         when(messageMock.getDate()).thenReturn(new Date());
+        when(messageMock.getMessageId()).thenReturn("mock msg id");
+        when(messageMock.getSubject()).thenReturn("mock msg subject");
         return new DataExtractor(new EmailContent(messageMock, List.of(new EmailBody(htmlContent))), REPORT_ID,
                 new LogEntryIdGenerator());
     }
