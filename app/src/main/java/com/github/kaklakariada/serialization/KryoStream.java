@@ -15,22 +15,22 @@ class KryoStream<T> {
     private final Input input;
     private T next;
 
-    private KryoStream(Kryo kryo, Class<T> type, Input input) {
+    private KryoStream(final Kryo kryo, final Class<T> type, final Input input) {
         this.kryo = kryo;
         this.type = type;
         this.input = input;
         this.next = read();
     }
 
-    static <T> KryoStream<T> start(Kryo kryo, Class<T> type, Input input) {
+    static <T> KryoStream<T> start(final Kryo kryo, final Class<T> type, final Input input) {
         return new KryoStream<>(kryo, type, input);
     }
 
-    private boolean hasNext(T o) {
+    private boolean hasNext(final T o) {
         return next != null;
     }
 
-    private T next(T ignore) {
+    private T next(final T ignore) {
         final T o = next;
         next = read();
         return o;
@@ -39,12 +39,12 @@ class KryoStream<T> {
     private T read() {
         try {
             return kryo.readObject(input, type);
-        } catch (final KryoException e) {
-            if (e.getMessage().startsWith("Buffer underflow.")) {
-                LOG.finest(() -> "End of input " + input + " reached: " + e.getMessage());
+        } catch (final KryoException exception) {
+            if (exception.getMessage().startsWith("Buffer underflow.")) {
+                LOG.finest(() -> "End of input reached: " + exception.getMessage());
                 return null;
             }
-            throw new IllegalStateException("Error reading " + type.getName() + " from input " + input, e);
+            throw new IllegalStateException("Error reading " + type.getName() + " from input " + input, exception);
         }
     }
 
