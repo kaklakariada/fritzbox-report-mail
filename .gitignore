@@ -10,4 +10,5 @@ build/
 /.README.md.html
 /data.kryo
 /mails.kryo
-wifi-device-details.csv
+/wifi-device-details.csv
+/fritzbox-details.csv

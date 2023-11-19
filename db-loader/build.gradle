@@ -19,9 +19,9 @@ testing {
                 implementation libs.mockito
             
                 implementation libs.exasolTestcontainers
-                implementation libs.testcontainersJupiter
 
                 runtimeOnly libs.exasolJdbc
+                runtimeOnly libs.slf4jLogger
             }
             targets {
                 all {

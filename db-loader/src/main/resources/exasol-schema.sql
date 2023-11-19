@@ -40,6 +40,27 @@ create table wifi_device_details (
   owner varchar(50) not null,
   CONSTRAINT PRIMARY KEY (device_name, mac_address) ENABLE
 );
+create table FRITZBOX_DETAILS (
+  product_name varchar(25) not null,
+  readable_name varchar(20) not null,
+  CONSTRAINT PRIMARY KEY (product_name) ENABLE
+);
+--
+-- Report mail table with cleaned up firmware version number
+--
+CREATE OR REPLACE VIEW v_report_mail AS (
+    SELECT ID,
+      "DATE",
+      "TIMESTAMP",
+      message_id,
+      subject,
+      r.product_name,
+      d.readable_name,
+      REGEXP_SUBSTR(firmware_version, '^[\d.]+') AS firmware_version,
+      energy_usage_percent
+    FROM report_mail r
+      LEFT OUTER JOIN FRITZBOX_DETAILS d ON r.product_name = d.product_name
+  );
 --
 -- Correlates a "connected" with its matching "disconnected" Wifi event
 -- and returns Wifi connections with begin and end timestamp.
@@ -66,7 +87,8 @@ CREATE OR REPLACE VIEW v_wifi_connection AS (
           PARTITION BY MAC_ADDRESS
           ORDER BY "TIMESTAMP" asc,
             LOG_ENTRY_ID asc
-        ) AS DISCONNECT_CODE
+        ) AS DISCONNECT_CODE,
+        we.log_entry_id
       FROM WIFI_EVENT we
     )
     SELECT i.device_name,
@@ -81,10 +103,14 @@ CREATE OR REPLACE VIEW v_wifi_connection AS (
       ROUND(
         SECONDS_BETWEEN(i.disconnect_timestamp, i.connect_timestamp)
       ) duration_seconds,
-      i.disconnect_code
+      i.disconnect_code,
+      mail.product_name,
+      mail.readable_name as fritzbox_name
     FROM intermediate i
       LEFT OUTER JOIN wifi_device_details d ON i.mac_address = d.mac_address
-      AND i.device_name = d.device_name
+        AND i.device_name = d.device_name
+      LEFT OUTER JOIN LOG_ENTRY le ON i.LOG_ENTRY_ID = le.ID
+      LEFT OUTER JOIN v_report_mail mail ON le.report_id = mail.id
     WHERE i.event_type = 'connected'
       AND i.disconnect_event_type = 'disconnected'
   );
@@ -181,6 +207,25 @@ CREATE OR REPLACE VIEW v_top_unknown_devices AS (
   ORDER BY count(*) DESC
 );
 --
+-- Latest Wifi connections from unknown devices
+--
+CREATE OR REPLACE VIEW v_latest_unknown_devices AS (
+  SELECT
+    DEVICE_NAME,
+    MAC_ADDRESS,
+    WIFI_TYPE,
+    SPEED,
+    CONNECT_TIMESTAMP,
+    DISCONNECT_TIMESTAMP,
+    DURATION_SECONDS,
+    DISCONNECT_CODE,
+    PRODUCT_NAME,
+    FRITZBOX_NAME
+  FROM v_wifi_connection
+  WHERE READABLE_NAME IS NULL
+    ORDER BY CONNECT_TIMESTAMP DESC
+);
+--
 -- Lua scalar scripts
 --
 CREATE OR REPLACE LUA SCALAR SCRIPT LUA_MAX(a NUMBER, b number) RETURNS number AS function run(ctx) return math.max(ctx [1], ctx [2])
@@ -190,7 +235,8 @@ end;
 --
 CREATE OR REPLACE VIEW v_daily_wifi_connection AS (
     SELECT r."DATE",
-      c.readable_name,
+      c.fritzbox_name,
+      c.readable_name AS DEVICE_NAME,
       c.owner,
       c.device_type,
       c.mac_address,
@@ -215,33 +261,24 @@ CREATE OR REPLACE VIEW v_daily_wifi_connection AS (
       c.owner,
       c.device_type,
       c.mac_address,
-      r."DATE"
-  );
---
--- Report mail table with cleaned up firmware version number
---
-CREATE OR REPLACE VIEW v_report_mail AS (
-    SELECT ID,
-      "DATE",
-      "TIMESTAMP",
-      message_id,
-      subject,
-      product_name,
-      REGEXP_SUBSTR(firmware_version, '^[\d.]+') AS firmware_version,
-      energy_usage_percent
-    FROM report_mail
+      r."DATE",
+      c.fritzbox_name
   );
 --
 -- Firmware updates
 --
 CREATE OR REPLACE VIEW v_firmware_updates AS (
     SELECT curr_day."DATE",
+      prev_day.product_name as previous_product_name,
+      curr_day.product_name as new_product_name,
+      prev_day.readable_name,
       prev_day.firmware_version AS previous_version,
       curr_day.firmware_version AS new_version
     FROM v_report_mail curr_day,
       v_report_mail prev_day
     WHERE curr_day."DATE" -1 = prev_day."DATE"
       AND curr_day.firmware_version != prev_day.firmware_version
+      AND curr_day.readable_name = prev_day.readable_name
   );
 --
 -- Energy usage vs. firmware updates
@@ -249,6 +286,7 @@ CREATE OR REPLACE VIEW v_firmware_updates AS (
 CREATE OR REPLACE VIEW v_energy_usage AS(
     SELECT mail."DATE",
       mail.PRODUCT_NAME,
+      mail.READABLE_NAME,
       mail.energy_usage_percent,
       fw.previous_version,
       fw.new_version,

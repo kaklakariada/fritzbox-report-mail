@@ -13,7 +13,7 @@ def includeBuildIfExists(path) {
     }
 }
 
-includeBuildIfExists '../simple-jdbc'
+//includeBuildIfExists '../simple-jdbc'
 
 dependencyResolutionManagement {
     repositories {
@@ -40,11 +40,10 @@ dependencyResolutionManagement {
             library('hamcrest', 'org.hamcrest:hamcrest-all:1.3')
             library('mockito', 'org.mockito:mockito-core:5.7.0')
             library('exasolTestcontainers', 'com.exasol:exasol-testcontainers:6.6.3')
-            library('testcontainersJupiter', 'org.testcontainers:junit-jupiter:1.19.2')
             library('slf4jLogger', 'org.slf4j:slf4j-jdk14:2.0.9')
             
             bundle('testUtils', ['assertj', 'junitPioneer', 'equalsverifier', 'hamcrest', 'mockito'])
-            bundle('testcontainers', ['exasolTestcontainers', 'testcontainersJupiter'])
+            bundle('testcontainers', ['exasolTestcontainers'])
             bundle('mime4j', ['mime4j.core', 'mime4j.dom', 'mime4j.mboxIterator'])
         }
     }
