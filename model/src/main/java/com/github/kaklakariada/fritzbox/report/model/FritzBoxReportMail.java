@@ -19,8 +19,7 @@ package com.github.kaklakariada.fritzbox.report.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 
@@ -34,16 +33,17 @@ public class FritzBoxReportMail implements Serializable {
     private final FritzBoxInfo fritzBoxInfo;
     private final LocalDate date;
 
-    public FritzBoxReportMail(int reportId, LocalDate date, EmailMetadata emailMetadata, FritzBoxInfo fritzBoxInfo,
+    public FritzBoxReportMail(final int reportId, final LocalDate date, final EmailMetadata emailMetadata,
+            final FritzBoxInfo fritzBoxInfo,
             final Map<TimePeriod, DataConnections> dataConnections,
             final List<EventLogEntry> eventLog, final List<InternetConnection> connections) {
-        this.reportId = reportId;
-        this.date = date;
-        this.emailMetadata = emailMetadata;
-        this.fritzBoxInfo = fritzBoxInfo;
-        this.dataConnections = dataConnections;
-        this.eventLog = eventLog;
-        this.connections = connections;
+        this.reportId = Objects.requireNonNull(reportId, "reportId");
+        this.date = Objects.requireNonNull(date, "date");
+        this.emailMetadata = Objects.requireNonNull(emailMetadata, "emailMetadata");
+        this.fritzBoxInfo = Objects.requireNonNull(fritzBoxInfo, "fritzBoxInfo");
+        this.dataConnections = Objects.requireNonNull(dataConnections, "dataConnections");
+        this.eventLog = Objects.requireNonNull(eventLog, "eventLog");
+        this.connections = Objects.requireNonNull(connections, "connections");
     }
 
     public int getReportId() {
@@ -72,5 +72,12 @@ public class FritzBoxReportMail implements Serializable {
 
     public List<InternetConnection> getConnections() {
         return connections;
+    }
+
+    @Override
+    public String toString() {
+        return "FritzBoxReportMail [reportId=" + reportId + ", date=" + date + ", fritzBoxInfo=" + fritzBoxInfo
+                + ", dataConnections=" + dataConnections.size() + ", eventLog=" + eventLog.size() + ", connections="
+                + connections.size() + ", emailMetadata=" + emailMetadata + "]";
     }
 }

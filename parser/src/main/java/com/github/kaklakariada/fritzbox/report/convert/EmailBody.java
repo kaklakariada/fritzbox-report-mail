@@ -19,19 +19,19 @@ package com.github.kaklakariada.fritzbox.report.convert;
 
 import java.io.Serializable;
 
-import com.github.kaklakariada.html.HtmlElement;
-
 import org.jsoup.Jsoup;
+
+import com.github.kaklakariada.html.HtmlElement;
 
 public class EmailBody implements Serializable {
     private static final long serialVersionUID = 1L;
     private final String body;
 
     public enum Type {
-        PNG, CSV, HTML
+        PNG, CSV, TEXT, HTML
     }
 
-    public EmailBody(String body) {
+    public EmailBody(final String body) {
         if (body.length() == 0) {
             throw new IllegalStateException("Empty body");
         }
@@ -45,6 +45,8 @@ public class EmailBody implements Serializable {
             return Type.PNG;
         } else if (getRawContent().startsWith("sep=;")) {
             return Type.CSV;
+        } else if (getRawContent().startsWith("Ihre FRITZ!Box Verbindungsübersicht")) {
+            return Type.TEXT;
         } else {
             throw new IllegalStateException("Found unknown part: " + getRawContent());
         }

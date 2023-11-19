@@ -35,6 +35,14 @@ public class FritzBoxMessageConverter implements Function<EmailContent, FritzBox
 
 	@Override
 	public FritzBoxReportMail apply(final EmailContent mail) {
+		try {
+			return convert(mail);
+		} catch (final RuntimeException e) {
+			throw new IllegalStateException("Failed to parse mail " + mail, e);
+		}
+	}
+
+	private FritzBoxReportMail convert(final EmailContent mail) {
 		final DataExtractor extractor = new DataExtractor(Objects.requireNonNull(mail, "mail"), nextReportId,
 				logEntryIdGenerator);
 		final Map<TimePeriod, DataConnections> dataConnections = extractor.getDataConnections();

@@ -17,8 +17,7 @@
  */
 package com.github.kaklakariada.html;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -124,16 +123,29 @@ public class HtmlElement {
     }
 
     public HtmlElement selectElementWithContent(final String element, final String content) {
+        final Optional<HtmlElement> candidates = selectOptionalElementWithContent(element, content);
+        if (candidates.isEmpty()) {
+            throw new IllegalStateException(
+                    "Expected 1 element '" + element + "' with content '" + content + "' but found none in " + this);
+        }
+        return candidates.get();
+    }
+
+    public Optional<HtmlElement> selectOptionalElementWithContent(final String element, final String content) {
         final String selector = element + ":containsOwn(" + content + ")";
         final List<HtmlElement> candidates = select(selector) //
                 .stream().filter(e -> e.text().equals(content)) //
                 .toList();
-        if (candidates.size() != 1) {
+        if (candidates.isEmpty()) {
+            return Optional.empty();
+        } else if (candidates.size() == 1) {
+            return Optional.of(candidates.get(0));
+        } else {
             throw new IllegalStateException(
-                    "Expected 1 element '" + element + "' with content '" + content + "' but found " + candidates.size()
-                            + " for selector '" + selector + "': " + candidates + " in " + this);
+                    "Expected 0 or 1 element '" + element + "' with content '" + content + "' but found "
+                            + candidates.size()
+                            + ": " + candidates + " in " + this);
         }
-        return candidates.get(0);
     }
 
     public List<HtmlElement> select(final String select) {

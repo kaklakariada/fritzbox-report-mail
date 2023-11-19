@@ -19,8 +19,7 @@ package com.github.kaklakariada.fritzbox.report.convert;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -33,7 +32,6 @@ import com.github.kaklakariada.fritzbox.report.model.eventfactory.EventLogEntryF
 import com.github.kaklakariada.html.HtmlElement;
 
 class DataExtractor {
-    private static final int MINIMUM_DAILY_LOG_ENTRY_COUNT = 5;
     private static final Logger LOG = Logger.getLogger(DataExtractor.class.getName());
     private static final DateTimeFormatter NEW_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private static final DateTimeFormatter OLD_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter
@@ -46,7 +44,7 @@ class DataExtractor {
     private final LogEntryIdGenerator logEntryIdGenerator;
     private LocalDate date;
 
-    DataExtractor(final EmailContent mail, int reportId, LogEntryIdGenerator logEntryIdGenerator) {
+    DataExtractor(final EmailContent mail, final int reportId, final LogEntryIdGenerator logEntryIdGenerator) {
         this(getBody(mail), new EventLogEntryFactory(), reportId, logEntryIdGenerator);
     }
 
@@ -54,8 +52,9 @@ class DataExtractor {
         return mail.getPart(Type.HTML).getElement();
     }
 
-    private DataExtractor(final HtmlElement rootElement, EventLogEntryFactory eventLogEntryFactory, int reportId,
-            LogEntryIdGenerator logEntryIdGenerator) {
+    private DataExtractor(final HtmlElement rootElement, final EventLogEntryFactory eventLogEntryFactory,
+            final int reportId,
+            final LogEntryIdGenerator logEntryIdGenerator) {
         this.rootElement = rootElement;
         this.eventLogEntryFactory = eventLogEntryFactory;
         this.reportId = reportId;
@@ -88,21 +87,25 @@ class DataExtractor {
 
     public Map<TimePeriod, DataConnections> getDataConnections() {
         final LocalDate currentDate = getDate();
-        final HtmlElement section = getSection("Online-Zähler");
-        List<DataConnections> connectionsList = section.map("div.backdialog>div.foredialog>table>tbody>tr",
-                row -> convertDataConnection(currentDate, row));
+        final Optional<HtmlElement> section = getOptionalSection("Online-Zähler");
+        if (section.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<DataConnections> connectionsList = section.get()
+                .map("div.backdialog>div.foredialog>table>tbody>tr",
+                        row -> convertDataConnection(currentDate, row));
         if (connectionsList.isEmpty()) {
-            connectionsList = section.map("table>tbody>tr:nth-child(3)>td>table>tbody>tr>td>table>tbody>tr",
+            connectionsList = section.get().map("table>tbody>tr:nth-child(3)>td>table>tbody>tr>td>table>tbody>tr",
                     row -> convertNewDataConnection(currentDate, row));
         }
 
         if (connectionsList.size() < 4) {
-            throw new AssertionError("Did not find all data connections in " + section + " for report " + date);
+            throw new IllegalStateException("Did not find all data connections in " + section + " for report " + date);
         }
         return connectionsList.stream().collect(Collectors.toMap(DataConnections::getTimePeriod, Function.identity()));
     }
 
-    private DataConnections convertNewDataConnection(LocalDate date, HtmlElement row) {
+    private DataConnections convertNewDataConnection(final LocalDate date, final HtmlElement row) {
         final HtmlElement firstCol = row.selectSingleElement("tr>*:nth-child(1)");
         if (!firstCol.getName().equals("td")) {
             LOG.finest(() -> "Ignore row " + row + " with first col " + firstCol);
@@ -157,21 +160,18 @@ class DataExtractor {
     }
 
     public List<EventLogEntry> getEventLog() {
-        final HtmlElement section = getSection("Ereignisse");
-        final List<EventLogEntry> entries = section.map("div.foredialog > table tr", this::convertEventLog);
+        final Optional<HtmlElement> section = getOptionalSection("Ereignisse");
+        if (section.isEmpty()) {
+            return Collections.emptyList();
+        }
+        final List<EventLogEntry> entries = section.get().map("div.foredialog > table tr", this::convertEventLog);
         if (!entries.isEmpty()) {
             return entries;
         }
-        List<EventLogEntry> logEntries = section.map(
+        final List<EventLogEntry> logEntries = section.get().map(
                 "table>tbody>tr:nth-child(2)>td>table>tbody>tr:nth-child(2)>td>table>tbody>tr",
                 this::convertEventLog);
-        if (logEntries.size() < MINIMUM_DAILY_LOG_ENTRY_COUNT) {
-            throw new IllegalStateException(
-                    "Found only " + logEntries.size() + " log entries for report on " + date + ", expected at least "
-                            + MINIMUM_DAILY_LOG_ENTRY_COUNT);
-        } else {
-            LOG.finest(() -> "Found " + logEntries.size() + " for report " + date);
-        }
+        LOG.finest(() -> "Found " + logEntries.size() + " for report " + date);
         return logEntries;
     }
 
@@ -190,17 +190,18 @@ class DataExtractor {
         return new EventLogEntry(reportId, logEntryIdGenerator.getNextId(), timestamp, message, event);
     }
 
-    private HtmlElement getSection(final String sectionName) {
+    private Optional<HtmlElement> getOptionalSection(final String sectionName) {
         final String selector = "div.content div.foretitel:containsOwn(" + sectionName + ")";
         final HtmlElement sectionTitle = rootElement.selectOptionalSingleElement(selector);
         if (sectionTitle != null) {
             final HtmlElement oldContentDiv = sectionTitle.getNthAncestor(6);
             if (oldContentDiv.getCssClass().equals("content") && oldContentDiv.getName().equals("div")) {
-                return oldContentDiv;
+                return Optional.of(oldContentDiv);
             }
-            throw new AssertionError("Found invalid content div " + oldContentDiv);
+            throw new IllegalStateException("Found invalid content div " + oldContentDiv);
         }
-        return rootElement.selectElementWithContent("td", sectionName).getNthAncestor(7);
+        return rootElement.selectOptionalElementWithContent("td", sectionName)
+                .map(e -> e.getNthAncestor(7));
     }
 
     public FritzBoxInfo getFritzBoxInfo() {
@@ -209,7 +210,7 @@ class DataExtractor {
 
     private int getEnergyUsage() {
         final HtmlElement element = rootElement.selectSingleElement("td:containsOwn(Energieverbrauch) ~ td");
-        int energyUsage = Integer.parseInt(element.getText().replace('%', ' ').trim());
+        final int energyUsage = Integer.parseInt(element.getText().replace('%', ' ').trim());
         if (energyUsage < 0 || energyUsage > 100) {
             throw new IllegalStateException("Invalid energy usage " + energyUsage + " found for report " + date);
         }
@@ -234,7 +235,7 @@ class DataExtractor {
     }
 
     private String getProductInfo() {
-        String productInfo = rootElement.selectSingleElement("td:containsOwn(Produktname) ~ td").getText().trim();
+        final String productInfo = rootElement.selectSingleElement("td:containsOwn(Produktname) ~ td").getText().trim();
         if (productInfo.isEmpty()) {
             throw new IllegalStateException("No product info found for report " + date);
         }

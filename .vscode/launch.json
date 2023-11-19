@@ -3,17 +3,19 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Launch DbImporter",
+            "name": "Parse mails",
             "request": "launch",
-            "mainClass": "DbImporter",
-            "projectName": "app"
+            "mainClass": "com.github.kaklakariada.fritzbox.report.ParseReportMails",
+            "projectName": "app",
+            "cwd": "${workspaceFolder}/app"
         },
         {
             "type": "java",
-            "name": "Launch ReadThunderbirdReportMails",
+            "name": "Import into DB",
             "request": "launch",
-            "mainClass": "ReadThunderbirdReportMails",
-            "projectName": "app"
+            "mainClass": "com.github.kaklakariada.fritzbox.report.DbImporter",
+            "projectName": "app",
+            "cwd": "${workspaceFolder}/app"
         }
     ]
 }

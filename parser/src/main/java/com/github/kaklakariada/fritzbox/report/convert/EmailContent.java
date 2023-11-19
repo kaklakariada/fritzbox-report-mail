@@ -18,37 +18,39 @@
 package com.github.kaklakariada.fritzbox.report.convert;
 
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.List;
 import java.util.Objects;
+
+import org.apache.james.mime4j.dom.Message;
 
 import com.github.kaklakariada.fritzbox.report.convert.EmailBody.Type;
 import com.github.kaklakariada.fritzbox.report.model.EmailMetadata;
 
-import org.apache.james.mime4j.dom.Message;
-
 public class EmailContent implements Serializable {
     private static final long serialVersionUID = 1L;
     private final List<EmailBody> parts;
-    private final Instant instant;
+    private final Instant headerDate;
     private final String subject;
     private final String messageId;
 
-    public EmailContent(Message message, List<EmailBody> parts) {
+    public EmailContent(final Message message, final List<EmailBody> parts) {
         Objects.requireNonNull(message, "message");
-        this.instant = message.getDate().toInstant();
-        this.messageId = message.getMessageId();
-        this.subject = message.getSubject();
-        this.parts = parts;
+        this.headerDate = message.getDate().toInstant();
+        this.messageId = Objects.requireNonNull(message.getMessageId(), "messageId");
+        this.subject = Objects.requireNonNull(message.getSubject(), "subject");
+        this.parts = Objects.requireNonNull(parts, "parts");
     }
 
     public List<EmailBody> getParts() {
         return parts;
     }
 
-    public EmailBody getPart(Type type) {
+    public String getSubject() {
+        return subject;
+    }
+
+    public EmailBody getPart(final Type type) {
         EmailBody found = null;
         for (final EmailBody part : parts) {
             if (part.getType() == type) {
@@ -63,19 +65,20 @@ public class EmailContent implements Serializable {
     }
 
     public LocalDate getDate() {
-        return LocalDate.ofInstant(getInstant(), ZoneId.systemDefault());
+        return LocalDate.ofInstant(getHeaderDate(), ZoneId.systemDefault());
     }
 
-    private Instant getInstant() {
-        return instant;
+    private Instant getHeaderDate() {
+        return headerDate;
     }
 
     public EmailMetadata getMetadata() {
-        return new EmailMetadata(messageId, instant, subject);
+        return new EmailMetadata(messageId, headerDate, subject);
     }
 
     @Override
     public String toString() {
-        return "EmailContent [part count=" + parts.size() + ", parts=" + parts + "]";
+        return "EmailContent [subject=" + subject + ", date=" + headerDate + ", id=" + messageId + ", part count="
+                + parts.size() + "]";
     }
 }

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.time.*;
@@ -85,11 +86,11 @@ class DataExtractorTest {
                 logEntry(4, day.atTime(22, 23, 01), "event5"));
     }
 
-    private EventLogEntry logEntry(int id, LocalDateTime timestamp, String message) {
+    private EventLogEntry logEntry(final int id, final LocalDateTime timestamp, final String message) {
         return new EventLogEntry(REPORT_ID, id, timestamp, message, null);
     }
 
-    private void assertLog(ReportVersion version, EventLogEntry... expectedLogEntries) {
+    private void assertLog(final ReportVersion version, final EventLogEntry... expectedLogEntries) {
         final List<EventLogEntry> actualLogEntries = createExtractor(version, "log.html").getEventLog();
         assertThat(actualLogEntries, hasSize(expectedLogEntries.length));
         assertEquals(asList(expectedLogEntries).toString(), actualLogEntries.toString());
@@ -97,17 +98,18 @@ class DataExtractorTest {
         assertThat(actualLogEntries, contains(expectedLogEntries));
     }
 
-    private DataVolume volumeMb(int volumeMb) {
+    private DataVolume volumeMb(final int volumeMb) {
         return DataVolume.of(volumeMb, Unit.MB);
     }
 
-    private DataConnections connection(TimePeriod timePeriod, LocalDate date, Duration onlineTime,
-            DataVolume totalVolume, DataVolume sentVolume, DataVolume receivedVolume, int numberOfConnections) {
+    private DataConnections connection(final TimePeriod timePeriod, final LocalDate date, final Duration onlineTime,
+            final DataVolume totalVolume, final DataVolume sentVolume, final DataVolume receivedVolume,
+            final int numberOfConnections) {
         return new DataConnections(REPORT_ID, date, timePeriod, onlineTime, totalVolume, sentVolume, receivedVolume,
                 numberOfConnections);
     }
 
-    private void assertConnections(ReportVersion version, DataConnections... expectedConnections) {
+    private void assertConnections(final ReportVersion version, final DataConnections... expectedConnections) {
         final Map<TimePeriod, DataConnections> actualConnections = createExtractor(version, FILE_CONNECTIONS)
                 .getDataConnections();
         assertThat(actualConnections.keySet(), hasSize(expectedConnections.length));
@@ -119,15 +121,17 @@ class DataExtractorTest {
         }
     }
 
-    private void assertDate(LocalDate expectedDate, ReportVersion version) {
+    private void assertDate(final LocalDate expectedDate, final ReportVersion version) {
         assertEquals(expectedDate, createExtractor(version, FILE_DATE).getDate());
     }
 
-    private DataExtractor createExtractor(ReportVersion reportVersion, String fileName) {
+    private DataExtractor createExtractor(final ReportVersion reportVersion, final String fileName) {
         final Path path = TEST_REPORT_PATH.resolve(reportVersion.getName()).resolve(fileName);
         final String htmlContent = readFile(path);
-        Message messageMock = mock(Message.class);
+        final Message messageMock = mock(Message.class);
         when(messageMock.getDate()).thenReturn(new Date());
+        when(messageMock.getMessageId()).thenReturn("mock msg id");
+        when(messageMock.getSubject()).thenReturn("mock msg subject");
         return new DataExtractor(new EmailContent(messageMock, List.of(new EmailBody(htmlContent))), REPORT_ID,
                 new LogEntryIdGenerator());
     }
@@ -136,7 +140,7 @@ class DataExtractorTest {
         try {
             return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
         } catch (final IOException e) {
-            throw new AssertionError("Error reading from file " + path, e);
+            throw new UncheckedIOException("Error reading from file " + path, e);
         }
     }
 }

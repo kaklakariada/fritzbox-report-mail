@@ -8,7 +8,7 @@ public class FritzBoxInfo implements Serializable {
     private final String firmwareVersion;
     private final int energyUsagePercent;
 
-    public FritzBoxInfo(String product, String firmwareVersion, int energyUsagePercent) {
+    public FritzBoxInfo(final String product, final String firmwareVersion, final int energyUsagePercent) {
         this.product = product;
         this.firmwareVersion = firmwareVersion;
         this.energyUsagePercent = energyUsagePercent;
@@ -24,5 +24,11 @@ public class FritzBoxInfo implements Serializable {
 
     public int getEnergyUsagePercent() {
         return energyUsagePercent;
+    }
+
+    @Override
+    public String toString() {
+        return "FritzBoxInfo [product=" + product + ", firmwareVersion=" + firmwareVersion + ", energyUsagePercent="
+                + energyUsagePercent + "]";
     }
 }
