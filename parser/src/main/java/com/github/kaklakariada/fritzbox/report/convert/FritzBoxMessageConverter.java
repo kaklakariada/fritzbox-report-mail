@@ -55,6 +55,9 @@ public class FritzBoxMessageConverter implements Function<EmailContent, FritzBox
 			LOG.finest(() -> extractor.getDate() + ": received " + connectionsYesterday.getReceivedVolume() + ", sent "
 					+ connectionsYesterday.getSentVolume() + ", log entries: " + eventLog.size()
 					+ ", internet connections: " + connections.size());
+		} else {
+			LOG.finest(() -> extractor.getDate() + "log entries: " + eventLog.size()
+					+ ", internet connections: " + connections.size());
 		}
 		return new FritzBoxReportMail(nextReportId++, extractor.getDate(), mail.getMetadata(),
 				extractor.getFritzBoxInfo(), dataConnections, eventLog, connections);

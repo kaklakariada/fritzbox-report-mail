@@ -145,11 +145,9 @@ public class DataExtractor {
         if (!entries.isEmpty()) {
             return entries;
         }
-        final List<EventLogEntry> logEntries = section.get().map(
+        return section.get().map(
                 "table>tbody>tr:nth-child(2)>td>table>tbody>tr:nth-child(2)>td>table>tbody>tr",
                 this::convertEventLog);
-        LOG.finest(() -> date + ": " + logEntries.size() + " log entries");
-        return logEntries;
     }
 
     private EventLogEntry convertEventLog(final HtmlElement element) {
