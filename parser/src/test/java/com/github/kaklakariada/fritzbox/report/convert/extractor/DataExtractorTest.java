@@ -1,4 +1,4 @@
-package com.github.kaklakariada.fritzbox.report.convert;
+package com.github.kaklakariada.fritzbox.report.convert.extractor;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -19,6 +19,7 @@ import org.apache.james.mime4j.dom.Message;
 import org.junit.jupiter.api.Test;
 
 import com.github.kaklakariada.fritzbox.report.LogEntryIdGenerator;
+import com.github.kaklakariada.fritzbox.report.convert.*;
 import com.github.kaklakariada.fritzbox.report.model.*;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume.Unit;
