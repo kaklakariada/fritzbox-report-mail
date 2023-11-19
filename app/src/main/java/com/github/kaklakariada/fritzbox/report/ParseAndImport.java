@@ -14,7 +14,6 @@ public class ParseAndImport {
 
     public static void main(final String[] args) {
         final Config config = Config.readConfig();
-        LOG.fine(() -> "Reading mails from " + config.getMboxPath() + "...");
         final Instant start = Instant.now();
         final Stream<EmailContent> mails = new ReportService().loadRawThunderbirdMails(config.getMboxPath());
         final FritzBoxReportCollection reportCollection = new ReportService().parseMails(mails);

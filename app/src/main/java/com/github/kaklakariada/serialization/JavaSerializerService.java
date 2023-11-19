@@ -17,12 +17,7 @@
  */
 package com.github.kaklakariada.serialization;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -48,18 +43,18 @@ public class JavaSerializerService<T> extends SerializerService<T> {
             return type.cast(objectInputStream.readObject());
         } catch (final IOException e) {
             throw new UncheckedIOException("Error deserializing", e);
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
             throw new IllegalStateException("Error deserializing", e);
         }
     }
 
     @Override
-    protected void serializeStream(OutputStream outputStream, Stream<T> objects) {
+    protected int serializeStream(final OutputStream outputStream, final Stream<T> objects) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected Stream<T> deserializeStream(InputStream inputStream) {
+    protected Stream<T> deserializeStream(final InputStream inputStream) {
         throw new UnsupportedOperationException();
     }
 }

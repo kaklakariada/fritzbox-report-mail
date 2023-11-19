@@ -19,6 +19,8 @@ package com.github.kaklakariada.serialization;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import org.objenesis.strategy.StdInstantiatorStrategy;
@@ -29,6 +31,7 @@ import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy;
 
 public class KryoSerializerService<T> extends SerializerService<T> {
+    private static final Logger LOG = Logger.getLogger(KryoSerializerService.class.getName());
     private final Kryo kryo;
 
     public KryoSerializerService(final Class<T> type) {
@@ -46,10 +49,15 @@ public class KryoSerializerService<T> extends SerializerService<T> {
     }
 
     @Override
-    protected void serializeStream(final OutputStream outputStream, final Stream<T> objects) {
+    protected int serializeStream(final OutputStream outputStream, final Stream<T> objects) {
+        final AtomicInteger count = new AtomicInteger(0);
         try (final Output output = new Output(outputStream)) {
-            objects.forEach(o -> kryo.writeObject(output, o));
+            objects.forEach(o -> {
+                kryo.writeObject(output, o);
+                count.incrementAndGet();
+            });
         }
+        return count.get();
     }
 
     @Override

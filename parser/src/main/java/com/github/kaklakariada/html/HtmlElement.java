@@ -52,7 +52,6 @@ public class HtmlElement {
 
     public <T> List<T> map(final String cssSelector, final Function<HtmlElement, T> mapper) {
         final Elements elements = element.select(cssSelector);
-        LOG.finest(() -> "Found " + elements.size() + " elements matching '" + cssSelector + "' in " + element);
         final List<T> result = new ArrayList<>(elements.size());
         for (final Element row : elements) {
             final T mappedRow;
@@ -62,10 +61,7 @@ public class HtmlElement {
                 throw new IllegalStateException("Error mapping element " + row, e);
             }
             if (mappedRow != null) {
-                LOG.finest(() -> "Got object " + mappedRow + " for row " + row);
                 result.add(mappedRow);
-            } else {
-                LOG.finest(() -> "Got null for row " + row + ": ignore");
             }
         }
         return result;

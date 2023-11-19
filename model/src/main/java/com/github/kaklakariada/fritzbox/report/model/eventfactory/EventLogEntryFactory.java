@@ -51,12 +51,9 @@ public class EventLogEntryFactory {
         final String rawMessage = removeRepeatedSuffix(message);
         for (final AbstractEventLogEntryFactory<?> factory : factories) {
             if (factory.matches(rawMessage)) {
-                LOG.finest(
-                        () -> "Factory " + factory.getClass().getName() + " can handle message '" + rawMessage + "'.");
                 return factory.createEventLogEntryInternal(rawMessage);
             }
         }
-        LOG.finest(() -> "None of the factories can handle message '" + rawMessage + "'.");
         return null;
     }
 

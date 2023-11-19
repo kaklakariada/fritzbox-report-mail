@@ -22,6 +22,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -33,6 +34,7 @@ import org.apache.james.mime4j.mboxiterator.MboxIterator;
 import org.apache.james.mime4j.message.DefaultMessageBuilder;
 
 public class ThunderbirdMboxReader {
+    private static final Logger LOG = Logger.getLogger(ThunderbirdMboxReader.class.getName());
 
     /**
      * Matches other type of From_ line (without @): From MAILER-DAEMON Wed Oct 05
@@ -44,6 +46,7 @@ public class ThunderbirdMboxReader {
     private final MessageBuilder messageBuilder = new DefaultMessageBuilder();
 
     public Stream<Message> readMbox(final Path mboxFile) {
+        LOG.fine(() -> "Reading raw mails from mbox " + mboxFile + "...");
         return readCharBufferStream(mboxFile).map(this::convert);
     }
 
