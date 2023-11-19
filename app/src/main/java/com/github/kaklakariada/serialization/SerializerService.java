@@ -36,8 +36,8 @@ public abstract class SerializerService<T> {
 
     public void serialize(final Path outputFile, final T reports) {
         final Instant start = Instant.now();
-        try {
-            serialize(new BufferedOutputStream(Files.newOutputStream(outputFile)), reports);
+        try (OutputStream stream = new BufferedOutputStream(Files.newOutputStream(outputFile))) {
+            serialize(stream, reports);
         } catch (final IOException e) {
             throw new UncheckedIOException("Error writing file " + outputFile, e);
         }

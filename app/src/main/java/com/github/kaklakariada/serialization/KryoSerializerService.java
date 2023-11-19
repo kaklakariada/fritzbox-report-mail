@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
@@ -61,7 +62,7 @@ public class KryoSerializerService<T> extends SerializerService<T> {
     @Override
     protected Stream<T> deserializeStream(final InputStream inputStream) {
         final Input input = new Input(inputStream);
-        return KryoStream.start(kryo, type, input).createStream();
+        return StreamSupport.stream(KryoIterable.start(kryo, type, input).spliterator(), false);
     }
 
     @Override
