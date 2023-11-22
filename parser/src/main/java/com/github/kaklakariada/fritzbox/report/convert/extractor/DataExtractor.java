@@ -34,19 +34,17 @@ import com.github.kaklakariada.html.HtmlElement;
 
 public class DataExtractor {
     private static final Logger LOG = Logger.getLogger(DataExtractor.class.getName());
-    private static final DateTimeFormatter NEW_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-    private static final DateTimeFormatter OLD_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter
-            .ofPattern("dd.MM.yyyy HH:mm");
     private static final DateTimeFormatter LOG_ENTRY_TIMESTAMP_FORMAT = DateTimeFormatter
             .ofPattern("dd.MM.yy HH:mm:ss");
     private final HtmlElement rootElement;
     private final EventLogEntryFactory eventLogEntryFactory;
     private final int reportId;
     private final LogEntryIdGenerator logEntryIdGenerator;
+    private final EmailContent mail;
     private LocalDate date;
 
     private DataExtractor(final EmailContent mail, final int reportId, final LogEntryIdGenerator logEntryIdGenerator) {
-        this(getBody(mail), new EventLogEntryFactory(), reportId, logEntryIdGenerator);
+        this(mail, getBody(mail), new EventLogEntryFactory(), reportId, logEntryIdGenerator);
     }
 
     public static DataExtractor create(final EmailContent email, final int nextReportId,
@@ -58,9 +56,11 @@ public class DataExtractor {
         return mail.getPart(Type.HTML).getElement();
     }
 
-    private DataExtractor(final HtmlElement rootElement, final EventLogEntryFactory eventLogEntryFactory,
+    private DataExtractor(final EmailContent mail, final HtmlElement rootElement,
+            final EventLogEntryFactory eventLogEntryFactory,
             final int reportId,
             final LogEntryIdGenerator logEntryIdGenerator) {
+        this.mail = mail;
         this.rootElement = rootElement;
         this.eventLogEntryFactory = eventLogEntryFactory;
         this.reportId = reportId;
@@ -69,26 +69,9 @@ public class DataExtractor {
 
     public LocalDate getDate() {
         if (date == null) {
-            this.date = extractDate();
+            this.date = new ReportDateExtractor().extractDate(mail, rootElement);
         }
         return date;
-    }
-
-    private LocalDate extractDate() {
-        final String oldDate = rootElement.getOptionalRegexpResult(
-                "td:containsOwn(Ihre FRITZ!Box Verbindungsübersicht)",
-                "Ihre FRITZ!Box Verbindungsübersicht vom ([\\d\\.: ]+) Uhr");
-        if (oldDate != null) {
-            final LocalDateTime dateTime = LocalDateTime.parse(oldDate, OLD_REPORT_TIMESTAMP_FORMAT);
-            return dateTime.toLocalDate().minusDays(1);
-        }
-        final String newDate = rootElement.getOptionalRegexpResult(
-                "td:containsOwn(Ihre tägliche FRITZ!Box Verbindungsübersicht vom)",
-                "Ihre tägliche FRITZ!Box Verbindungsübersicht vom ([\\d\\.]+)(:? .*)?");
-        if (newDate == null) {
-            throw new IllegalStateException("No date found in " + rootElement);
-        }
-        return LocalDate.parse(newDate, NEW_REPORT_TIMESTAMP_FORMAT);
     }
 
     public Map<TimePeriod, DataConnections> getDataConnections() {

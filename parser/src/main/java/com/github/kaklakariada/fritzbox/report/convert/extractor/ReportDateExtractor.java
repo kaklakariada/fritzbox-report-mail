@@ -36,7 +36,7 @@ class ReportDateExtractor {
                 "Ihre tägliche FRITZ!Box Verbindungsübersicht vom ([\\d\\.]+)(:? .*)?");
         if (newDate == null) {
             throw new IllegalStateException(
-                    "No date found in email " + mail.getSubject() + " with content " + rootElement);
+                    "No date found in email with subject '" + mail.getSubject() + "' and content " + rootElement);
         }
         return parseDate(newDate);
     }
