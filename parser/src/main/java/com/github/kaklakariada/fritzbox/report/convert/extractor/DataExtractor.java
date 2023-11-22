@@ -34,48 +34,75 @@ import com.github.kaklakariada.html.HtmlElement;
 
 public class DataExtractor {
     private static final Logger LOG = Logger.getLogger(DataExtractor.class.getName());
+    private static final DateTimeFormatter NEW_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private static final DateTimeFormatter OLD_REPORT_TIMESTAMP_FORMAT = DateTimeFormatter
+            .ofPattern("dd.MM.yyyy HH:mm");
     private static final DateTimeFormatter LOG_ENTRY_TIMESTAMP_FORMAT = DateTimeFormatter
             .ofPattern("dd.MM.yy HH:mm:ss");
-
     private final HtmlElement rootElement;
     private final EventLogEntryFactory eventLogEntryFactory;
     private final int reportId;
     private final LogEntryIdGenerator logEntryIdGenerator;
-    private final LocalDate date;
+    private LocalDate date;
 
-    public static DataExtractor create(final EmailContent mail, final int reportId,
+    private DataExtractor(final EmailContent mail, final int reportId, final LogEntryIdGenerator logEntryIdGenerator) {
+        this(getBody(mail), new EventLogEntryFactory(), reportId, logEntryIdGenerator);
+    }
+
+    public static DataExtractor create(final EmailContent email, final int nextReportId,
             final LogEntryIdGenerator logEntryIdGenerator) {
-        return new DataExtractor(mail, getBody(mail), new EventLogEntryFactory(), reportId, logEntryIdGenerator);
+        return new DataExtractor(email, nextReportId, logEntryIdGenerator);
     }
 
     private static HtmlElement getBody(final EmailContent mail) {
         return mail.getPart(Type.HTML).getElement();
     }
 
-    private DataExtractor(final EmailContent mail, final HtmlElement rootElement,
-            final EventLogEntryFactory eventLogEntryFactory, final int reportId,
+    private DataExtractor(final HtmlElement rootElement, final EventLogEntryFactory eventLogEntryFactory,
+            final int reportId,
             final LogEntryIdGenerator logEntryIdGenerator) {
         this.rootElement = rootElement;
         this.eventLogEntryFactory = eventLogEntryFactory;
         this.reportId = reportId;
         this.logEntryIdGenerator = logEntryIdGenerator;
-        this.date = new ReportDateExtractor().extractDate(mail, rootElement);
     }
 
     public LocalDate getDate() {
+        if (date == null) {
+            this.date = extractDate();
+        }
         return date;
     }
 
+    private LocalDate extractDate() {
+        final String oldDate = rootElement.getOptionalRegexpResult(
+                "td:containsOwn(Ihre FRITZ!Box Verbindungsübersicht)",
+                "Ihre FRITZ!Box Verbindungsübersicht vom ([\\d\\.: ]+) Uhr");
+        if (oldDate != null) {
+            final LocalDateTime dateTime = LocalDateTime.parse(oldDate, OLD_REPORT_TIMESTAMP_FORMAT);
+            return dateTime.toLocalDate().minusDays(1);
+        }
+        final String newDate = rootElement.getOptionalRegexpResult(
+                "td:containsOwn(Ihre tägliche FRITZ!Box Verbindungsübersicht vom)",
+                "Ihre tägliche FRITZ!Box Verbindungsübersicht vom ([\\d\\.]+)(:? .*)?");
+        if (newDate == null) {
+            throw new IllegalStateException("No date found in " + rootElement);
+        }
+        return LocalDate.parse(newDate, NEW_REPORT_TIMESTAMP_FORMAT);
+    }
+
     public Map<TimePeriod, DataConnections> getDataConnections() {
+        final LocalDate currentDate = getDate();
         final Optional<HtmlElement> section = getOptionalSection("Online-Zähler");
         if (section.isEmpty()) {
             return Collections.emptyMap();
         }
         List<DataConnections> connectionsList = section.get()
-                .map("div.backdialog>div.foredialog>table>tbody>tr", this::convertDataConnection);
+                .map("div.backdialog>div.foredialog>table>tbody>tr",
+                        row -> convertDataConnection(currentDate, row));
         if (connectionsList.isEmpty()) {
             connectionsList = section.get().map("table>tbody>tr:nth-child(3)>td>table>tbody>tr>td>table>tbody>tr",
-                    this::convertNewDataConnection);
+                    row -> convertNewDataConnection(currentDate, row));
         }
 
         if (connectionsList.size() < 4) {
@@ -84,12 +111,14 @@ public class DataExtractor {
         return connectionsList.stream().collect(Collectors.toMap(DataConnections::getTimePeriod, Function.identity()));
     }
 
-    private DataConnections convertNewDataConnection(final HtmlElement row) {
+    private DataConnections convertNewDataConnection(final LocalDate date, final HtmlElement row) {
         final HtmlElement firstCol = row.selectSingleElement("tr>*:nth-child(1)");
         if (!firstCol.getName().equals("td")) {
+            LOG.finest(() -> "Ignore row " + row + " with first col " + firstCol);
             return null;
         }
         final List<HtmlElement> cells = row.select("td");
+        LOG.finest(() -> "Parse " + cells.size() + " cells: " + row);
         if (cells.size() != 7) {
             throw new IllegalStateException("Expected 7 cells but got " + cells.size() + ": " + row);
         }
@@ -103,7 +132,7 @@ public class DataExtractor {
                 numberOfConnections);
     }
 
-    private DataConnections convertDataConnection(final HtmlElement row) {
+    private DataConnections convertDataConnection(final LocalDate date, final HtmlElement row) {
         final String firstCol = row.select("th").get(0).text().trim();
         if (firstCol.length() <= 1 || firstCol.equals("Zeitraum")) {
             return null;
@@ -145,9 +174,11 @@ public class DataExtractor {
         if (!entries.isEmpty()) {
             return entries;
         }
-        return section.get().map(
+        final List<EventLogEntry> logEntries = section.get().map(
                 "table>tbody>tr:nth-child(2)>td>table>tbody>tr:nth-child(2)>td>table>tbody>tr",
                 this::convertEventLog);
+        LOG.finest(() -> "Found " + logEntries.size() + " for report " + date);
+        return logEntries;
     }
 
     private EventLogEntry convertEventLog(final HtmlElement element) {
