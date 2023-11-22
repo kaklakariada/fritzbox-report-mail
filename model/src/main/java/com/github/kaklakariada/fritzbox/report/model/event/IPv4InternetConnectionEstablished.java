@@ -29,8 +29,9 @@ public class IPv4InternetConnectionEstablished extends Event {
     private final String gateway;
     private final String broadbandPop;
 
-    public IPv4InternetConnectionEstablished(String ipAddress, String dns1, String dns2, String gateway,
-            String broadbandPop) {
+    public IPv4InternetConnectionEstablished(final String ipAddress, final String dns1, final String dns2,
+            final String gateway,
+            final String broadbandPop) {
         this.ipAddress = ipAddress;
         this.dns1 = dns1;
         this.dns2 = dns2;
@@ -40,8 +41,9 @@ public class IPv4InternetConnectionEstablished extends Event {
 
     @Override
     public String getDescription() {
-        return "IPv4 connection established, ip=" + ipAddress + ", dns1=" + dns1 + ", dns2=" + dns2 + ", gateway="
-                + gateway + ", pop=" + broadbandPop;
+        return "IPv4 connection established, ipAddress=" + ipAddress + ", dns1=" + dns1 + ", dns2=" + dns2
+                + ", gateway="
+                + gateway + ", broadbandPop=" + broadbandPop;
     }
 
     @Override
@@ -57,7 +59,7 @@ public class IPv4InternetConnectionEstablished extends Event {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

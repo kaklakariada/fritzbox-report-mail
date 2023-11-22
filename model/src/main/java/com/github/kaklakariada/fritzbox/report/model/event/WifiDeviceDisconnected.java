@@ -21,14 +21,15 @@ public class WifiDeviceDisconnected extends WifiDeviceEvent {
 
     private static final long serialVersionUID = 1L;
 
-    public WifiDeviceDisconnected(WifiType wifiType, String ipAddress, final String macAddress,
+    public WifiDeviceDisconnected(final WifiType wifiType, final String ipAddress, final String macAddress,
             final String deviceName) {
         super(wifiType, ipAddress, macAddress, deviceName);
     }
 
     @Override
     public String getDescription() {
-        return "wifi disconnected: name=" + name + ", type=" + wifiType + ", mac=" + macAddress + ", ip=" + ipAddress;
+        return "wifi disconnected: name=" + name + ", wifiType=" + wifiType + ", macAddress=" + macAddress
+                + ", ipAddress=" + ipAddress;
     }
 
     @Override

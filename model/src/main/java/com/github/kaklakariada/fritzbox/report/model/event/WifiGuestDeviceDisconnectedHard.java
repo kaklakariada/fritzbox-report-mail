@@ -32,7 +32,7 @@ public class WifiGuestDeviceDisconnectedHard extends WifiGuestDeviceDisconnected
 
     @Override
     public String getDescription() {
-        return "wifi guest disconnected: mac=" + getMacAddress() + ", code=" + code;
+        return "wifi guest disconnected: macAddress=" + getMacAddress() + ", code=" + code;
     }
 
     public String getCode() {
@@ -48,7 +48,7 @@ public class WifiGuestDeviceDisconnectedHard extends WifiGuestDeviceDisconnected
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

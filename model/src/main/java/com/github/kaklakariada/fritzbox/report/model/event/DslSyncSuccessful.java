@@ -23,7 +23,7 @@ public class DslSyncSuccessful extends Event {
 
     private static final long serialVersionUID = 1L;
 
-    public DslSyncSuccessful(int downloadKbitPs, int uploadKbitPs) {
+    public DslSyncSuccessful(final int downloadKbitPs, final int uploadKbitPs) {
         this.downloadKbitPs = downloadKbitPs;
         this.uploadKbitPs = uploadKbitPs;
     }
@@ -33,7 +33,8 @@ public class DslSyncSuccessful extends Event {
 
     @Override
     public String getDescription() {
-        return "DSL sync successful, down: " + downloadKbitPs + "kbit/s, up: " + uploadKbitPs + "kbit/s";
+        return "DSL sync successful, downloadKbitPs: " + downloadKbitPs + "kbit/s, uploadKbitPs: " + uploadKbitPs
+                + "kbit/s";
     }
 
     @Override
@@ -46,7 +47,7 @@ public class DslSyncSuccessful extends Event {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

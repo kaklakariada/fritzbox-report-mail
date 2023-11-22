@@ -33,7 +33,7 @@ public class WifiGuestDeviceConnected extends Event {
 
     @Override
     public String getDescription() {
-        return "wifi guest connected: speed=" + speed + ", mac=" + macAddress;
+        return "wifi guest connected: speed=" + speed + ", macAddress=" + macAddress;
     }
 
     public String getSpeed() {
@@ -54,7 +54,7 @@ public class WifiGuestDeviceConnected extends Event {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

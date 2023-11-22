@@ -23,7 +23,8 @@ public class WifiDeviceDisconnectedHard extends WifiDeviceDisconnected {
 
     private final String code;
 
-    public WifiDeviceDisconnectedHard(WifiType type, String ipAddress, final String macAddress, final String name,
+    public WifiDeviceDisconnectedHard(final WifiType type, final String ipAddress, final String macAddress,
+            final String name,
             final String code) {
         super(type, ipAddress, macAddress, name);
         this.code = code;
@@ -31,8 +32,9 @@ public class WifiDeviceDisconnectedHard extends WifiDeviceDisconnected {
 
     @Override
     public String getDescription() {
-        return "wifi disconnected: name=" + getName() + ", type=" + getWifiType() + ", mac=" + getMacAddress()
-                + ", code=" + code;
+        return "wifi disconnected: name=" + getName() + ", wifiType=" + getWifiType() + ", macAddress="
+                + getMacAddress()
+                + ", code=" + code + ", ipAddress=" + getIpAddress();
     }
 
     public String getCode() {
@@ -48,7 +50,7 @@ public class WifiDeviceDisconnectedHard extends WifiDeviceDisconnected {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }
