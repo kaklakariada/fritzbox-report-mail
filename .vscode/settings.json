@@ -10,6 +10,11 @@
     "java.saveActions.organizeImports": true,
     "java.sources.organizeImports.starThreshold": 3,
     "java.sources.organizeImports.staticStarThreshold": 3,
+    "java.test.config": {
+        "vmArgs": [
+            "-Djava.util.logging.config.file=src/main/resources/logging.properties"
+        ]
+    },
     "sonarlint.connectedMode.project": {
         "connectionId": "kaklakariada-github",
         "projectKey": "com.github.kaklakariada:fritzbox-report-mail"

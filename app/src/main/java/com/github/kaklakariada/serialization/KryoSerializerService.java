@@ -19,7 +19,9 @@ package com.github.kaklakariada.serialization;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
@@ -46,16 +48,21 @@ public class KryoSerializerService<T> extends SerializerService<T> {
     }
 
     @Override
-    protected void serializeStream(final OutputStream outputStream, final Stream<T> objects) {
+    protected int serializeStream(final OutputStream outputStream, final Stream<T> objects) {
+        final AtomicInteger count = new AtomicInteger(0);
         try (final Output output = new Output(outputStream)) {
-            objects.forEach(o -> kryo.writeObject(output, o));
+            objects.forEach(o -> {
+                kryo.writeObject(output, o);
+                count.incrementAndGet();
+            });
         }
+        return count.get();
     }
 
     @Override
     protected Stream<T> deserializeStream(final InputStream inputStream) {
         final Input input = new Input(inputStream);
-        return KryoStream.start(kryo, type, input).createStream();
+        return StreamSupport.stream(KryoIterable.start(kryo, type, input).spliterator(), false);
     }
 
     @Override

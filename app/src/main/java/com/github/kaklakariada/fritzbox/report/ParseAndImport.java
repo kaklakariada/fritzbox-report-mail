@@ -1,7 +1,5 @@
 package com.github.kaklakariada.fritzbox.report;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.logging.Logger;
@@ -16,7 +14,6 @@ public class ParseAndImport {
 
     public static void main(final String[] args) {
         final Config config = Config.readConfig();
-        LOG.fine(() -> "Reading mails from " + config.getMboxPath() + "...");
         final Instant start = Instant.now();
         final Stream<EmailContent> mails = new ReportService().loadRawThunderbirdMails(config.getMboxPath());
         final FritzBoxReportCollection reportCollection = new ReportService().parseMails(mails);
@@ -26,12 +23,7 @@ public class ParseAndImport {
                 config.getJdbcPassword(), config.getJdbcSchema());
         dbService.createSchema();
 
-        final Path wifiDeviceDetailsCsv = config.getWifiDeviceDetailsCsv();
-        if (Files.exists(wifiDeviceDetailsCsv)) {
-            dbService.loadWifiDeviceDetailsCsv(wifiDeviceDetailsCsv);
-        } else {
-            LOG.warning(() -> "Wifi device details CSV not found at " + wifiDeviceDetailsCsv);
-        }
+        new DetailDataService(config, dbService).loadDetails();
 
         LOG.fine("Importing into new schema...");
         final Instant dbImportStart = Instant.now();

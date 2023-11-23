@@ -1,4 +1,4 @@
-package com.github.kaklakariada.fritzbox.report.convert;
+package com.github.kaklakariada.fritzbox.report.convert.extractor;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -19,6 +19,7 @@ import org.apache.james.mime4j.dom.Message;
 import org.junit.jupiter.api.Test;
 
 import com.github.kaklakariada.fritzbox.report.LogEntryIdGenerator;
+import com.github.kaklakariada.fritzbox.report.convert.*;
 import com.github.kaklakariada.fritzbox.report.model.*;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 import com.github.kaklakariada.fritzbox.report.model.DataVolume.Unit;
@@ -132,7 +133,7 @@ class DataExtractorTest {
         when(messageMock.getDate()).thenReturn(new Date());
         when(messageMock.getMessageId()).thenReturn("mock msg id");
         when(messageMock.getSubject()).thenReturn("mock msg subject");
-        return new DataExtractor(new EmailContent(messageMock, List.of(new EmailBody(htmlContent))), REPORT_ID,
+        return DataExtractor.create(new EmailContent(messageMock, List.of(new EmailBody(htmlContent))), REPORT_ID,
                 new LogEntryIdGenerator());
     }
 

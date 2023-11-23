@@ -30,13 +30,13 @@ public class AggregatedVolume {
     private final Duration onlineTime;
     private final int reportId;
 
-    public AggregatedVolume(int reportId, final LocalDate day, final DataConnections conn) {
+    public AggregatedVolume(final int reportId, final LocalDate day, final DataConnections conn) {
         this(reportId, day, conn.getTotalVolume(), conn.getSentVolume(), conn.getReceivedVolume(),
                 conn.getNumberOfConnections(),
                 conn.getOnlineTime());
     }
 
-    private AggregatedVolume(int reportId, final LocalDate day, final DataVolume totalVolume,
+    private AggregatedVolume(final int reportId, final LocalDate day, final DataVolume totalVolume,
             final DataVolume sentVolume,
             final DataVolume receivedVolume, final int numberOfConnections, final Duration onlineTime) {
         this.reportId = reportId;
@@ -97,7 +97,7 @@ public class AggregatedVolume {
     public String toString() {
         return "AggregatedVolume [day=" + day + ", totalVolume=" + totalVolume + ", sentVolume=" + sentVolume
                 + ", receivedVolume=" + receivedVolume + ", numberOfConnections=" + numberOfConnections
-                + ", onlineTime=" + onlineTime + "]";
+                + ", onlineTime=" + onlineTime + ", reportId=" + reportId + "]";
     }
 
     @Override
@@ -106,7 +106,7 @@ public class AggregatedVolume {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

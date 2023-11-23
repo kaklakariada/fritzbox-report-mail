@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.github.kaklakariada.fritzbox.report.LogEntryIdGenerator;
+import com.github.kaklakariada.fritzbox.report.convert.extractor.DataExtractor;
 import com.github.kaklakariada.fritzbox.report.model.*;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 
@@ -43,16 +44,21 @@ public class FritzBoxMessageConverter implements Function<EmailContent, FritzBox
 	}
 
 	private FritzBoxReportMail convert(final EmailContent mail) {
-		final DataExtractor extractor = new DataExtractor(Objects.requireNonNull(mail, "mail"), nextReportId,
+		final DataExtractor extractor = DataExtractor.create(Objects.requireNonNull(mail, "mail"), nextReportId,
 				logEntryIdGenerator);
 		final Map<TimePeriod, DataConnections> dataConnections = extractor.getDataConnections();
 		final DataConnections connectionsYesterday = dataConnections.get(TimePeriod.YESTERDAY);
 		final List<EventLogEntry> eventLog = extractor.getEventLog();
 		final List<InternetConnection> connections = eventLog.stream().flatMap(this::convertInternetConnection)
 				.toList();
-		LOG.finest(() -> extractor.getDate() + ": received " + connectionsYesterday.getReceivedVolume() + ", sent "
-				+ connectionsYesterday.getSentVolume() + ", log entries: " + eventLog.size()
-				+ ", internet connections: " + connections.size());
+		if (connectionsYesterday != null) {
+			LOG.finest(() -> extractor.getDate() + ": received " + connectionsYesterday.getReceivedVolume() + ", sent "
+					+ connectionsYesterday.getSentVolume() + ", log entries: " + eventLog.size()
+					+ ", internet connections: " + connections.size());
+		} else {
+			LOG.finest(() -> extractor.getDate() + "log entries: " + eventLog.size()
+					+ ", internet connections: " + connections.size());
+		}
 		return new FritzBoxReportMail(nextReportId++, extractor.getDate(), mail.getMetadata(),
 				extractor.getFritzBoxInfo(), dataConnections, eventLog, connections);
 	}

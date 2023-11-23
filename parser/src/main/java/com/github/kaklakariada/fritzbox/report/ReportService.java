@@ -19,6 +19,7 @@ package com.github.kaklakariada.fritzbox.report;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 import java.nio.file.Path;
 import java.time.*;
@@ -42,8 +43,7 @@ public class ReportService {
 
     public FritzBoxReportCollection parseMails(final Stream<EmailContent> mails) {
         final Instant start = Instant.now();
-        final List<FritzBoxReportMail> reports = mails.map(new FritzBoxMessageConverter())
-                .collect(groupingBy(FritzBoxReportMail::getDate))
+        final List<FritzBoxReportMail> reports = getMailsPerDate(mails)
                 .entrySet().stream()
                 .flatMap(this::removeDuplicates).toList();
         final FritzBoxReportCollection reportCollection = new FritzBoxReportCollection(reports);
@@ -56,9 +56,30 @@ public class ReportService {
         return reportCollection;
     }
 
-    private Stream<FritzBoxReportMail> removeDuplicates(final Entry<LocalDate, List<FritzBoxReportMail>> mails) {
-        final Map<Object, List<FritzBoxReportMail>> mailsByProductName = mails.getValue().stream()
+    private Map<LocalDate, List<FritzBoxReportMail>> getMailsPerDate(final Stream<EmailContent> mails) {
+        final Map<LocalDate, List<FritzBoxReportMail>> mailsPerDate = mails.map(new FritzBoxMessageConverter())
+                .collect(groupingBy(FritzBoxReportMail::getDate));
+        final int totalCount = mailsPerDate.values().stream().mapToInt(List::size).sum();
+        LOG.fine(() -> "Found " + totalCount + " report mails for " + mailsPerDate.size() + " dates");
+        return mailsPerDate;
+    }
+
+    private Stream<FritzBoxReportMail> removeDuplicates(final Entry<LocalDate, List<FritzBoxReportMail>> entry) {
+        final List<FritzBoxReportMail> mails = entry.getValue();
+        final List<String> allProducts = mails.stream().map(m -> m.getFritzBoxInfo().getProduct()).collect(toList());
+        if (entry.getValue().size() > 1) {
+            LOG.finest(() -> "Date " + entry.getKey() + ": " + mails.size() + " mails from products: "
+                    + allProducts);
+
+        }
+        final Map<String, List<FritzBoxReportMail>> mailsByProductName = mails.stream()
                 .collect(groupingBy(m -> m.getFritzBoxInfo().getProduct()));
+        final int duplicateCount = mailsByProductName.values().stream().mapToInt(List::size).sum()
+                - mailsByProductName.size();
+        if (duplicateCount > 0) {
+            LOG.fine(
+                    () -> "Date " + entry.getKey() + ": removed " + duplicateCount + " duplicates from " + allProducts);
+        }
         return mailsByProductName.values().stream().map(this::findLatest);
     }
 

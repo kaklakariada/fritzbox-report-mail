@@ -9,22 +9,26 @@ public class Regex {
     private final int expectedGroupCount;
     private final RegexMapper mapper;
 
-    public static Regex create(String regexp, int expectedGroupCount, RegexGroupMapper mapper) {
-        return createWithMapper(regexp, expectedGroupCount,
-                mapper == null ? null : (MatchedRegex regex) -> mapper.map(regex.getGroups()));
+    public static Regex create(final String regexp, final int expectedGroupCount) {
+        return create(regexp, expectedGroupCount, null);
     }
 
-    private static Regex createWithMapper(String regexp, int expectedGroupCount, RegexMapper mapper) {
+    public static Regex create(final String regexp, final int expectedGroupCount, final RegexGroupMapper mapper) {
+        return createWithMapper(regexp, expectedGroupCount,
+                mapper == null ? null : (final MatchedRegex regex) -> mapper.map(regex.getGroups()));
+    }
+
+    private static Regex createWithMapper(final String regexp, final int expectedGroupCount, final RegexMapper mapper) {
         return new Regex(Pattern.compile(regexp), expectedGroupCount, mapper);
     }
 
-    public Regex(Pattern pattern, int expectedGroupCount, RegexMapper mapper) {
+    public Regex(final Pattern pattern, final int expectedGroupCount, final RegexMapper mapper) {
         this.expectedGroupCount = expectedGroupCount;
         this.pattern = pattern;
         this.mapper = mapper;
     }
 
-    public Optional<MatchedRegex> matches(String input) {
+    public Optional<MatchedRegex> matches(final String input) {
         final Matcher matcher = createMatcher(input);
         if (!matcher.matches()) {
             return Optional.empty();
@@ -36,7 +40,7 @@ public class Regex {
         return Optional.of(new MatchedRegex(this, input, matcher));
     }
 
-    private Matcher createMatcher(String input) {
+    private Matcher createMatcher(final String input) {
         return pattern.matcher(input);
     }
 

@@ -12,7 +12,7 @@ public class Config {
     private final Properties properties;
     private final Path path;
 
-    private Config(Path path, Properties properties) {
+    private Config(final Path path, final Properties properties) {
         this.path = path;
         this.properties = properties;
     }
@@ -37,8 +37,8 @@ public class Config {
         return getRequiredProperty("jdbc.schema");
     }
 
-    private String getRequiredProperty(String key) {
-        String value = properties.getProperty(key);
+    private String getRequiredProperty(final String key) {
+        final String value = properties.getProperty(key);
         if (value == null) {
             throw new IllegalArgumentException("Property '" + key + "' not defined in " + path);
         }
@@ -57,11 +57,15 @@ public class Config {
         return Paths.get("../wifi-device-details.csv").toAbsolutePath();
     }
 
+    public Path getFritzBoxDetailsCsv() {
+        return Paths.get("../fritzbox-details.csv").toAbsolutePath();
+    }
+
     public static Config readConfig() {
         return readConfig(DEFAULT_CONFIG_FILE);
     }
 
-    public static Config readConfig(Path path) {
+    public static Config readConfig(final Path path) {
         final Properties properties = new Properties();
         final Path absolutePath = path.toAbsolutePath();
         LOG.fine(() -> "Reading config from file " + absolutePath);

@@ -40,14 +40,58 @@ create table wifi_device_details (
   owner varchar(50) not null,
   CONSTRAINT PRIMARY KEY (device_name, mac_address) ENABLE
 );
+create table FRITZBOX_DETAILS (
+  product_name varchar(25) not null,
+  readable_name varchar(20) not null,
+  CONSTRAINT PRIMARY KEY (product_name) ENABLE
+);
+--
+-- Report mail table with cleaned up firmware version number
+--
+CREATE OR REPLACE VIEW v_report_mail AS (
+    SELECT ID,
+      "DATE",
+      "TIMESTAMP",
+      message_id,
+      subject,
+      r.product_name,
+      d.readable_name,
+      REGEXP_SUBSTR(firmware_version, '^[\d.]+') AS firmware_version,
+      energy_usage_percent
+    FROM report_mail r
+      LEFT OUTER JOIN FRITZBOX_DETAILS d ON r.product_name = d.product_name
+  );
+--
+CREATE OR REPLACE VIEW v_wifi_event AS (
+  SELECT w."TIMESTAMP",
+    w.log_entry_id,
+    m.READABLE_NAME AS fritzbox_name,
+    w.EVENT_TYPE,
+    w.WIFI_TYPE,
+    w.DEVICE_NAME,
+    d.READABLE_NAME,
+    d."TYPE" as device_type,
+    d.owner as device_owner,
+    w.MAC_ADDRESS,
+    w.SPEED,
+    w.DISCONNECT_CODE
+  FROM wifi_event w
+  LEFT OUTER JOIN log_entry l ON w.LOG_ENTRY_ID = l.ID
+  LEFT OUTER JOIN v_report_mail m ON m.ID = l.report_id
+  LEFT OUTER JOIN wifi_device_details d ON d.DEVICE_NAME = w.DEVICE_NAME AND d.MAC_ADDRESS = w.MAC_ADDRESS
+);
 --
 -- Correlates a "connected" with its matching "disconnected" Wifi event
 -- and returns Wifi connections with begin and end timestamp.
 ---
 CREATE OR REPLACE VIEW v_wifi_connection AS (
     WITH INTERMEDIATE AS (
-      SELECT we.mac_address,
+      SELECT we.fritzbox_name,
+        we.mac_address,
         we.device_name,
+        we.readable_name,
+        we.device_type,
+        we.device_owner,
         we.event_type,
         we.wifi_type,
         we.speed,
@@ -66,48 +110,25 @@ CREATE OR REPLACE VIEW v_wifi_connection AS (
           PARTITION BY MAC_ADDRESS
           ORDER BY "TIMESTAMP" asc,
             LOG_ENTRY_ID asc
-        ) AS DISCONNECT_CODE
-      FROM WIFI_EVENT we
+        ) AS DISCONNECT_CODE,
+        we.log_entry_id
+      FROM V_WIFI_EVENT we
     )
-    SELECT i.device_name,
+    SELECT i.fritzbox_name,
+      i.device_name,
       i.mac_address,
-      d.readable_name,
-      d."TYPE" AS device_type,
-      d.OWNER,
+      i.readable_name,
+      i.device_type,
+      i.device_owner,
       i.wifi_type,
       i.speed,
       i.connect_timestamp,
       i.disconnect_timestamp,
-      ROUND(
-        SECONDS_BETWEEN(i.disconnect_timestamp, i.connect_timestamp)
-      ) duration_seconds,
+      ROUND(SECONDS_BETWEEN(i.disconnect_timestamp, i.connect_timestamp)) duration_seconds,
       i.disconnect_code
     FROM intermediate i
-      LEFT OUTER JOIN wifi_device_details d ON i.mac_address = d.mac_address
-      AND i.device_name = d.device_name
     WHERE i.event_type = 'connected'
       AND i.disconnect_event_type = 'disconnected'
-  );
---
--- Accumulated Wifi connection duration in hours per device
---
-CREATE OR REPLACE VIEW v_daily_wifi_connection AS (
-    SELECT device_name,
-      mac_address,
-      readable_name,
-      device_type,
-      owner,
-      TO_DATE(connect_timestamp) AS "DATE",
-      TO_DATE(MAX(disconnect_timestamp)) AS disconnect_date,
-      COUNT(1) AS "COUNT",
-      ROUND(SUM(duration_seconds) / (60 * 60), 2) AS duration_hours
-    FROM v_wifi_connection
-    GROUP BY device_name,
-      mac_address,
-      readable_name,
-      device_type,
-      owner,
-      TO_DATE(connect_timestamp)
   );
 --
 -- List count of all log entries and all log entries with parsed event
@@ -181,6 +202,24 @@ CREATE OR REPLACE VIEW v_top_unknown_devices AS (
   ORDER BY count(*) DESC
 );
 --
+-- Latest Wifi connections from unknown devices
+--
+CREATE OR REPLACE VIEW v_latest_unknown_devices AS (
+  SELECT
+    DEVICE_NAME,
+    MAC_ADDRESS,
+    WIFI_TYPE,
+    SPEED,
+    CONNECT_TIMESTAMP,
+    DISCONNECT_TIMESTAMP,
+    DURATION_SECONDS,
+    DISCONNECT_CODE,
+    FRITZBOX_NAME
+  FROM v_wifi_connection
+  WHERE READABLE_NAME IS NULL
+    ORDER BY CONNECT_TIMESTAMP DESC
+);
+--
 -- Lua scalar scripts
 --
 CREATE OR REPLACE LUA SCALAR SCRIPT LUA_MAX(a NUMBER, b number) RETURNS number AS function run(ctx) return math.max(ctx [1], ctx [2])
@@ -188,10 +227,33 @@ end;
 CREATE OR REPLACE LUA SCALAR SCRIPT LUA_MIN(a NUMBER, b number) RETURNS number AS function run(ctx) return math.min(ctx [1], ctx [2])
 end;
 --
+--
+-- Accumulated Wifi connection duration in hours per device
+--
+CREATE OR REPLACE VIEW v_daily_wifi_connection1 AS (
+    SELECT device_name,
+      mac_address,
+      readable_name,
+      device_type,
+      device_owner,
+      TO_DATE(connect_timestamp) AS "DATE",
+      TO_DATE(MAX(disconnect_timestamp)) AS disconnect_date,
+      COUNT(1) AS "COUNT",
+      ROUND(SUM(duration_seconds) / (60 * 60), 2) AS duration_hours
+    FROM v_wifi_connection
+    GROUP BY device_name,
+      mac_address,
+      readable_name,
+      device_type,
+      device_owner,
+      TO_DATE(connect_timestamp)
+  );
+--
 CREATE OR REPLACE VIEW v_daily_wifi_connection AS (
     SELECT r."DATE",
-      c.readable_name,
-      c.owner,
+      c.device_name,
+      c.readable_name AS READABLE_DEVICE_NAME,
+      c.device_owner,
       c.device_type,
       c.mac_address,
       SUM(
@@ -210,38 +272,63 @@ CREATE OR REPLACE VIEW v_daily_wifi_connection AS (
       v_wifi_connection c
     WHERE c.connect_timestamp <= TO_TIMESTAMP(r."DATE") + 1
       AND c.disconnect_timestamp >= TO_TIMESTAMP(r."DATE")
-    GROUP BY c.readable_name,
+    GROUP BY c.device_name,
+      c.readable_name,
       c.device_type,
-      c.owner,
+      c.device_owner,
       c.device_type,
       c.mac_address,
       r."DATE"
   );
 --
--- Report mail table with cleaned up firmware version number
---
-CREATE OR REPLACE VIEW v_report_mail AS (
-    SELECT ID,
-      "DATE",
-      "TIMESTAMP",
-      message_id,
-      subject,
-      product_name,
-      REGEXP_SUBSTR(firmware_version, '^[\d.]+') AS firmware_version,
-      energy_usage_percent
-    FROM report_mail
+CREATE OR REPLACE VIEW v_daily_wifi_connection_by_router AS (
+    SELECT r."DATE",
+      c.fritzbox_name,
+      c.device_name,
+      c.readable_name AS READABLE_DEVICE_NAME,
+      c.device_owner,
+      c.device_type,
+      c.mac_address,
+      SUM(
+        (
+          lua_min(
+            POSIX_TIME(c.disconnect_timestamp),
+            POSIX_TIME(TO_TIMESTAMP(r."DATE") + 1)
+          ) - lua_max(
+            POSIX_TIME(c.connect_timestamp),
+            POSIX_TIME(TO_TIMESTAMP(r."DATE"))
+          )
+        )
+      ) as duration_seconds,
+      sum(1) AS connection_count
+    FROM report_mail r,
+      v_wifi_connection c
+    WHERE c.connect_timestamp <= TO_TIMESTAMP(r."DATE") + 1
+      AND c.disconnect_timestamp >= TO_TIMESTAMP(r."DATE")
+    GROUP BY c.device_name,
+      c.readable_name,
+      c.device_type,
+      c.device_owner,
+      c.device_type,
+      c.mac_address,
+      r."DATE",
+      c.fritzbox_name
   );
 --
 -- Firmware updates
 --
 CREATE OR REPLACE VIEW v_firmware_updates AS (
     SELECT curr_day."DATE",
+      prev_day.product_name as previous_product_name,
+      curr_day.product_name as new_product_name,
+      prev_day.readable_name,
       prev_day.firmware_version AS previous_version,
       curr_day.firmware_version AS new_version
     FROM v_report_mail curr_day,
       v_report_mail prev_day
     WHERE curr_day."DATE" -1 = prev_day."DATE"
       AND curr_day.firmware_version != prev_day.firmware_version
+      AND curr_day.readable_name = prev_day.readable_name
   );
 --
 -- Energy usage vs. firmware updates
@@ -249,6 +336,7 @@ CREATE OR REPLACE VIEW v_firmware_updates AS (
 CREATE OR REPLACE VIEW v_energy_usage AS(
     SELECT mail."DATE",
       mail.PRODUCT_NAME,
+      mail.READABLE_NAME,
       mail.energy_usage_percent,
       fw.previous_version,
       fw.new_version,

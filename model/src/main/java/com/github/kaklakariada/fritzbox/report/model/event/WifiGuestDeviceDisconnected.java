@@ -37,7 +37,7 @@ public class WifiGuestDeviceDisconnected extends Event {
 
     @Override
     public String getDescription() {
-        return "wifi guest disconnected: mac=" + macAddress;
+        return "wifi guest disconnected: macAddress=" + macAddress;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class WifiGuestDeviceDisconnected extends Event {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

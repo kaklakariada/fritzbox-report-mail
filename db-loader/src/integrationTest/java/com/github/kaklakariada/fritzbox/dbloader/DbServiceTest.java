@@ -4,37 +4,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import com.exasol.containers.ExasolContainer;
-import com.exasol.containers.ExasolService;
-
-import org.itsallcode.jdbc.ConnectionFactory;
 import org.itsallcode.jdbc.SimpleConnection;
 import org.itsallcode.jdbc.resultset.Row;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.junit.jupiter.api.*;
 
-@Testcontainers
 class DbServiceTest {
     private static final String SCHEMA = "testing_schema";
-    private static final ConnectionFactory CONNECTION_FACTORY = ConnectionFactory.create();
 
-    @Container
-    private static final ExasolContainer<? extends ExasolContainer<?>> CONTAINER = new ExasolContainer<>()
-            .withRequiredServices(ExasolService.JDBC).withReuse(true);
+    private static ExasolDbTestSetup db;
 
     private DbService dbService;
     private SimpleConnection connection;
 
-    @BeforeEach
-    void setup() {
-        this.dbService = new DbService(createConnection(), SCHEMA);
-        this.connection = createConnection();
+    @BeforeAll
+    static void beforeAll() {
+        db = ExasolDbTestSetup.startup();
     }
 
-    private SimpleConnection createConnection() {
-        return CONNECTION_FACTORY.create(CONTAINER.getJdbcUrl(), CONTAINER.getUsername(), CONTAINER.getPassword());
+    @AfterAll
+    static void afterAll() {
+        db.stop();
+    }
+
+    @BeforeEach
+    void setup() {
+        this.dbService = new DbService(db.createConnection(), SCHEMA);
+        this.connection = db.createConnection();
     }
 
     @Test
@@ -45,7 +40,7 @@ class DbServiceTest {
         assertThat(result.get(0).getColumnValue(0).getValue()).isEqualTo(SCHEMA);
         assertThat(
                 connection.query("SELECT count(*) FROM exa_user_tables").toList().get(0).getColumnValue(0).getValue())
-                .as("table count").isEqualTo(5L);
+                .as("table count").isEqualTo(6L);
         assertThat((Long) connection.query("SELECT count(*) FROM exa_user_views").toList().get(0).getColumnValue(0)
                 .getValue())
                 .as("view count").isGreaterThan(7L);

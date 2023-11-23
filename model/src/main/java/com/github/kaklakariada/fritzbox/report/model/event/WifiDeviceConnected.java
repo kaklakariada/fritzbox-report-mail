@@ -24,7 +24,8 @@ public class WifiDeviceConnected extends WifiDeviceEvent {
     private static final long serialVersionUID = 1L;
     private final String speed;
 
-    public WifiDeviceConnected(final String speed, WifiType wifiType, String ipAddress, final String macAddress,
+    public WifiDeviceConnected(final String speed, final WifiType wifiType, final String ipAddress,
+            final String macAddress,
             final String deviceName) {
         super(wifiType, ipAddress, macAddress, deviceName);
         this.speed = speed;
@@ -36,7 +37,8 @@ public class WifiDeviceConnected extends WifiDeviceEvent {
 
     @Override
     public String getDescription() {
-        return "wifi connected: name=" + name + ", type " + wifiType + ", speed=" + speed + ", mac=" + macAddress;
+        return "wifi connected: name=" + name + ", wifiType " + wifiType + ", speed=" + speed + ", macAddress="
+                + macAddress + ", ipAddress=" + ipAddress;
     }
 
     @Override
@@ -48,7 +50,7 @@ public class WifiDeviceConnected extends WifiDeviceEvent {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

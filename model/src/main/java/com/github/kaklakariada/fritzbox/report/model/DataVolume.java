@@ -57,7 +57,7 @@ public class DataVolume implements Serializable, Comparable<DataVolume> {
 		this.unit = unit;
 	}
 
-	public static DataVolume of(final int volume, Unit unit) {
+	public static DataVolume of(final int volume, final Unit unit) {
 		return new DataVolume(volume, unit);
 	}
 
@@ -115,7 +115,7 @@ public class DataVolume implements Serializable, Comparable<DataVolume> {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -133,7 +133,7 @@ public class DataVolume implements Serializable, Comparable<DataVolume> {
 	}
 
 	@Override
-	public int compareTo(DataVolume o) {
+	public int compareTo(final DataVolume o) {
 		return COMPARATOR.compare(this, o);
 	}
 

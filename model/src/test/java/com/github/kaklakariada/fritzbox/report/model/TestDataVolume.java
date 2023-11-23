@@ -19,9 +19,9 @@ package com.github.kaklakariada.fritzbox.report.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.github.kaklakariada.fritzbox.report.model.DataVolume.Unit;
-
 import org.junit.jupiter.api.Test;
+
+import com.github.kaklakariada.fritzbox.report.model.DataVolume.Unit;
 
 class TestDataVolume {
 
@@ -31,7 +31,7 @@ class TestDataVolume {
 
     @Test
     void testParseNoInteger() {
-        assertParse("12.3kB", 12.3, Unit.KB);
+        assertParse("12.3KB", 12.3, Unit.KB);
     }
 
     @Test
@@ -50,5 +50,6 @@ class TestDataVolume {
         final DataVolume volume = DataVolume.parse(string);
         assertEquals(expected, volume.getVolume(), 0.00001);
         assertEquals(unit, volume.getUnit());
+        assertEquals(string.toUpperCase().trim(), volume.toString());
     }
 }

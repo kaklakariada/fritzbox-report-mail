@@ -25,13 +25,13 @@ public class IPv6InternetConnectionEstablished extends Event {
 
     private final String ipAddress;
 
-    public IPv6InternetConnectionEstablished(String ipAddress) {
+    public IPv6InternetConnectionEstablished(final String ipAddress) {
         this.ipAddress = ipAddress;
     }
 
     @Override
     public String getDescription() {
-        return "IPv6 connection established, ip=" + ipAddress;
+        return "IPv6 connection established, ipAddress=" + ipAddress;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class IPv6InternetConnectionEstablished extends Event {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

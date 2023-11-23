@@ -21,15 +21,12 @@ import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.kaklakariada.fritzbox.report.model.Event;
 
 public class EventLogEntryFactory {
-
-    private static final Logger LOG = Logger.getLogger(EventLogEntryFactory.class.getName());
 
     private final List<AbstractEventLogEntryFactory<?>> factories;
 
@@ -51,12 +48,9 @@ public class EventLogEntryFactory {
         final String rawMessage = removeRepeatedSuffix(message);
         for (final AbstractEventLogEntryFactory<?> factory : factories) {
             if (factory.matches(rawMessage)) {
-                LOG.finest(
-                        () -> "Factory " + factory.getClass().getName() + " can handle message '" + rawMessage + "'.");
                 return factory.createEventLogEntryInternal(rawMessage);
             }
         }
-        LOG.finest(() -> "None of the factories can handle message '" + rawMessage + "'.");
         return null;
     }
 

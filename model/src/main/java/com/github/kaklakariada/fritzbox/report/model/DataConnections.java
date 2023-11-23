@@ -37,7 +37,8 @@ public class DataConnections implements Serializable {
     private final LocalDate date;
     private final int reportId;
 
-    public DataConnections(int reportId, final LocalDate date, final TimePeriod timePeriod, final Duration onlineTime,
+    public DataConnections(final int reportId, final LocalDate date, final TimePeriod timePeriod,
+            final Duration onlineTime,
             final DataVolume totalVolume, final DataVolume sentVolume, final DataVolume receivedVolume,
             final int numberOfConnections) {
         this.reportId = reportId;
@@ -109,9 +110,10 @@ public class DataConnections implements Serializable {
 
     @Override
     public String toString() {
-        return "DataConnections [timePeriod=" + timePeriod + ", onlineTime=" + onlineTime + ", totalVolume="
+        return "DataConnections [date=" + date + ", timePeriod=" + timePeriod + ", onlineTime=" + onlineTime
+                + ", totalVolume="
                 + totalVolume + ", sentVolume=" + sentVolume + ", receivedVolume=" + receivedVolume
-                + ", numberOfConnections=" + numberOfConnections + "]";
+                + ", numberOfConnections=" + numberOfConnections + ", reportId=" + reportId + "]";
     }
 
     @Override
@@ -121,7 +123,7 @@ public class DataConnections implements Serializable {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }

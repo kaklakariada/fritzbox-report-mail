@@ -7,6 +7,7 @@ import org.itsallcode.jdbc.SimpleConnection;
 import org.itsallcode.jdbc.identifier.*;
 
 import com.github.kaklakariada.fritzbox.dbloader.model.DeviceDetails;
+import com.github.kaklakariada.fritzbox.dbloader.model.FritzBoxDetails;
 import com.github.kaklakariada.fritzbox.report.model.*;
 import com.github.kaklakariada.fritzbox.report.model.event.*;
 
@@ -99,6 +100,13 @@ public class ExasolDao {
                 device -> new Object[] { device.deviceName(), device.macAddress(), device.readableName(), device.type(),
                         device.owner() },
                 deviceDetails);
+    }
+
+    public void insertFritzBoxDetails(final Stream<FritzBoxDetails> details) {
+        connection.insert(table("FRITZBOX_DETAILS"),
+                columns("PRODUCT_NAME", "READABLE_NAME"),
+                device -> new Object[] { device.productName(), device.readableName() },
+                details);
     }
 
     private List<Identifier> columns(final String... columns) {

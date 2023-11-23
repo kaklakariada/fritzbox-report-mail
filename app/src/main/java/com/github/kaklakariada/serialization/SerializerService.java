@@ -17,12 +17,7 @@
  */
 package com.github.kaklakariada.serialization;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -41,8 +36,8 @@ public abstract class SerializerService<T> {
 
     public void serialize(final Path outputFile, final T reports) {
         final Instant start = Instant.now();
-        try {
-            serialize(new BufferedOutputStream(Files.newOutputStream(outputFile)), reports);
+        try (OutputStream stream = new BufferedOutputStream(Files.newOutputStream(outputFile))) {
+            serialize(stream, reports);
         } catch (final IOException e) {
             throw new UncheckedIOException("Error writing file " + outputFile, e);
         }
@@ -53,7 +48,6 @@ public abstract class SerializerService<T> {
     protected abstract void serialize(final OutputStream outputStream, final T reports);
 
     public T deserialize(final Path inputFile) {
-
         final Instant start = Instant.now();
         final T object;
         try {
@@ -70,13 +64,14 @@ public abstract class SerializerService<T> {
 
     public void serializeStream(final Path outputFile, final Stream<T> objects) {
         try (OutputStream stream = Files.newOutputStream(outputFile)) {
-            serializeStream(stream, objects);
+            final int count = serializeStream(stream, objects);
+            LOG.fine(() -> "Wrote " + count + " objects of type " + type.getSimpleName() + " to " + outputFile);
         } catch (final IOException e) {
             throw new UncheckedIOException("Error writing to " + outputFile, e);
         }
     }
 
-    protected abstract void serializeStream(final OutputStream outputStream, final Stream<T> objects);
+    protected abstract int serializeStream(final OutputStream outputStream, final Stream<T> objects);
 
     public Stream<T> deserializeStream(final Path inputFile) {
         try {
