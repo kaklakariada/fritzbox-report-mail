@@ -19,7 +19,6 @@ package com.github.kaklakariada.html;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,7 +27,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class HtmlElement {
-    private static final Logger LOG = Logger.getLogger(HtmlElement.class.getName());
     private final Element element;
 
     public HtmlElement(final Element element) {

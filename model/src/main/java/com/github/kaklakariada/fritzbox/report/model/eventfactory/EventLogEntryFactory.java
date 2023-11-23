@@ -21,15 +21,12 @@ import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.kaklakariada.fritzbox.report.model.Event;
 
 public class EventLogEntryFactory {
-
-    private static final Logger LOG = Logger.getLogger(EventLogEntryFactory.class.getName());
 
     private final List<AbstractEventLogEntryFactory<?>> factories;
 
