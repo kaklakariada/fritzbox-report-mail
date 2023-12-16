@@ -17,7 +17,6 @@ def includeBuildIfExists(path) {
 
 dependencyResolutionManagement {
     repositories {
-        mavenLocal()
         mavenCentral()
     }
     versionCatalogs {
