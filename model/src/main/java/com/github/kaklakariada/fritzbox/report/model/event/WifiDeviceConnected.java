@@ -25,8 +25,7 @@ public class WifiDeviceConnected extends WifiDeviceEvent {
     private final String speed;
 
     public WifiDeviceConnected(final String speed, final WifiType wifiType, final String ipAddress,
-            final String macAddress,
-            final String deviceName) {
+            final String macAddress, final String deviceName) {
         super(wifiType, ipAddress, macAddress, deviceName);
         this.speed = speed;
     }
