@@ -49,6 +49,18 @@ class WifConnectionTest {
     }
 
     @Test
+    void missingDisconnect() {
+        insertEvents(connect(START, DEVICE1));
+        assertThat(wifiConnections()).isEmpty();
+    }
+
+    @Test
+    void missingConnect() {
+        insertEvents(disconnect(START.plusSeconds(10), DEVICE1));
+        assertThat(wifiConnections()).isEmpty();
+    }
+
+    @Test
     void singleConnection() {
         insertEvents(connect(START, DEVICE1), disconnect(START.plusSeconds(10), DEVICE1));
         assertThat(wifiConnections())
@@ -76,6 +88,26 @@ class WifConnectionTest {
         insertEvents(connect(START, DEVICE1), disconnect(end1, DEVICE1),
                 connect(start2, DEVICE1), disconnect(end2, DEVICE1));
         assertThat(wifiConnections()).containsExactly(new WifiConnection(DEVICE1, 10L, start2, end1));
+    }
+
+    @Test
+    void twoConnect() {
+        final Instant start2 = START.plusSeconds(10);
+        final Instant end = START.plusSeconds(30);
+        insertEvents(connect(START, DEVICE1),
+                connect(start2, DEVICE1),
+                disconnect(end, DEVICE1));
+        assertThat(wifiConnections()).containsExactly(new WifiConnection(DEVICE1, 20, start2, end));
+    }
+
+    @Test
+    void twoDisconnect() {
+        final Instant end1 = START.plusSeconds(10);
+        final Instant end2 = START.plusSeconds(30);
+        insertEvents(connect(START, DEVICE1),
+                disconnect(end1, DEVICE1),
+                disconnect(end2, DEVICE1));
+        assertThat(wifiConnections()).containsExactly(new WifiConnection(DEVICE1, 10, START, end1));
     }
 
     @Test

@@ -11,7 +11,7 @@ import com.github.kaklakariada.serialization.KryoSerializerService;
 public class ReadMails {
     private static final Logger LOG = Logger.getLogger(ReadMails.class.getName());
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         final Config config = Config.readConfig();
         LOG.fine(() -> "Reading mails from " + config.getMboxPath() + "...");
         final Instant start = Instant.now();
