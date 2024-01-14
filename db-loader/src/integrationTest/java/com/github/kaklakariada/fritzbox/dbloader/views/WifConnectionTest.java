@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.itsallcode.jdbc.ParamConverter;
 import org.itsallcode.jdbc.SimpleConnection;
-import org.itsallcode.jdbc.identifier.*;
+import org.itsallcode.jdbc.identifier.Identifier;
 import org.junit.jupiter.api.*;
 
 import com.github.kaklakariada.fritzbox.dbloader.DbService;
@@ -135,21 +135,21 @@ class WifConnectionTest {
     }
 
     private void insertEventStream(final List<WifiEvent> events) {
-        connection.insert(QualifiedIdentifier.of(id(SCHEMA), id("WIFI_EVENT")),
+        connection.insert(Identifier.qualified(SCHEMA, "WIFI_EVENT"),
                 List.of(id("LOG_ENTRY_ID"), id("TIMESTAMP"), id("EVENT_TYPE"), id("MAC_ADDRESS")),
                 event -> new Object[] { event.eventId, event.timestamp, event.type.name, event.macAddress },
                 events.stream());
     }
 
     private void insertLogEntries(final int reportId, final List<WifiEvent> events) {
-        connection.insert(QualifiedIdentifier.of(id(SCHEMA), id("LOG_ENTRY")),
+        connection.insert(Identifier.qualified(SCHEMA, "LOG_ENTRY"),
                 List.of(id("ID"), id("REPORT_ID"), id("TIMESTAMP"), id("MESSAGE"), id("EVENT")),
                 event -> new Object[] { event.eventId, reportId, event.timestamp, "msg", event.toString() },
                 events.stream());
     }
 
     private void insertMail(final int id, final LocalDate date, final Instant timestamp) {
-        connection.insert(QualifiedIdentifier.of(id(SCHEMA), id("REPORT_MAIL")),
+        connection.insert(Identifier.qualified(SCHEMA, "REPORT_MAIL"),
                 List.of(id("ID"), id("DATE"), id("TIMESTAMP"), id("MESSAGE_ID"), id("SUBJECT"), id("PRODUCT_NAME"),
                         id("FIRMWARE_VERSION"), id("ENERGY_USAGE_PERCENT")),
                 ParamConverter.identity(), Collections.singletonList(new Object[] { id, date, timestamp,
@@ -174,7 +174,7 @@ class WifConnectionTest {
     }
 
     private Identifier id(final String id) {
-        return SimpleIdentifier.of(id);
+        return Identifier.simple(id);
     }
 
     private List<WifiConnection> wifiConnections() {

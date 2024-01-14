@@ -19,7 +19,8 @@ import com.github.kaklakariada.fritzbox.dbloader.model.DeviceDetails;
 import com.github.kaklakariada.fritzbox.dbloader.model.FritzBoxDetails;
 import com.github.kaklakariada.fritzbox.report.model.FritzBoxReportCollection;
 
-import de.siegmar.fastcsv.reader.NamedCsvReader;
+import de.siegmar.fastcsv.reader.CsvReader;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
 import de.siegmar.fastcsv.writer.CsvWriter;
 
 public class DbService {
@@ -68,15 +69,16 @@ public class DbService {
         }
         try (CsvWriter writer = CsvWriter.builder().build(outputPath, StandardCharsets.UTF_8);
                 Stream<DeviceDetails> deviceDetails = dao.getDeviceDetails()) {
-            writer.writeRow(DeviceDetails.csvHeader());
-            deviceDetails.map(DeviceDetails::toCsv).forEach(writer::writeRow);
+            writer.writeRecord(DeviceDetails.csvHeader());
+            deviceDetails.map(DeviceDetails::toCsv).forEach(writer::writeRecord);
         } catch (final IOException e) {
             throw new UncheckedIOException("Error writing file " + outputPath, e);
         }
     }
 
     public void loadWifiDeviceDetailsCsv(final Path inputPath) {
-        try (NamedCsvReader reader = NamedCsvReader.builder().build(inputPath, StandardCharsets.UTF_8)) {
+        try (CsvReader<NamedCsvRecord> reader = CsvReader.builder().ofNamedCsvRecord(inputPath,
+                StandardCharsets.UTF_8)) {
             final List<DeviceDetails> deviceDetails = reader.stream().map(DeviceDetails::fromCsv)
                     .filter(d -> d.type() != null && !d.type().isEmpty() && !d.readableName().isEmpty()).toList();
             checkForDuplicateKeys(deviceDetails, inputPath);
@@ -102,7 +104,8 @@ public class DbService {
     }
 
     public void loadFritzBoxDetailsCsv(final Path inputPath) {
-        try (NamedCsvReader reader = NamedCsvReader.builder().build(inputPath, StandardCharsets.UTF_8)) {
+        try (CsvReader<NamedCsvRecord> reader = CsvReader.builder().ofNamedCsvRecord(inputPath,
+                StandardCharsets.UTF_8)) {
             dao.insertFritzBoxDetails(reader.stream().map(FritzBoxDetails::fromCsv));
         } catch (final IOException e) {
             throw new UncheckedIOException("Error reading from " + inputPath, e);
