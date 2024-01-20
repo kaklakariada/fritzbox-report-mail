@@ -84,7 +84,7 @@ public class DbService {
             checkForDuplicateKeys(deviceDetails, inputPath);
             dao.insertDeviceDetails(deviceDetails.stream());
         } catch (final IOException e) {
-            throw new UncheckedIOException("Error reading from " + inputPath, e);
+            throw new UncheckedIOException("Error reading from " + inputPath + ": " + e.getMessage(), e);
         }
     }
 
@@ -108,7 +108,7 @@ public class DbService {
                 StandardCharsets.UTF_8)) {
             dao.insertFritzBoxDetails(reader.stream().map(FritzBoxDetails::fromCsv));
         } catch (final IOException e) {
-            throw new UncheckedIOException("Error reading from " + inputPath, e);
+            throw new UncheckedIOException("Error reading from " + inputPath + ": " + e.getMessage(), e);
         }
     }
 }
