@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import org.itsallcode.jdbc.SimpleConnection;
-import org.itsallcode.jdbc.identifier.*;
+import org.itsallcode.jdbc.identifier.Identifier;
 
 import com.github.kaklakariada.fritzbox.dbloader.model.DeviceDetails;
 import com.github.kaklakariada.fritzbox.dbloader.model.FritzBoxDetails;
@@ -114,10 +114,10 @@ public class ExasolDao {
     }
 
     private Identifier id(final String id) {
-        return SimpleIdentifier.of(id);
+        return Identifier.simple(id);
     }
 
     private Identifier table(final String name) {
-        return QualifiedIdentifier.of(id(schema), id(name));
+        return Identifier.qualified(schema, name);
     }
 }

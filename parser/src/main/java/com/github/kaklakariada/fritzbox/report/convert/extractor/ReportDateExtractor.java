@@ -15,9 +15,12 @@ class ReportDateExtractor {
             .ofPattern("dd.MM.yyyy HH:mm");
     private static final Regex SUBJECT_DATE_PATTERN = Regex
             .create("^FRITZ!Box-Info: Nutzungs- und Verbindungsdaten vom (\\d\\d\\.\\d\\d\\.\\d\\d\\d\\d)$", 1);
+    private static final Regex REPEATER_SUBJECT_DATE_PATTERN = Regex
+            .create("^FRITZ!Repeater-Info: Nutzungs- und Verbindungsdaten vom (\\d\\d\\.\\d\\d\\.\\d\\d\\d\\d).*$", 1);
 
     LocalDate extractDate(final EmailContent mail, final HtmlElement rootElement) {
         final Optional<LocalDate> subjectDate = SUBJECT_DATE_PATTERN.matches(mail.getSubject())
+                .or(() -> REPEATER_SUBJECT_DATE_PATTERN.matches(mail.getSubject()))
                 .map(m -> m.getGroups().get(0))
                 .map(this::parseDate);
         if (subjectDate.isPresent()) {
@@ -34,11 +37,12 @@ class ReportDateExtractor {
         final String newDate = rootElement.getOptionalRegexpResult(
                 "td:containsOwn(Ihre tägliche FRITZ!Box Verbindungsübersicht vom)",
                 "Ihre tägliche FRITZ!Box Verbindungsübersicht vom ([\\d\\.]+)(:? .*)?");
-        if (newDate == null) {
-            throw new IllegalStateException(
-                    "No date found in email with subject '" + mail.getSubject() + "' and content " + rootElement);
+        if (newDate != null) {
+            return parseDate(newDate);
         }
-        return parseDate(newDate);
+
+        throw new IllegalStateException(
+                "No date found in email with subject '" + mail.getSubject() + "' and content " + rootElement);
     }
 
     private LocalDate parseDate(final String value) {

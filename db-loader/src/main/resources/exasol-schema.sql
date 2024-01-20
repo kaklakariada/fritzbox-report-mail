@@ -3,7 +3,7 @@ create table "REPORT_MAIL" (
   "DATE" date NOT NULL,
   "TIMESTAMP" TIMESTAMP NOT NULL,
   message_id varchar(100) NOT NULL,
-  subject varchar(105) NOT NULL,
+  subject varchar(120) NOT NULL,
   product_name varchar(25) not null,
   firmware_version varchar(100) not null,
   energy_usage_percent integer not null
@@ -74,7 +74,8 @@ CREATE OR REPLACE VIEW v_wifi_event AS (
     d.owner as device_owner,
     w.MAC_ADDRESS,
     w.SPEED,
-    w.DISCONNECT_CODE
+    w.DISCONNECT_CODE,
+    l.message
   FROM wifi_event w
   LEFT OUTER JOIN log_entry l ON w.LOG_ENTRY_ID = l.ID
   LEFT OUTER JOIN v_report_mail m ON m.ID = l.report_id

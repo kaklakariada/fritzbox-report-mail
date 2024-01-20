@@ -16,7 +16,8 @@ public class ExasolDbTestSetup {
     }
 
     public static ExasolDbTestSetup startup() {
-        final ExasolContainer<?> container = new ExasolContainer<>("8.23.1")
+        @SuppressWarnings("resource") // Closed in stop() method
+        final ExasolContainer<?> container = new ExasolContainer<>("8.24.0")
                 .withRequiredServices(ExasolService.JDBC).withReuse(true);
         container.start();
         return new ExasolDbTestSetup(container);
@@ -28,5 +29,12 @@ public class ExasolDbTestSetup {
 
     public void stop() {
         container.stop();
+    }
+
+    public SimpleConnection truncateTables(final String schema) {
+        final SimpleConnection connection = createConnection();
+        new DbCleanupService(connection, schema).truncateTables();
+        connection.executeStatement("open schema " + schema);
+        return connection;
     }
 }

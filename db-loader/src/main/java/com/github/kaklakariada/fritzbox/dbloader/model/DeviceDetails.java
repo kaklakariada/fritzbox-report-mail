@@ -1,6 +1,6 @@
 package com.github.kaklakariada.fritzbox.dbloader.model;
 
-import de.siegmar.fastcsv.reader.NamedCsvRow;
+import de.siegmar.fastcsv.reader.NamedCsvRecord;
 
 public record DeviceDetails(String deviceName, String macAddress, String readableName, String type, String owner) {
 
@@ -12,7 +12,7 @@ public record DeviceDetails(String deviceName, String macAddress, String readabl
         return new String[] { "DEVICE_NAME", "MAC_ADDRESS", "READABLE_NAME", "TYPE", "OWNER" };
     }
 
-    public static DeviceDetails fromCsv(NamedCsvRow row) {
+    public static DeviceDetails fromCsv(final NamedCsvRecord row) {
         return new DeviceDetails(row.getField("DEVICE_NAME"), row.getField("MAC_ADDRESS"),
                 row.getField("READABLE_NAME"), row.getField("TYPE"), row.getField("OWNER"));
     }
