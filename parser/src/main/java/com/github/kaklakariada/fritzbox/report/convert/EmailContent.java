@@ -29,6 +29,9 @@ import com.github.kaklakariada.fritzbox.report.model.EmailMetadata;
 
 public class EmailContent implements Serializable {
     private static final long serialVersionUID = 1L;
+    // non-transient instance field of a serializable class declared with a
+    // non-serializable type
+    @SuppressWarnings("serial")
     private final List<EmailBody> parts;
     private final Instant headerDate;
     private final String subject;

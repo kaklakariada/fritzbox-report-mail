@@ -26,8 +26,13 @@ import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
 public class FritzBoxReportMail implements Serializable {
     private static final long serialVersionUID = 1L;
     private final int reportId;
+    // non-transient instance field of a serializable class declared with a
+    // non-serializable type
+    @SuppressWarnings("serial")
     private final Map<TimePeriod, DataConnections> dataConnections;
+    @SuppressWarnings("serial")
     private final List<EventLogEntry> eventLog;
+    @SuppressWarnings("serial")
     private final List<InternetConnection> connections;
     private final EmailMetadata emailMetadata;
     private final FritzBoxInfo fritzBoxInfo;
