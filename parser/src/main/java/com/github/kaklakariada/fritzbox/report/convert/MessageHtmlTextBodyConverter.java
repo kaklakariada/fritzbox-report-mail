@@ -18,16 +18,13 @@
 package com.github.kaklakariada.fritzbox.report.convert;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import org.apache.james.mime4j.dom.Body;
-import org.apache.james.mime4j.dom.Entity;
-import org.apache.james.mime4j.dom.Message;
-import org.apache.james.mime4j.dom.Multipart;
-import org.apache.james.mime4j.dom.SingleBody;
+import org.apache.james.mime4j.dom.*;
 
 import jakarta.mail.BodyPart;
 import jakarta.mail.MessagingException;
@@ -45,7 +42,7 @@ public class MessageHtmlTextBodyConverter implements Function<Message, EmailCont
 
         private final Message message;
 
-        public EmailConverter(Message message) {
+        public EmailConverter(final Message message) {
             this.message = message;
         }
 
@@ -54,7 +51,7 @@ public class MessageHtmlTextBodyConverter implements Function<Message, EmailCont
             return new EmailContent(message, parts);
         }
 
-        private List<EmailBody> processBody(Body body) {
+        private List<EmailBody> processBody(final Body body) {
             if (body instanceof final SingleBody singleBody) {
                 try {
                     final String charset = body.getParent().getCharset();
@@ -62,7 +59,7 @@ public class MessageHtmlTextBodyConverter implements Function<Message, EmailCont
                             Charset.forName(charset));
                     return List.of(new EmailBody(string));
                 } catch (final IOException e) {
-                    throw new IllegalStateException(e);
+                    throw new UncheckedIOException("Failed to read email body " + body, e);
                 }
             } else if (body instanceof final Multipart multipartBody) {
                 return multipartBody.getBodyParts().stream()
@@ -84,7 +81,7 @@ public class MessageHtmlTextBodyConverter implements Function<Message, EmailCont
             throw new IllegalStateException("Unknown content type " + content.getContent());
         }
 
-        private List<EmailBody> getHtmlBodyParts(MimeMultipart content) throws MessagingException, IOException {
+        private List<EmailBody> getHtmlBodyParts(final MimeMultipart content) throws MessagingException, IOException {
             final ArrayList<EmailBody> bodies = new ArrayList<>();
             for (int i = 0; i < content.getCount(); i++) {
                 final MimeBodyPart part = (MimeBodyPart) content.getBodyPart(i);
