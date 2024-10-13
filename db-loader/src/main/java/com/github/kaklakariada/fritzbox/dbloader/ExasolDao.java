@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import org.itsallcode.jdbc.SimpleConnection;
 import org.itsallcode.jdbc.identifier.Identifier;
+import org.itsallcode.jdbc.identifier.QualifiedIdentifier;
 
 import com.github.kaklakariada.fritzbox.dbloader.model.DeviceDetails;
 import com.github.kaklakariada.fritzbox.dbloader.model.FritzBoxDetails;
@@ -25,8 +26,12 @@ public class ExasolDao {
     }
 
     public void insertReportMails(final Stream<FritzBoxReportMail> reports) {
-        connection.insert(table("REPORT_MAIL"), columns("ID", "DATE", TIMESTAMP_COL, "MESSAGE_ID", "SUBJECT",
-                "PRODUCT_NAME", "FIRMWARE_VERSION", "ENERGY_USAGE_PERCENT"), this::mapReportMail, reports);
+        connection.batchInsert(FritzBoxReportMail.class)
+                .into(table("REPORT_MAIL"), columns("ID", "DATE", TIMESTAMP_COL, "MESSAGE_ID", "SUBJECT",
+                        "PRODUCT_NAME", "FIRMWARE_VERSION", "ENERGY_USAGE_PERCENT"))
+                .mapping(this::mapReportMail)
+                .rows(reports)
+                .start();
     }
 
     private Object[] mapReportMail(final FritzBoxReportMail mail) {
@@ -38,8 +43,10 @@ public class ExasolDao {
     }
 
     public void insertDataVolume(final Stream<AggregatedVolume> dataVolume) {
-        connection.insert(table("DATA_VOLUME"), columns("REPORT_ID", "DATE", "UPLOAD_MB", "DOWNLOAD_MB", "TOTAL_MB"),
-                this::mapDataVolume, dataVolume);
+        connection.batchInsert(AggregatedVolume.class)
+                .into(table("DATA_VOLUME"), columns("REPORT_ID", "DATE", "UPLOAD_MB", "DOWNLOAD_MB", "TOTAL_MB"))
+                .mapping(this::mapDataVolume)
+                .rows(dataVolume).start();
     }
 
     private Object[] mapDataVolume(final AggregatedVolume volume) {
@@ -48,8 +55,10 @@ public class ExasolDao {
     }
 
     public void insertLogEntries(final Stream<EventLogEntry> entries) {
-        connection.insert(table("LOG_ENTRY"), columns("ID", "REPORT_ID", TIMESTAMP_COL, "MESSAGE", "EVENT"),
-                this::mapLogEntry, entries);
+        connection.batchInsert(EventLogEntry.class)
+                .into(table("LOG_ENTRY"), columns("ID", "REPORT_ID", TIMESTAMP_COL, "MESSAGE", "EVENT"))
+                .mapping(this::mapLogEntry)
+                .rows(entries).start();
     }
 
     private Object[] mapLogEntry(final EventLogEntry entry) {
@@ -58,8 +67,12 @@ public class ExasolDao {
     }
 
     public void insertWifiLogEntries(final Stream<EventLogEntry> entries) {
-        connection.insert(table("WIFI_EVENT"), columns("LOG_ENTRY_ID", TIMESTAMP_COL, "EVENT_TYPE", "WIFI_TYPE",
-                DEVICE_NAME_COL, "SPEED", MAC_ADDRESS_COL, "DISCONNECT_CODE"), this::mapWifiEvents, entries);
+        connection.batchInsert(EventLogEntry.class)
+                .into(table("WIFI_EVENT"), columns("LOG_ENTRY_ID", TIMESTAMP_COL, "EVENT_TYPE", "WIFI_TYPE",
+                        DEVICE_NAME_COL, "SPEED", MAC_ADDRESS_COL, "DISCONNECT_CODE"))
+                .mapping(this::mapWifiEvents)
+                .rows(entries)
+                .start();
     }
 
     private Object[] mapWifiEvents(final EventLogEntry entry) {
@@ -96,18 +109,21 @@ public class ExasolDao {
     }
 
     public void insertDeviceDetails(final Stream<DeviceDetails> deviceDetails) {
-        connection.insert(table("WIFI_DEVICE_DETAILS"),
-                columns(DEVICE_NAME_COL, MAC_ADDRESS_COL, "READABLE_NAME", "TYPE", "OWNER"),
-                device -> new Object[] { device.deviceName(), device.macAddress(), device.readableName(), device.type(),
-                        device.owner() },
-                deviceDetails);
+        connection.batchInsert(DeviceDetails.class)
+                .into(table("WIFI_DEVICE_DETAILS"),
+                        columns(DEVICE_NAME_COL, MAC_ADDRESS_COL, "READABLE_NAME", "TYPE", "OWNER"))
+                .mapping(device -> new Object[] { device.deviceName(), device.macAddress(), device.readableName(),
+                        device.type(),
+                        device.owner() })
+                .rows(deviceDetails).start();
     }
 
     public void insertFritzBoxDetails(final Stream<FritzBoxDetails> details) {
-        connection.insert(table("FRITZBOX_DETAILS"),
-                columns("PRODUCT_NAME", "READABLE_NAME"),
-                device -> new Object[] { device.productName(), device.readableName() },
-                details);
+        connection.batchInsert(FritzBoxDetails.class).into(table("FRITZBOX_DETAILS"),
+                columns("PRODUCT_NAME", "READABLE_NAME"))
+                .mapping(device -> new Object[] { device.productName(), device.readableName() })
+                .rows(details)
+                .start();
     }
 
     private List<Identifier> columns(final String... columns) {
@@ -119,6 +135,6 @@ public class ExasolDao {
     }
 
     private Identifier table(final String name) {
-        return Identifier.qualified(schema, name);
+        return QualifiedIdentifier.of(schema, name);
     }
 }
