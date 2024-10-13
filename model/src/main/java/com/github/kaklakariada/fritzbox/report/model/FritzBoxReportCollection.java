@@ -30,6 +30,9 @@ import com.github.kaklakariada.fritzbox.report.model.event.WifiDeviceEvent;
 
 public class FritzBoxReportCollection implements Serializable {
     private static final long serialVersionUID = 1L;
+    // non-transient instance field of a serializable class declared with a
+    // non-serializable type
+    @SuppressWarnings("serial")
     private final List<FritzBoxReportMail> reports;
 
     public FritzBoxReportCollection(final List<FritzBoxReportMail> reports) {

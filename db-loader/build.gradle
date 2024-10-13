@@ -22,6 +22,7 @@ testing {
 
                 runtimeOnly libs.exasolJdbc
                 runtimeOnly libs.slf4jLogger
+                runtimeOnly libs.slf4jApi
             }
             targets {
                 all {

@@ -47,9 +47,9 @@ public class DataExtractor {
         this(mail, getBody(mail), new EventLogEntryFactory(), reportId, logEntryIdGenerator);
     }
 
-    public static DataExtractor create(final EmailContent email, final int nextReportId,
+    public static DataExtractor create(final EmailContent email, final int reportId,
             final LogEntryIdGenerator logEntryIdGenerator) {
-        return new DataExtractor(email, nextReportId, logEntryIdGenerator);
+        return new DataExtractor(email, reportId, logEntryIdGenerator);
     }
 
     private static HtmlElement getBody(final EmailContent mail) {
