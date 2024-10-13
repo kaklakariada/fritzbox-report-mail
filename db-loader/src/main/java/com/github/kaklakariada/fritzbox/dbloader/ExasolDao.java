@@ -32,8 +32,9 @@ public class ExasolDao {
     private Object[] mapReportMail(final FritzBoxReportMail mail) {
         return new Object[] { mail.getReportId(), mail.getDate(), mail.getEmailMetadata().getTimestamp(),
                 mail.getEmailMetadata().getMessageId(), mail.getEmailMetadata().getSubject(),
-                mail.getFritzBoxInfo().getProduct(), mail.getFritzBoxInfo().getFirmwareVersion(),
-                mail.getFritzBoxInfo().getEnergyUsagePercent() };
+                mail.getFritzBoxInfo() != null ? mail.getFritzBoxInfo().getProduct() : null,
+                mail.getFritzBoxInfo() != null ? mail.getFritzBoxInfo().getFirmwareVersion() : null,
+                mail.getFritzBoxInfo() != null ? mail.getFritzBoxInfo().getEnergyUsagePercent() : null };
     }
 
     public void insertDataVolume(final Stream<AggregatedVolume> dataVolume) {

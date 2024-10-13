@@ -66,13 +66,14 @@ public class ReportService {
 
     private Stream<FritzBoxReportMail> removeDuplicates(final Entry<LocalDate, List<FritzBoxReportMail>> entry) {
         final List<FritzBoxReportMail> mails = entry.getValue();
-        final List<String> allProducts = mails.stream().map(m -> m.getFritzBoxInfo().getProduct()).collect(toList());
+        final List<String> allProducts = mails.stream().filter(m -> m.getFritzBoxInfo() != null)
+                .map(m -> m.getFritzBoxInfo().getProduct()).collect(toList());
         if (entry.getValue().size() > 1) {
             LOG.finest(() -> "Date " + entry.getKey() + ": " + mails.size() + " mails from products: "
                     + allProducts);
-
         }
         final Map<String, List<FritzBoxReportMail>> mailsByProductName = mails.stream()
+                .filter(m -> m.getFritzBoxInfo() != null)
                 .collect(groupingBy(m -> m.getFritzBoxInfo().getProduct()));
         final int duplicateCount = mailsByProductName.values().stream().mapToInt(List::size).sum()
                 - mailsByProductName.size();

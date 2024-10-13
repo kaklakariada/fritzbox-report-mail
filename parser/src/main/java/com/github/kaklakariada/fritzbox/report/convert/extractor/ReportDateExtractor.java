@@ -41,6 +41,12 @@ class ReportDateExtractor {
             return parseDate(newDate);
         }
 
+        final String guestAccountDate = rootElement.getOptionalRegexpResult(
+                "td:containsOwn(Folgende WLAN-Gastzugangs-Ereignisse wurden von Ihrer FRITZ!Box am)",
+                "Folgende WLAN-Gastzugangs-Ereignisse wurden von Ihrer FRITZ!Box am ([\\d\\.]+) erfasst.");
+        if (guestAccountDate != null) {
+            return parseDate(guestAccountDate);
+        }
         throw new IllegalStateException(
                 "No date found in email with subject '" + mail.getSubject() + "' and content " + rootElement);
     }
