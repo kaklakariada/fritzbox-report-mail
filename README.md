@@ -17,7 +17,7 @@ A Java API for parsing and processing status report mails of a FritzBox.
 
     ```shell
     mkdir $HOME/exadata
-    docker run --publish 8563:8563 --detach --privileged --stop-timeout 120 --volume $HOME/exadata/:/exa exasol/docker-db:8.27.0
+    docker run --publish 8563:8563 --detach --privileged --stop-timeout 120 --volume $HOME/exadata/:/exa exasol/docker-db:8.31.0
     ```
 
 * Create file `application.properties` with the following content and adapt the configuration for your setup
