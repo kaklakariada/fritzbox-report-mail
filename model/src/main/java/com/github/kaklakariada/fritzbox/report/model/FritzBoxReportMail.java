@@ -45,7 +45,7 @@ public class FritzBoxReportMail implements Serializable {
         this.reportId = Objects.requireNonNull(reportId, "reportId");
         this.date = Objects.requireNonNull(date, "date");
         this.emailMetadata = Objects.requireNonNull(emailMetadata, "emailMetadata");
-        this.fritzBoxInfo = Objects.requireNonNull(fritzBoxInfo, "fritzBoxInfo");
+        this.fritzBoxInfo = fritzBoxInfo;
         this.dataConnections = Objects.requireNonNull(dataConnections, "dataConnections");
         this.eventLog = Objects.requireNonNull(eventLog, "eventLog");
         this.connections = Objects.requireNonNull(connections, "connections");
