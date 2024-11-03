@@ -40,7 +40,7 @@ dependencyResolutionManagement {
             library('tostringverifier', 'com.jparams:to-string-verifier:1.4.8')
             library('hamcrest', 'org.hamcrest:hamcrest:3.0')
             library('hamcrestResultSetMatcher', 'com.exasol:hamcrest-resultset-matcher:1.7.0')
-            library('mockito', 'org.mockito:mockito-core:5.14.1')
+            library('mockito', 'org.mockito:mockito-core:5.14.2')
             library('exasolTestcontainers', 'com.exasol:exasol-testcontainers:7.1.1')
             library('slf4jLogger', 'org.slf4j:slf4j-jdk14:2.0.16')
             library('slf4jApi', 'org.slf4j:slf4j-api:2.0.16')
