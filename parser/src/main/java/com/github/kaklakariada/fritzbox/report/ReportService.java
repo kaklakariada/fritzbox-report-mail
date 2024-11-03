@@ -48,11 +48,13 @@ public class ReportService {
                 .flatMap(this::removeDuplicates).toList();
         final FritzBoxReportCollection reportCollection = new FritzBoxReportCollection(reports);
         final Duration duration = Duration.between(start, Instant.now());
-        LOG.fine(() -> "Found " + reportCollection.getReportCount() + " reports in " + duration);
+        LOG.fine(() -> "Found " + reportCollection.getReportCount() + " reports in " + duration + ", first: "
+                + reportCollection.getFirstReport().getDate() + ", latest: "
+                + reportCollection.getLatestReport().getDate());
         final long logEntries = reportCollection.getLogEntries().count();
         final long logEntriesWithEvent = reportCollection.getLogEntries().filter(e -> e.getEvent().isPresent()).count();
         LOG.fine(() -> "Found " + logEntriesWithEvent + " of " + logEntries + " ("
-                + (100 * logEntriesWithEvent / logEntries) + "%) log entries with events");
+                + (logEntries > 0 ? (100 * logEntriesWithEvent / logEntries) : 0) + "%) log entries with events");
         return reportCollection;
     }
 
