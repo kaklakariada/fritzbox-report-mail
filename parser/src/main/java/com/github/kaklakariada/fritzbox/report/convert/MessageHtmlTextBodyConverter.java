@@ -17,8 +17,7 @@
  */
 package com.github.kaklakariada.fritzbox.report.convert;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,28 +25,34 @@ import java.util.function.Function;
 
 import org.apache.james.mime4j.dom.*;
 
+import com.github.kaklakariada.fritzbox.report.RawMessage;
+
 import jakarta.mail.BodyPart;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMultipart;
 
-public class MessageHtmlTextBodyConverter implements Function<Message, EmailContent> {
+public class MessageHtmlTextBodyConverter implements Function<RawMessage, EmailContent> {
 
     @Override
-    public EmailContent apply(final Message msg) {
-        return new EmailConverter(msg).processRootBody();
+    public EmailContent apply(final RawMessage msg) {
+        try {
+            return new EmailConverter(msg).processRootBody();
+        } catch (final RuntimeException e) {
+            throw new IllegalStateException("Failed to parse message " + msg, e);
+        }
     }
 
     private static class EmailConverter {
 
-        private final Message message;
+        private final RawMessage message;
 
-        public EmailConverter(final Message message) {
+        EmailConverter(final RawMessage message) {
             this.message = message;
         }
 
         private EmailContent processRootBody() {
-            final List<EmailBody> parts = processBody(message.getBody());
+            final List<EmailBody> parts = processBody(message.message().getBody());
             return new EmailContent(message, parts);
         }
 
@@ -55,9 +60,11 @@ public class MessageHtmlTextBodyConverter implements Function<Message, EmailCont
             if (body instanceof final SingleBody singleBody) {
                 try {
                     final String charset = body.getParent().getCharset();
-                    final String string = new String(singleBody.getInputStream().readAllBytes(),
-                            Charset.forName(charset));
-                    return List.of(new EmailBody(string));
+                    try (InputStream inputStream = singleBody.getInputStream()) {
+                        final String string = new String(inputStream.readAllBytes(),
+                                Charset.forName(charset));
+                        return List.of(new EmailBody(string));
+                    }
                 } catch (final IOException e) {
                     throw new UncheckedIOException("Failed to read email body " + body, e);
                 }
