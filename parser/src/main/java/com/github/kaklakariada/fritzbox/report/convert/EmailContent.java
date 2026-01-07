@@ -22,8 +22,7 @@ import java.time.*;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.james.mime4j.dom.Message;
-
+import com.github.kaklakariada.fritzbox.report.RawMessage;
 import com.github.kaklakariada.fritzbox.report.convert.EmailBody.Type;
 import com.github.kaklakariada.fritzbox.report.model.EmailMetadata;
 
@@ -37,12 +36,12 @@ public class EmailContent implements Serializable {
     private final String subject;
     private final String messageId;
 
-    public EmailContent(final Message message, final List<EmailBody> parts) {
+    public EmailContent(final RawMessage message, final List<EmailBody> parts) {
         Objects.requireNonNull(message, "message");
-        this.headerDate = message.getDate().toInstant();
-        this.messageId = Objects.requireNonNull(message.getMessageId(), "messageId");
-        this.subject = Objects.requireNonNull(message.getSubject(), "subject");
-        this.parts = Objects.requireNonNull(parts, "parts");
+        this.headerDate = message.getDate();
+        this.messageId = message.getMessageId();
+        this.subject = message.getSubject();
+        this.parts = parts;
     }
 
     public List<EmailBody> getParts() {

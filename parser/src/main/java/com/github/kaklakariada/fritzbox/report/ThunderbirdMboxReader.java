@@ -17,8 +17,7 @@
  */
 package com.github.kaklakariada.fritzbox.report;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -32,6 +31,7 @@ import org.apache.james.mime4j.dom.MessageBuilder;
 import org.apache.james.mime4j.mboxiterator.CharBufferWrapper;
 import org.apache.james.mime4j.mboxiterator.MboxIterator;
 import org.apache.james.mime4j.message.DefaultMessageBuilder;
+import org.apache.james.mime4j.stream.MimeConfig;
 
 public class ThunderbirdMboxReader {
     private static final Logger LOG = Logger.getLogger(ThunderbirdMboxReader.class.getName());
@@ -40,12 +40,26 @@ public class ThunderbirdMboxReader {
      * Matches other type of From_ line (without @): From MAILER-DAEMON Wed Oct 05
      * 21:54:09 2011 Thunderbird mbox content: From - Wed Apr 02 06:51:08 2014
      */
-    private static final String DEFAULT2 = "^From \\S+.*\\d{4}$";
+    private static final String DEFAULT2 = "^From (\\S+.*\\d{4})?$";
 
     private static final Charset CHARSET_ENCODING = StandardCharsets.UTF_8;
-    private final MessageBuilder messageBuilder = new DefaultMessageBuilder();
+    private final MessageBuilder messageBuilder = createMessageBuilder();
 
-    public Stream<Message> readMbox(final Path mboxFile) {
+    private DefaultMessageBuilder createMessageBuilder() {
+        final DefaultMessageBuilder builder = new DefaultMessageBuilder();
+        final MimeConfig config = new MimeConfig.Builder()
+                .setMaxContentLen(20 * 100 * 1024 * 1024L)
+                .setMaxHeaderCount(-1)
+                .setMaxHeaderLen(-1)
+                .setMaxLineLen(-1)
+                .setStrictParsing(false)
+                .setMalformedHeaderStartsBody(true)
+                .build();
+        builder.setMimeEntityConfig(config);
+        return builder;
+    }
+
+    public Stream<RawMessage> readMbox(final Path mboxFile) {
         LOG.fine(() -> "Reading raw mails from mbox " + mboxFile + "...");
         return readCharBufferStream(mboxFile).map(this::convert);
     }
@@ -67,9 +81,13 @@ public class ThunderbirdMboxReader {
         }
     }
 
-    private Message convert(final CharBufferWrapper message) {
-        try {
-            return messageBuilder.parseMessage(message.asInputStream(CHARSET_ENCODING));
+    private RawMessage convert(final CharBufferWrapper message) {
+        return new RawMessage(parseMessage(message));
+    }
+
+    private Message parseMessage(final CharBufferWrapper message) {
+        try (InputStream input = message.asInputStream(CHARSET_ENCODING)) {
+            return messageBuilder.parseMessage(input);
         } catch (final IOException e) {
             throw new UncheckedIOException("Error parsing message " + message, e);
         } catch (final MimeException e) {

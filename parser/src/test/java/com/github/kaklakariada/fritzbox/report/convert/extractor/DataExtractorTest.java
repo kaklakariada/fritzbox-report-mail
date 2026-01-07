@@ -13,12 +13,13 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.time.*;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
-import org.apache.james.mime4j.dom.Message;
 import org.junit.jupiter.api.Test;
 
 import com.github.kaklakariada.fritzbox.report.LogEntryIdGenerator;
+import com.github.kaklakariada.fritzbox.report.RawMessage;
 import com.github.kaklakariada.fritzbox.report.convert.*;
 import com.github.kaklakariada.fritzbox.report.model.*;
 import com.github.kaklakariada.fritzbox.report.model.DataConnections.TimePeriod;
@@ -129,8 +130,8 @@ class DataExtractorTest {
     private DataExtractor createExtractor(final ReportVersion reportVersion, final String fileName) {
         final Path path = TEST_REPORT_PATH.resolve(reportVersion.getName()).resolve(fileName);
         final String htmlContent = readFile(path);
-        final Message messageMock = mock(Message.class);
-        when(messageMock.getDate()).thenReturn(new Date());
+        final RawMessage messageMock = mock(RawMessage.class);
+        when(messageMock.getDate()).thenReturn(Instant.now());
         when(messageMock.getMessageId()).thenReturn("mock msg id");
         when(messageMock.getSubject()).thenReturn("mock msg subject");
         return DataExtractor.create(new EmailContent(messageMock, List.of(new EmailBody(htmlContent))), REPORT_ID,

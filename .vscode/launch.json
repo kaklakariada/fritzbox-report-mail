@@ -3,6 +3,15 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Read Mails",
+            "request": "launch",
+            "mainClass": "com.github.kaklakariada.fritzbox.report.ReadMails",
+            "projectName": "app",
+            "vmArgs": "-Djava.util.logging.config.file=src/main/resources/logging.properties",
+            "cwd": "${workspaceFolder}/app"
+        },
+        {
+            "type": "java",
             "name": "Parse mails",
             "request": "launch",
             "mainClass": "com.github.kaklakariada.fritzbox.report.ParseReportMails",
