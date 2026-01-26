@@ -34,7 +34,7 @@ dependencyResolutionManagement {
             library('jsoup', 'org.jsoup:jsoup:1.18.1')
             library('jakartaMail', 'com.sun.mail:jakarta.mail:2.0.1')
             
-            library('assertj', 'org.assertj:assertj-core:3.26.3')
+            library('assertj', 'org.assertj:assertj-core:3.27.7')
             library('junitPioneer', 'org.junit-pioneer:junit-pioneer:2.3.0')
             library('equalsverifier', 'nl.jqno.equalsverifier:equalsverifier:3.17.1')
             library('tostringverifier', 'com.jparams:to-string-verifier:1.4.8')
