@@ -17,7 +17,7 @@ public class ExasolDbTestSetup {
 
     public static ExasolDbTestSetup startup() {
         @SuppressWarnings("resource") // Closed in stop() method
-        final ExasolContainer<?> container = new ExasolContainer<>("8.31.0").withRequiredServices(ExasolService.JDBC)
+        final ExasolContainer<?> container = new ExasolContainer<>("2026.1.2").withRequiredServices(ExasolService.JDBC)
                 .withReuse(true);
         container.start();
         return new ExasolDbTestSetup(container);
