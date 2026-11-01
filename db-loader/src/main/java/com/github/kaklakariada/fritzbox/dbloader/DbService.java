@@ -42,9 +42,9 @@ public class DbService {
     }
 
     public void createSchema() {
-        connection.executeStatement("drop schema if exists \"" + schema + "\" cascade");
-        connection.executeStatement("create schema \"" + schema + "\"");
-        connection.executeStatement("open schema \"" + schema + "\"");
+        connection.executeUpdate("drop schema if exists \"" + schema + "\" cascade");
+        connection.executeUpdate("create schema \"" + schema + "\"");
+        connection.executeUpdate("open schema \"" + schema + "\"");
         connection.executeScript(readSchemaScript("/exasol-schema.sql"));
     }
 

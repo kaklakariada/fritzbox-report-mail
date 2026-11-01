@@ -34,7 +34,7 @@ public class ExasolDbTestSetup {
     public SimpleConnection truncateTables(final String schema) {
         final SimpleConnection connection = createConnection();
         new DbCleanupService(connection, schema).truncateTables();
-        connection.executeStatement("open schema " + schema);
+        connection.executeUpdate("open schema " + schema);
         return connection;
     }
 }

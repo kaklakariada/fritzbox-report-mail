@@ -17,7 +17,7 @@ class DbCleanupService {
         try {
             connection.query("SELECT TABLE_NAME FROM SYS.EXA_ALL_TABLES WHERE TABLE_SCHEMA = ?",
                     stmt -> stmt.setString(1, schema), (rs, row) -> rs.getString(1)).stream()
-                    .forEach(table -> connection.executeStatement("truncate table " + schema + "." + table));
+                    .forEach(table -> connection.executeUpdate("truncate table " + schema + "." + table));
         } finally {
             modifyForeignKeyConstraints(true);
         }
@@ -28,7 +28,7 @@ class DbCleanupService {
                 "SELECT CONSTRAINT_SCHEMA, CONSTRAINT_TABLE, CONSTRAINT_NAME FROM Sys.exa_dba_constraints WHERE constraint_type = 'FOREIGN KEY' AND CONSTRAINT_SCHEMA = ?",
                 stmt -> stmt.setString(1, schema),
                 (rs, row) -> new Constraint(rs.getString(1), rs.getString(2), rs.getString(3))).stream()
-                .forEach(constraint -> connection.executeStatement("alter table " + constraint.schema() + "."
+                .forEach(constraint -> connection.executeUpdate("alter table " + constraint.schema() + "."
                         + constraint.table() + " modify constraint " + constraint.name() + " "
                         + (enable ? "ENABLE" : "DISABLE")));
     }
