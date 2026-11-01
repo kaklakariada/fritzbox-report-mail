@@ -43,6 +43,18 @@ public class FritzBoxReportCollection implements Serializable {
         return reports.stream();
     }
 
+    public FritzBoxReportMail getFirstReport() {
+        return getFirst(Comparator.comparing(FritzBoxReportMail::getDate));
+    }
+
+    public FritzBoxReportMail getLatestReport() {
+        return getFirst(Comparator.comparing(FritzBoxReportMail::getDate).reversed());
+    }
+
+    private FritzBoxReportMail getFirst(final Comparator<FritzBoxReportMail> comparator) {
+        return getReports().sorted(comparator).findFirst().get();
+    }
+
     public int getReportCount() {
         return reports.size();
     }

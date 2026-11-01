@@ -48,11 +48,13 @@ public class ReportService {
                 .flatMap(this::removeDuplicates).toList();
         final FritzBoxReportCollection reportCollection = new FritzBoxReportCollection(reports);
         final Duration duration = Duration.between(start, Instant.now());
-        LOG.fine(() -> "Found " + reportCollection.getReportCount() + " reports in " + duration);
+        LOG.fine(() -> "Found " + reportCollection.getReportCount() + " reports in " + duration + ", first: "
+                + reportCollection.getFirstReport().getDate() + ", latest: "
+                + reportCollection.getLatestReport().getDate());
         final long logEntries = reportCollection.getLogEntries().count();
         final long logEntriesWithEvent = reportCollection.getLogEntries().filter(e -> e.getEvent().isPresent()).count();
         LOG.fine(() -> "Found " + logEntriesWithEvent + " of " + logEntries + " ("
-                + (100 * logEntriesWithEvent / logEntries) + "%) log entries with events");
+                + (logEntries > 0 ? (100 * logEntriesWithEvent / logEntries) : 0) + "%) log entries with events");
         return reportCollection;
     }
 
@@ -66,13 +68,14 @@ public class ReportService {
 
     private Stream<FritzBoxReportMail> removeDuplicates(final Entry<LocalDate, List<FritzBoxReportMail>> entry) {
         final List<FritzBoxReportMail> mails = entry.getValue();
-        final List<String> allProducts = mails.stream().map(m -> m.getFritzBoxInfo().getProduct()).collect(toList());
+        final List<String> allProducts = mails.stream().filter(m -> m.getFritzBoxInfo() != null)
+                .map(m -> m.getFritzBoxInfo().getProduct()).collect(toList());
         if (entry.getValue().size() > 1) {
             LOG.finest(() -> "Date " + entry.getKey() + ": " + mails.size() + " mails from products: "
                     + allProducts);
-
         }
         final Map<String, List<FritzBoxReportMail>> mailsByProductName = mails.stream()
+                .filter(m -> m.getFritzBoxInfo() != null)
                 .collect(groupingBy(m -> m.getFritzBoxInfo().getProduct()));
         final int duplicateCount = mailsByProductName.values().stream().mapToInt(List::size).sum()
                 - mailsByProductName.size();

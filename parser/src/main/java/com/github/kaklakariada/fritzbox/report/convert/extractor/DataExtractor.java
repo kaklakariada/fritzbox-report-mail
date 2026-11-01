@@ -194,7 +194,11 @@ public class DataExtractor {
     }
 
     public FritzBoxInfo getFritzBoxInfo() {
-        return new FritzBoxInfo(getProductInfo(), getProductVersion(), getEnergyUsage());
+        final String productInfo = getProductInfo();
+        if (productInfo != null) {
+            return new FritzBoxInfo(productInfo, getProductVersion(), getEnergyUsage());
+        }
+        return null;
     }
 
     private int getEnergyUsage() {
@@ -224,10 +228,10 @@ public class DataExtractor {
     }
 
     private String getProductInfo() {
-        final String productInfo = rootElement.selectSingleElement("td:containsOwn(Produktname) ~ td").getText().trim();
-        if (productInfo.isEmpty()) {
-            throw new IllegalStateException("No product info found for report " + date);
+        final HtmlElement element = rootElement.selectOptionalSingleElement("td:containsOwn(Produktname) ~ td");
+        if (element == null) {
+            return null;
         }
-        return productInfo;
+        return element.getText().trim();
     }
 }

@@ -6,12 +6,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.*;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.itsallcode.jdbc.ParamConverter;
 import org.itsallcode.jdbc.SimpleConnection;
 import org.itsallcode.jdbc.identifier.Identifier;
+import org.itsallcode.jdbc.identifier.QualifiedIdentifier;
 import org.junit.jupiter.api.*;
 
 import com.github.kaklakariada.fritzbox.dbloader.DbService;
@@ -135,25 +136,33 @@ class WifConnectionTest {
     }
 
     private void insertEventStream(final List<WifiEvent> events) {
-        connection.insert(Identifier.qualified(SCHEMA, "WIFI_EVENT"),
-                List.of(id("LOG_ENTRY_ID"), id("TIMESTAMP"), id("EVENT_TYPE"), id("MAC_ADDRESS")),
-                event -> new Object[] { event.eventId, event.timestamp, event.type.name, event.macAddress },
-                events.stream());
+        connection.batchInsert(WifiEvent.class)
+                .into(QualifiedIdentifier.of(SCHEMA, "WIFI_EVENT"),
+                        List.of(id("LOG_ENTRY_ID"), id("TIMESTAMP"), id("EVENT_TYPE"), id("MAC_ADDRESS")))
+                .mapping(event -> new Object[] { event.eventId, event.timestamp, event.type.name, event.macAddress })
+                .rows(events.stream())
+                .start();
     }
 
     private void insertLogEntries(final int reportId, final List<WifiEvent> events) {
-        connection.insert(Identifier.qualified(SCHEMA, "LOG_ENTRY"),
-                List.of(id("ID"), id("REPORT_ID"), id("TIMESTAMP"), id("MESSAGE"), id("EVENT")),
-                event -> new Object[] { event.eventId, reportId, event.timestamp, "msg", event.toString() },
-                events.stream());
+        connection.batchInsert(WifiEvent.class)
+                .into(QualifiedIdentifier.of(SCHEMA, "LOG_ENTRY"),
+                        List.of(id("ID"), id("REPORT_ID"), id("TIMESTAMP"), id("MESSAGE"), id("EVENT")))
+                .mapping(event -> new Object[] { event.eventId, reportId, event.timestamp, "msg", event.toString() })
+                .rows(events.stream())
+                .start();
     }
 
     private void insertMail(final int id, final LocalDate date, final Instant timestamp) {
-        connection.insert(Identifier.qualified(SCHEMA, "REPORT_MAIL"),
-                List.of(id("ID"), id("DATE"), id("TIMESTAMP"), id("MESSAGE_ID"), id("SUBJECT"), id("PRODUCT_NAME"),
-                        id("FIRMWARE_VERSION"), id("ENERGY_USAGE_PERCENT")),
-                ParamConverter.identity(), Collections.singletonList(new Object[] { id, date, timestamp,
-                        "message-" + id, "subject-" + id, "product-" + id, "1.2.3", 10 }).stream());
+        connection.batchInsert(Object[].class)
+                .into(QualifiedIdentifier.of(SCHEMA, "REPORT_MAIL"),
+                        List.of(id("ID"), id("DATE"), id("TIMESTAMP"), id("MESSAGE_ID"), id("SUBJECT"),
+                                id("PRODUCT_NAME"),
+                                id("FIRMWARE_VERSION"), id("ENERGY_USAGE_PERCENT")))
+                .mapping(ParamConverter.identity())
+                .rows(Stream.<Object[]>of(new Object[] { id, date, timestamp,
+                        "message-" + id, "subject-" + id, "product-" + id, "1.2.3", 10 }))
+                .start();
     }
 
     private enum WifiEventType {
