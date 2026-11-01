@@ -8,10 +8,12 @@ import java.sql.SQLException;
 import java.time.*;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.itsallcode.jdbc.ParamConverter;
 import org.itsallcode.jdbc.SimpleConnection;
 import org.itsallcode.jdbc.identifier.Identifier;
+import org.itsallcode.jdbc.identifier.QualifiedIdentifier;
 import org.junit.jupiter.api.*;
 
 import com.github.kaklakariada.fritzbox.dbloader.DbService;
@@ -135,25 +137,33 @@ class WifConnectionTest {
     }
 
     private void insertEventStream(final List<WifiEvent> events) {
-        connection.insert(Identifier.qualified(SCHEMA, "WIFI_EVENT"),
+        insert(QualifiedIdentifier.of(SCHEMA, "WIFI_EVENT"),
                 List.of(id("LOG_ENTRY_ID"), id("TIMESTAMP"), id("EVENT_TYPE"), id("MAC_ADDRESS")),
-                event -> new Object[] { event.eventId, event.timestamp, event.type.name, event.macAddress },
-                events.stream());
+                events.stream().map(
+                        event -> new Object[] { event.eventId, event.timestamp, event.type.name, event.macAddress }));
     }
 
     private void insertLogEntries(final int reportId, final List<WifiEvent> events) {
-        connection.insert(Identifier.qualified(SCHEMA, "LOG_ENTRY"),
+        insert(QualifiedIdentifier.of(SCHEMA, "LOG_ENTRY"),
                 List.of(id("ID"), id("REPORT_ID"), id("TIMESTAMP"), id("MESSAGE"), id("EVENT")),
-                event -> new Object[] { event.eventId, reportId, event.timestamp, "msg", event.toString() },
-                events.stream());
+                events.stream().map(
+                        event -> new Object[] { event.eventId, reportId, event.timestamp, "msg", event.toString() }));
     }
 
     private void insertMail(final int id, final LocalDate date, final Instant timestamp) {
-        connection.insert(Identifier.qualified(SCHEMA, "REPORT_MAIL"),
+        insert(QualifiedIdentifier.of(SCHEMA, "REPORT_MAIL"),
                 List.of(id("ID"), id("DATE"), id("TIMESTAMP"), id("MESSAGE_ID"), id("SUBJECT"), id("PRODUCT_NAME"),
                         id("FIRMWARE_VERSION"), id("ENERGY_USAGE_PERCENT")),
-                ParamConverter.identity(), Collections.singletonList(new Object[] { id, date, timestamp,
+                Collections.singletonList(new Object[] { id, date, timestamp,
                         "message-" + id, "subject-" + id, "product-" + id, "1.2.3", 10 }).stream());
+    }
+
+    private void insert(final Identifier table, final List<Identifier> columns, final Stream<Object[]> rows) {
+        connection.preparedStatementBatch(Object[].class)
+                .into(table, columns)
+                .rows(rows)
+                .mapping(ParamConverter.identity())
+                .start();
     }
 
     private enum WifiEventType {
