@@ -3,7 +3,7 @@ plugins {
     id "io.github.ben-manes.versions" version "0.67.0"
 }
 
-group 'com.github.kaklakariada'
+group = 'com.github.kaklakariada'
 version = '0.0.1'
 
 
@@ -37,7 +37,7 @@ subprojects {
     testing {
         suites {
             test {
-                useJUnitJupiter(libs.versions.junitJupiter.get())
+                useJUnitJupiter(rootProject.libs.versions.junitJupiter.get())
             }
         }
     }
